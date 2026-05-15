@@ -396,9 +396,20 @@ window.LanBGM = (() => {
     timer = setTimeout(schedule, unit * 1000);
   }
 
+  // Synchronous audio unlock — MUST be called inside a real user gesture
+  // (click/touchend). Safari requires the AudioContext to be created and
+  // resumed in the same synchronous task as the gesture, or it stays locked.
+  function unlock() {
+    initAudio();
+    if (ctx.state === "suspended") {
+      // fire-and-forget; the call itself, made inside the gesture, is enough.
+      try { ctx.resume(); } catch {}
+    }
+  }
+
   async function play(trackId = "homeBoxA", options = {}) {
     initAudio();
-    await ctx.resume();
+    if (ctx.state === "suspended") { try { ctx.resume(); } catch {} }
     const next = tracks[trackId] || tracks.homeBoxA;
     currentTrack = next;
     currentTrackId = trackId;
@@ -456,6 +467,7 @@ window.LanBGM = (() => {
   }
 
   return {
+    unlock,
     play,
     playHomeRandom,
     playGameRandom,

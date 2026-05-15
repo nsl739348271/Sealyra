@@ -1053,3 +1053,212 @@ body.cover-pending .cover-gate     { visibility: visible; }
 .center-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .spacer     { flex: 1; }
 .hidden     { display: none !important; }
+
+
+/* ============================================================
+   16. UNIFIED ROSE GLOW + KEY ICONS + LEAVE CONFIRM + FOOTER
+   ============================================================
+   Single source of truth for the "lit-from-within" effect we use
+   for every correct / activated state in the app.  Anywhere this
+   needs to glow the same warm flesh-tone, add .glow-rose or the
+   relevant class below — never invent a new gold variant.        */
+:root {
+  --rose:        #EDB89E;   /* the one unified "correct / activated" glow */
+  --rose-deep:   #D89A82;
+  --rose-soft:   rgba(237,184,158,.55);
+  --rose-glow:   0 0 18px rgba(237,184,158,.55), 0 0 4px rgba(237,184,158,.85);
+  --pink-glow:   0 0 16px rgba(244,181,200,.65), 0 0 4px rgba(244,181,200,.95);
+}
+
+/* Tonight's Reading — italic display in rose, the keys flanking it */
+.main-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+.main-cta .cta-text {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: .04em;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  background: none;
+  -webkit-text-fill-color: var(--rose);
+}
+.main-cta .cta-key {
+  color: var(--gold-deep);
+  display: inline-flex;
+  align-items: center;
+  opacity: .85;
+}
+.main-cta .cta-key .ico-key {
+  width: 16px; height: 56px;
+  filter: drop-shadow(0 0 6px rgba(218,168,104,.35));
+}
+.main-cta .cta-key-l .ico-key { transform: rotate(-12deg); }
+.main-cta .cta-key-r .ico-key { transform: rotate( 12deg); }
+.main-cta .cta-rule { display: none; }   /* keys replace the underline */
+.main-cta:hover .cta-text { text-shadow: 0 0 24px rgba(237,184,158,.85); }
+.main-cta:active { opacity: .85; transform: translateY(1px); }
+.main-cta.is-engaged .cta-text { color: var(--cream); -webkit-text-fill-color: var(--cream); }
+.main-cta.is-engaged .cta-key  { color: var(--rose); opacity: 1; }
+
+/* "next stage / next chapter" door button — pink pill with two keys */
+.next-door {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 22px;
+  background: linear-gradient(180deg, rgba(244,181,200,.18), rgba(199,122,149,.22));
+  border: 1px solid rgba(244,181,200,.55);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--pink-soft);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: .08em;
+  box-shadow: 0 0 14px rgba(244,181,200,.18);
+  transition: box-shadow .25s, transform .15s;
+}
+.next-door:hover { box-shadow: 0 0 20px rgba(244,181,200,.42); }
+.next-door:active { transform: translateY(1px); }
+.next-door.is-engaged { box-shadow: 0 0 26px rgba(237,184,158,.7); color: var(--cream); }
+.next-door .nd-key { color: var(--gold-deep); display: inline-flex; }
+.next-door .nd-key .ico-key { width: 10px; height: 32px; }
+.next-door .nd-key:first-child .ico-key { transform: rotate(-12deg); }
+.next-door .nd-key:last-child  .ico-key { transform: rotate( 12deg); }
+
+/* Tiny moon button anchored to the top-left of every game screen.
+   "her unfinished pages" — opens the mistakes notebook.            */
+.moon-corner {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--gold-deep);
+  z-index: 50;
+  padding: 4px;
+  opacity: .78;
+  transition: opacity .2s, transform .2s;
+}
+.moon-corner:hover { opacity: 1; transform: scale(1.06); }
+.moon-corner svg   { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 4px rgba(218,168,104,.45)); }
+
+/* Page footer — the discreet "back to cover" link at the bottom edge
+   of each page.  Like the page-number of a real book — barely there.  */
+.page-footer {
+  margin-top: 36px;
+  padding: 18px 0 28px;
+  text-align: center;
+}
+.page-footer .foot-link {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .28em;
+  color: rgba(245,239,227,.32);
+  padding: 6px 12px;
+  transition: color .2s;
+}
+.page-footer .foot-link:hover { color: var(--gold-deep); }
+.page-footer .foot-fleur { color: var(--gold-deep); opacity: .55; margin: 0 6px; }
+
+/* Modal body row — used by the "close the book for now?" confirm */
+.modal-body {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: .04em;
+  color: var(--soft);
+  margin: 8px 0 18px;
+  text-align: center;
+}
+
+/* Oracle option states — the unified rose glow + the pre-verdict beat */
+.oracle-option.is-picking {
+  border-color: var(--pink-deep);
+  color: var(--pink-soft);
+  background: rgba(244,181,200,.16);
+  box-shadow: 0 0 18px rgba(199,122,149,.55), inset 0 0 12px rgba(244,181,200,.35);
+  animation: pink-pulse .28s ease-out;
+}
+@keyframes pink-pulse {
+  0%   { box-shadow: 0 0 6px  rgba(199,122,149,.25), inset 0 0 4px  rgba(244,181,200,.15); }
+  100% { box-shadow: 0 0 18px rgba(199,122,149,.55), inset 0 0 12px rgba(244,181,200,.35); }
+}
+.oracle-option.picked-right {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: rgba(237,184,158,.10);
+  box-shadow: var(--rose-glow);
+}
+.oracle-option.picked-wrong {
+  border-color: rgba(245,239,227,.16);
+  color: rgba(245,239,227,.32);
+  background: rgba(6,3,15,.32);
+  box-shadow: none;
+  opacity: .55;
+}
+.oracle-option.reveal-right {
+  border-color: var(--pink);
+  color: var(--pink-soft);
+  background: rgba(244,181,200,.14);
+  box-shadow: var(--pink-glow);
+}
+
+/* Stage-1 match: correct-pair glow recolored to rose.  Wrong cards
+   keep their 4-tag colour (no rule needed — they just don't gain
+   .correct).  Done in match-card. */
+.match-card.correct {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: rgba(237,184,158,.10);
+  box-shadow: var(--rose-glow);
+}
+
+/* ex-card "is-correct" / "is-wrong" — re-skin the post-game ex-card
+   marker to the unified rose, so result pages share the same warmth. */
+.ex-card.is-correct {
+  border-color: var(--rose);
+  box-shadow: var(--rose-glow), 0 6px 28px rgba(0,0,0,.35);
+}
+.ex-card.is-wrong   {
+  border-color: rgba(244,181,200,.45);
+  box-shadow: 0 0 14px rgba(199,122,149,.18);
+}
+
+/* dict feedback unified */
+.dict-feedback.is-correct { color: var(--rose); text-shadow: var(--rose-glow); }
+
+/* Stage subtitle — chapter/stage name — in rose italic */
+.stage-name { color: var(--rose); text-shadow: 0 0 12px rgba(237,184,158,.32); }
+
+/* The cover-pending body class must NEVER pointer-block stage children
+   once we've removed the gate.  We do the visibility-toggle on the
+   stage's children only, so they reveal at first tap.                  */
+body.cover-pending .cover-stage > * { visibility: hidden; }
+body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cover-rise .9s ease-out both; }
+@keyframes cover-rise {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Stage screens need position:relative so the moon-corner anchors there */
+.screen { position: relative; }
+

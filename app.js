@@ -206,21 +206,100 @@ function lilGhost(label, onClick) {
   b.addEventListener('click', () => { SFX.tap(); onClick && onClick(); });
   return b;
 }
+// 🗝 key icon (gold-stroke SVG) — used to flank "Tonight's Reading" and
+// "next chapter / next stage" buttons.  Always opens the next door.
+function keyIconHtml() {
+  return `<svg class="ico-key" viewBox="0 0 28 80" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="14" cy="14" r="7"/>
+      <circle cx="14" cy="14" r="3" fill="currentColor" opacity=".55"/>
+      <path d="M14 21 L14 64"/>
+      <path d="M14 58 L20 58 M14 64 L18 64"/>
+      <path d="M14 70 L14 74"/>
+    </g>
+  </svg>`;
+}
 function mainCTA(label, onClick) {
   const a = document.createElement('button');
   a.className = 'main-cta';
   a.innerHTML = `
-    <span class="cta-fleur">❦</span>
+    <span class="cta-key cta-key-l">${keyIconHtml()}</span>
     <span class="cta-text">${escapeHtml(label)}</span>
-    <span class="cta-fleur">❦</span>
+    <span class="cta-key cta-key-r">${keyIconHtml()}</span>
     <span class="cta-rule"></span>
   `;
   a.addEventListener('click', () => {
+    if (a.classList.contains('is-engaged')) return;
     a.classList.add('is-engaged');
     SFX.bling();
     setTimeout(() => onClick && onClick(), 700);
   });
   return a;
+}
+// "next stage / next chapter" — pink pill with two keys flanking the label.
+function nextDoor(label, onClick) {
+  const a = document.createElement('button');
+  a.className = 'next-door';
+  a.innerHTML = `
+    <span class="nd-key">${keyIconHtml()}</span>
+    <span class="nd-text">${escapeHtml(label)}</span>
+    <span class="nd-key">${keyIconHtml()}</span>
+  `;
+  a.addEventListener('click', () => {
+    if (a.classList.contains('is-engaged')) return;
+    a.classList.add('is-engaged');
+    SFX.bling();
+    setTimeout(() => onClick && onClick(), 600);
+  });
+  return a;
+}
+// page footer — the discreet "close the book" link at the very bottom of
+// stage / result / note / index pages, like the page-number of a real book.
+// In-stage variants pop a leave-confirm modal first.
+function pageFooter(opts = {}) {
+  const wrap = document.createElement('div');
+  wrap.className = 'page-footer';
+  const a = document.createElement('button');
+  a.className = 'foot-link';
+  a.innerHTML = `<span class="foot-fleur">❦</span> ${escapeHtml(opts.label || 'cover')} <span class="foot-fleur">❦</span>`;
+  a.addEventListener('click', () => {
+    SFX.tap();
+    if (opts.confirm) confirmLeave(() => { LanBGM.stop(); go('cover'); });
+    else { LanBGM.stop(); go(opts.to || 'cover'); }
+  });
+  wrap.appendChild(a);
+  return wrap;
+}
+// Left-top moon button — "her unfinished pages" / mistakes book.
+// In-stage clicks pop a leave-confirm modal.
+function moonCorner(opts = {}) {
+  const b = document.createElement('button');
+  b.className = 'moon-corner';
+  b.title = 'her unfinished pages';
+  b.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+      <path d="M22 6 a12 12 0 1 0 0 20 a9 9 0 0 1 0 -20 z" fill="currentColor" opacity=".18"/>
+      <path d="M22 6 a12 12 0 1 0 0 20 a9 9 0 0 1 0 -20 z"/>
+    </g>
+  </svg>`;
+  b.addEventListener('click', () => {
+    SFX.tap();
+    if (opts.confirm) confirmLeave(() => { LanBGM.stop(); go('note'); });
+    else go('note');
+  });
+  return b;
+}
+// "Are you sure?" — close-the-book confirmation, shown when the user
+// tries to exit a stage mid-way.  Closing forfeits the current page.
+function confirmLeave(onLeave) {
+  showModal({
+    title: 'close the book for now?',
+    body: `the page won't remember you tonight.`,
+    actions: [
+      { label: 'stay a little' },                            // pink (default)
+      { label: 'close it', variant: 'ghost', onClick: onLeave }
+    ]
+  });
 }
 
 /* ------------------------------------------------------------
@@ -376,11 +455,12 @@ function buildOracleQuestion(word) {
 /* ------------------------------------------------------------
    10. MODAL
    ------------------------------------------------------------ */
-function showModal({ title, score = null, actions = [] }) {
+function showModal({ title, body = '', score = null, actions = [] }) {
   const veil = $('#modal');
   veil.innerHTML = `
     <div class="modal-card">
       <div class="modal-title">${escapeHtml(title)}</div>
+      ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
       <div class="modal-actions"></div>
     </div>
@@ -399,20 +479,28 @@ function hideModal() { $('#modal').classList.remove('show'); }
    ============================================================ */
 const Screens = {
 
-  /* ---------- COVER (the hub) ---------- */
+  /* ---------- COVER (the hub) ----------
+     Two-phase reveal:
+       phase 1 — pure starry illustration, no text, no audio. one tap.
+       phase 2 — title + three buttons fade in, BGM rises, every button
+                 becomes clickable.  The gate <div> is REMOVED, not hidden,
+                 so it cannot keep eating clicks after we wake.            */
   cover: {
     onEnter() {
+      // Make sure no leftover body class blocks the new cover.
+      document.body.classList.add('cover-pending');
+
       const el = $('#screen-cover');
       const learnedCount = Object.keys(saved.learned).length;
       el.innerHTML = '';
 
-      // tap-to-wake gate (hidden after first tap; controlled by body.cover-pending)
+      // The full-screen tap-target.  Holds a soft "tap" hint.
       const gate = document.createElement('div');
       gate.className = 'cover-gate';
       gate.innerHTML = `<div class="hint">tap anywhere · she stirs</div>`;
       el.appendChild(gate);
 
-      // cover stage content
+      // The hidden-until-tap content layer.
       const stage = document.createElement('div');
       stage.className = 'cover-stage';
       stage.innerHTML = `
@@ -438,7 +526,7 @@ const Screens = {
       el.appendChild(stage);
       sprinkleStars(el, 22);
 
-      // CTA + links
+      // CTA + the two cover-side links.
       $('#cover-cta-slot', el).appendChild(mainCTA(`Tonight's Reading`, () => {
         const fade = document.createElement('div');
         fade.className = 'fade-out';
@@ -455,11 +543,16 @@ const Screens = {
       $('#cover-links', el).appendChild(lilGhost('her note',  () => go('note')));
       $('#cover-links', el).appendChild(lilGhost('the index', () => go('index')));
 
-      // wake-on-tap (only when cover-pending)
-      const wake = () => {
-        if (!document.body.classList.contains('cover-pending')) return;
+      // wake-on-tap, with the audio handshake done SYNCHRONOUSLY in the
+      // gesture (Safari otherwise refuses to start BGM).  And, critically,
+      // the gate element is removed from the DOM — leaving it would keep
+      // its position:absolute overlay sitting on top of every button.
+      const wake = (e) => {
+        e && e.stopPropagation();
+        LanBGM.unlock();           // synchronous — must be first
+        SFX.bling();               // unlocks SFX's own AudioContext too
+        gate.remove();             // *** the fix for "clicks dead" ***
         document.body.classList.remove('cover-pending');
-        SFX.bling();
         LanBGM.playHomeRandom({ volume: 0.42 });
       };
       gate.addEventListener('click', wake, { once: true });
@@ -489,6 +582,7 @@ const Screens = {
         <div class="match-actions"></div>
       `;
       sprinkleStars(el, 12);
+      el.prepend(moonCorner({ confirm: true }));
 
       const grid = $('.match-grid', el);
       shuffled.forEach((c, idx) => {
@@ -500,8 +594,8 @@ const Screens = {
       });
 
       const actions = $('.match-actions', el);
-      actions.appendChild(backToCover());
-      actions.appendChild(btn('confirm', () => submit()));
+      actions.appendChild(btn('confirm', () => submit(), { variant: 'pink' }));
+      el.appendChild(pageFooter({ confirm: true }));
 
       function paint(idx) {
         if (tagOf[idx] !== null) {
@@ -570,11 +664,12 @@ const Screens = {
         <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 10);
+      el.prepend(moonCorner({ confirm: false }));
       const grid = $('.result-grid', el);
       tested.forEach(w => grid.appendChild(renderExCard(w, state.results[w].match)));
       const actions = $('.stage-actions', el);
-      actions.appendChild(backToCover());
-      actions.appendChild(btn('next  ·  the reading', () => go('stage2')));
+      actions.appendChild(nextDoor('the reading', () => go('stage2')));
+      el.appendChild(pageFooter({ confirm: false }));
     }
   },
 
@@ -590,6 +685,8 @@ const Screens = {
         <div class="oracle-stage" id="oracle-stage"></div>
       `;
       sprinkleStars(el, 10);
+      el.prepend(moonCorner({ confirm: true }));
+      el.appendChild(pageFooter({ confirm: true }));
       drawQ();
 
       function drawQ() {
@@ -599,12 +696,7 @@ const Screens = {
           <div class="q-progress">${String(state.oracleIdx + 1).padStart(2, '0')} · 08</div>
           <div class="q-sentence">${q.sentenceHL}</div>
           <div class="oracle-options"></div>
-          <div class="stage-actions">
-            <button class="back-to-cover" id="o-back">← close the book</button>
-            <span class="spacer"></span>
-          </div>
         `;
-        $('#o-back', stage).addEventListener('click', () => { SFX.tap(); LanBGM.stop(); go('cover'); });
         const opts = $('.oracle-options', stage);
         q.options.forEach((opt, oi) => {
           const b = document.createElement('button');
@@ -619,25 +711,33 @@ const Screens = {
         const q = state.oracleQs[state.oracleIdx];
         const all = $$('.oracle-option');
         all.forEach(b => b.disabled = true);
-        if (oi === q.correctIdx) {
-          button.classList.add('picked-right');
-          state.results[q.word].oracle = true;
-          SFX.right();
-        } else {
-          button.classList.add('picked-wrong');
-          all[q.correctIdx].classList.add('reveal-right');
-          state.results[q.word].oracle = false;
-          recordMistake(q.word);
-          SFX.wrong();
-        }
-        // speak example sentence, then auto-advance (forced linear flow)
-        speak(q.sentencePlain).then(() => {
-          setTimeout(() => {
-            state.oracleIdx++;
-            if (state.oracleIdx >= state.oracleQs.length) go('stage2-result');
-            else drawQ();
-          }, 700);
-        });
+
+        // tiny "thinking" beat — the deep-pink inner glow on the chosen option
+        // before the verdict.  Without this beat the click feels too brusque.
+        button.classList.add('is-picking');
+
+        setTimeout(() => {
+          button.classList.remove('is-picking');
+          if (oi === q.correctIdx) {
+            button.classList.add('picked-right');     // rose / 肉色 glow
+            state.results[q.word].oracle = true;
+            SFX.right();
+          } else {
+            button.classList.add('picked-wrong');     // dim
+            all[q.correctIdx].classList.add('reveal-right');  // pink glow
+            state.results[q.word].oracle = false;
+            recordMistake(q.word);
+            SFX.wrong();
+          }
+          // speak example sentence, then auto-advance (forced linear flow)
+          speak(q.sentencePlain).then(() => {
+            setTimeout(() => {
+              state.oracleIdx++;
+              if (state.oracleIdx >= state.oracleQs.length) go('stage2-result');
+              else drawQ();
+            }, 700);
+          });
+        }, 280);
       }
     }
   },
@@ -658,11 +758,12 @@ const Screens = {
         <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 10);
+      el.prepend(moonCorner({ confirm: false }));
       const grid = $('.result-grid', el);
       state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true })));
       const actions = $('.stage-actions', el);
-      actions.appendChild(backToCover());
-      actions.appendChild(btn('next  ·  the inscription', () => go('stage3')));
+      actions.appendChild(nextDoor('the inscription', () => go('stage3')));
+      el.appendChild(pageFooter({ confirm: false }));
     }
   },
 
@@ -677,6 +778,8 @@ const Screens = {
         <div class="dict-stage" id="dict-stage"></div>
       `;
       sprinkleStars(el, 10);
+      el.prepend(moonCorner({ confirm: true }));
+      el.appendChild(pageFooter({ confirm: true }));
       drawQ();
 
       function drawQ() {
@@ -691,12 +794,7 @@ const Screens = {
           <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="…">
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
-          <div class="stage-actions" style="margin-top:18px">
-            <button class="back-to-cover" id="d-back">← close the book</button>
-            <span class="spacer"></span>
-          </div>
         `;
-        $('#d-back', stage).addEventListener('click', () => { SFX.tap(); LanBGM.stop(); go('cover'); });
         const input = $('#dict-input', stage);
         const actions = $('#dict-actions', stage);
         actions.appendChild(btn('write', () => check()));
@@ -793,8 +891,9 @@ const Screens = {
       state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].dict)));
 
       const actions = $('.stage-actions', el);
-      actions.appendChild(backToCover('← back to her book'));
-      actions.appendChild(btn('close', () => { LanBGM.stop(); go('cover'); }));
+      actions.appendChild(nextDoor('next chapter', () => { LanBGM.stop(); go('cover'); }));
+      el.prepend(moonCorner({ confirm: false }));
+      el.appendChild(pageFooter({ confirm: false }));
     }
   },
 
@@ -820,11 +919,10 @@ const Screens = {
           <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
           <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
         </div>
-        <div class="stage-actions"><button class="back-to-cover" id="n-back">← close the page</button><span class="spacer"></span></div>
         <div id="note-body"></div>
       `;
       sprinkleStars(el, 12);
-      $('#n-back', el).addEventListener('click', () => { SFX.tap(); go('cover'); });
+      el.appendChild(pageFooter({ confirm: false }));
 
       const body = $('#note-body', el);
       const show = (label, words) => {
@@ -863,11 +961,10 @@ const Screens = {
         ${pageTitle('the index')}
         <div class="page-subtitle">every word she has named</div>
         <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
-        <div class="stage-actions"><button class="back-to-cover" id="i-back">← close the page</button><span class="spacer"></span></div>
         <div id="index-body"></div>
       `;
       sprinkleStars(el, 12);
-      $('#i-back', el).addEventListener('click', () => { SFX.tap(); go('cover'); });
+      el.appendChild(pageFooter({ confirm: false }));
       $$('.alpha-bar a', el).forEach(a => {
         a.addEventListener('click', () => {
           const L = a.getAttribute('data-letter');
@@ -905,14 +1002,10 @@ const Screens = {
       const from = opts.from || 'index';
       el.innerHTML = `
         ${titleStrip()}
-        <div class="stage-actions" style="margin-top:8px">
-          <button class="back-to-cover" id="c-back">← close the page</button>
-          <span class="spacer"></span>
-        </div>
         <div class="result-grid" id="card-host"></div>
       `;
       sprinkleStars(el, 10);
-      $('#c-back', el).addEventListener('click', () => { SFX.tap(); go(from); });
+      el.appendChild(pageFooter({ to: from, label: 'back', confirm: false }));
       $('#card-host', el).appendChild(renderExCard(word, null));
     }
   }
