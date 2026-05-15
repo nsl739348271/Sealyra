@@ -1676,13 +1676,10 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png"); }
 /* ============================================================
    24. SPARKLE FIX  +  obsolete rules wiped
    ============================================================ */
-.deco-stars .s {
-  display: block;            /* inline spans ignore width/height */
-  font-size: 0 !important;   /* kill the old unicode text rendering */
-  color: transparent;
-  text-shadow: none;
-  pointer-events: none;
-}
+/* Sparkles repeatedly rendered as a swarm of white squares on iOS
+   no matter how we sized them; the PNG transparency just didn't
+   take.  Until we find an svg that behaves, the decoration is off. */
+.deco-stars { display: none !important; }
 
 /* Page-footer is gone — closeCorner replaces it.  Hide any stragglers. */
 .page-footer { display: none; }
