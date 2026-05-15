@@ -423,7 +423,14 @@ function sprinkleStars(container, count = 18) {
    Shared by stage results, note, index detail view.
    classes here mirror the old aesthetic but are reusable.
    ------------------------------------------------------------ */
-function renderExCard(headWord, mark = null, { rewrite = false, expanded = false } = {}) {
+/* renderExCard — the study card, with the v21 progressive-reveal
+   mechanic.  Initial view shows only what doesn't spoil the lesson:
+   the headword, the family heads (with their pos+chinese), and the
+   "her friend" / example sections as veiled placeholders.  Tapping
+   a piece reveals it AND auto-plays its audio once — the forced
+   learning beat.  The per-segment ♪ buttons replay without touching
+   the reveal state.                                                   */
+function renderExCard(headWord, mark = null, { rewrite = false, withControls = true } = {}) {
   const c = CARDS[headWord];
   if (!c) {
     const x = document.createElement('div');
@@ -433,10 +440,24 @@ function renderExCard(headWord, mark = null, { rewrite = false, expanded = false
   }
   const box = document.createElement('div');
   box.className = 'ex-card'
-    + (mark === true ? ' is-correct' : mark === false ? ' is-wrong' : '')
-    + (expanded ? '' : ' is-collapsed');
+    + (mark === true ? ' is-correct' : mark === false ? ' is-wrong' : '');
 
-  /* The HEAD strip — always visible.  This is the "compact card" face. */
+  /* top-right "close the page" + bottom-right "fold this page".
+     Close exits back to wherever the card was opened from.
+     Fold collapses every revealed segment back to its veiled state.  */
+  if (withControls) {
+    box.insertAdjacentHTML('beforeend', `
+      <button class="ex-card-close">close the page</button>
+    `);
+    box.querySelector('.ex-card-close').addEventListener('click', e => {
+      e.stopPropagation();
+      SFX.tap();
+      const from = (state._cardFrom && state._cardFrom !== 'card') ? state._cardFrom : 'cover';
+      go(from);
+    });
+  }
+
+  /* HEAD — always visible.  Headword + chinese live on one row. */
   const head = document.createElement('div');
   head.className = 'ex-head';
   head.innerHTML = `
@@ -444,62 +465,108 @@ function renderExCard(headWord, mark = null, { rewrite = false, expanded = false
     <span class="ex-hw-fleur">❧</span>
     <span class="ex-headword">${escapeHtml(c.h)}</span>
     <span class="ex-hw-fleur">❧</span>
-    <span class="ex-pos">${escapeHtml(c.pos || '')}</span>
+    <span class="ex-pos">${escapeHtml((c.pos || '').slice(0, 3))}.</span>
     <span class="ex-headword-zh">${escapeHtml(c.zh || '')}</span>
   `;
   box.appendChild(head);
 
-  /* The BODY — hidden until the user taps to wake the card. */
-  const body = document.createElement('div');
-  body.className = 'ex-body';
-
-  /* family */
+  /* HER FAMILY — each entry is its own veiled reveal.  Tap the
+     headword row → its collocation slides in below + auto-plays.    */
   if (c.family && c.family.length) {
     const fam = document.createElement('div');
     fam.className = 'ex-section ex-family';
-    fam.innerHTML = `<div class="ex-label">her family</div>` + c.family.map(line => {
+    fam.innerHTML = `<div class="ex-label">her family</div>`;
+    c.family.forEach(line => {
       const [w, pos, ex, ezh] = line.split('|').map(s => s.trim());
-      return `<div class="fam-row">
-        <span class="fam-word">${escapeHtml(w)}</span>
-        <span class="fam-pos">${escapeHtml(pos)}</span>
-        <button class="ex-speak" data-sp="${escapeAttr(ex)}" aria-label="play">♪</button>
-        <span class="fam-ex">${escapeHtml(ex)}</span>
-        <span class="fam-ex-zh">${escapeHtml(ezh || '')}</span>
-      </div>`;
-    }).join('');
-    body.appendChild(fam);
+      const row = document.createElement('div');
+      row.className = 'fam-row is-veiled';
+      row.innerHTML = `
+        <button class="fam-trigger">
+          <span class="fam-word">${escapeHtml(w)}</span>
+          <span class="fam-pos">${escapeHtml(pos)}</span>
+        </button>
+        <div class="fam-reveal">
+          <button class="ex-speak" data-sp="${escapeAttr(ex || '')}" aria-label="play">♪</button>
+          <span class="fam-ex">${escapeHtml(ex || '')}</span>
+          <span class="fam-ex-zh">${escapeHtml(ezh || '')}</span>
+        </div>
+      `;
+      row.querySelector('.fam-trigger').addEventListener('click', e => {
+        e.stopPropagation();
+        if (row.classList.contains('is-veiled')) {
+          row.classList.remove('is-veiled');
+          if (ex) speak(ex);
+        }
+      });
+      fam.appendChild(row);
+    });
+    box.appendChild(fam);
   }
 
-  /* collocations (her friend) */
+  const div1 = document.createElement('div');
+  div1.className = 'ex-divider';
+  box.appendChild(div1);
+
+  /* HER FRIEND — section-level veil.  Tap "tap to reveal" → every
+     collocation row slides in and the first one is spoken aloud.    */
   if (c.colloc && c.colloc.length) {
     const fr = document.createElement('div');
-    fr.className = 'ex-section ex-friend';
-    fr.innerHTML = `<div class="ex-label">her friend</div>` + c.colloc.map(line => {
+    fr.className = 'ex-section ex-friend is-veiled';
+    fr.innerHTML = `<div class="ex-label">her friend</div>
+                    <button class="veil-hint friend-veil"><span class="vh-fleur">❦</span> tap to reveal <span class="vh-fleur">❦</span></button>
+                    <div class="friend-reveal"></div>`;
+    const reveal = fr.querySelector('.friend-reveal');
+    c.colloc.forEach(line => {
       const [phrase, zh] = line.split('|').map(s => s.trim());
-      return `<div class="colloc-row">
+      const row = document.createElement('div');
+      row.className = 'colloc-row';
+      row.innerHTML = `
         <button class="ex-speak" data-sp="${escapeAttr(phrase)}" aria-label="play">♪</button>
         <span class="colloc-en">${escapeHtml(phrase)}</span>
         <span class="colloc-zh">${escapeHtml(zh || '')}</span>
-      </div>`;
-    }).join('');
-    body.appendChild(fr);
+      `;
+      reveal.appendChild(row);
+    });
+    fr.querySelector('.friend-veil').addEventListener('click', e => {
+      e.stopPropagation();
+      if (fr.classList.contains('is-veiled')) {
+        fr.classList.remove('is-veiled');
+        const first = c.colloc[0] && c.colloc[0].split('|')[0].trim();
+        if (first) speak(first);
+      }
+    });
+    box.appendChild(fr);
   }
 
-  /* example */
+  /* EXAMPLE — section-level veil.  Tap → sentence appears, spoken. */
   if (c.example) {
     const ex = document.createElement('div');
-    ex.className = 'ex-example';
+    ex.className = 'ex-section ex-example is-veiled';
     ex.innerHTML = `
-      <button class="ex-speak" data-sp="${escapeAttr(c.example)}" aria-label="play">♪</button>
-      <div class="ex-example-text">
-        <div class="ex-example-en">${escapeHtml(c.example)}</div>
-        <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>
-      </div>`;
-    body.appendChild(ex);
+      <button class="veil-hint example-veil"><span class="vh-fleur">❦</span> tap to reveal <span class="vh-fleur">❦</span></button>
+      <div class="example-reveal">
+        <button class="ex-speak" data-sp="${escapeAttr(c.example)}" aria-label="play">♪</button>
+        <div class="ex-example-text">
+          <div class="ex-example-en">${escapeHtml(c.example)}</div>
+          <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>
+        </div>
+      </div>
+    `;
+    ex.querySelector('.example-veil').addEventListener('click', e => {
+      e.stopPropagation();
+      if (ex.classList.contains('is-veiled')) {
+        ex.classList.remove('is-veiled');
+        speak(c.example);
+      }
+    });
+    box.appendChild(ex);
   }
 
-  /* her neighbor — the synonym partner.  Clicking it jumps to that
-     word's card without losing the current stage state.            */
+  const div2 = document.createElement('div');
+  div2.className = 'ex-divider';
+  box.appendChild(div2);
+
+  /* HER NEIGHBOR — always visible, click → jump to the partner's card. */
   if (c.partner) {
     const nb = document.createElement('div');
     nb.className = 'ex-section ex-neighbor';
@@ -510,39 +577,36 @@ function renderExCard(headWord, mark = null, { rewrite = false, expanded = false
       SFX.pageTurn();
       go('card', { word: c.partner, from: state.screen });
     });
-    body.appendChild(nb);
+    box.appendChild(nb);
   }
 
-  /* optional rewrite input — used by stage-2 result for handwriting. */
   if (rewrite) {
     const rw = document.createElement('div');
     rw.className = 'ex-rewrite';
     rw.innerHTML = `<div class="ex-rewrite-label">copy once</div>
                     <input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(c.h)}">`;
-    body.appendChild(rw);
+    box.appendChild(rw);
   }
 
-  box.appendChild(body);
+  /* fold this page — re-veils every revealed segment of THIS card. */
+  if (withControls) {
+    box.insertAdjacentHTML('beforeend', `
+      <button class="ex-card-fold">fold this page</button>
+    `);
+    box.querySelector('.ex-card-fold').addEventListener('click', e => {
+      e.stopPropagation();
+      SFX.tap();
+      box.querySelectorAll('.fam-row, .ex-friend, .ex-example').forEach(s => s.classList.add('is-veiled'));
+    });
+  }
 
-  /* every ♪ play button speaks its own segment, never bubbling up to
-     trigger a card-wide reveal. */
+  /* every ♪ speaks its own segment without bubbling up. */
   box.querySelectorAll('.ex-speak').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
-      speak(b.getAttribute('data-sp'));
+      const sp = b.getAttribute('data-sp');
+      if (sp) speak(sp);
     });
-  });
-
-  /* TAP TO WAKE — the "forced learning" beat.  When the card is
-     collapsed, any tap on the head expands the body AND auto-plays
-     the example sentence once.  After that the card stays open and
-     the per-segment ♪ buttons handle further audio.                  */
-  head.addEventListener('click', e => {
-    if (e.target.closest('.ex-speak')) return;
-    if (!box.classList.contains('is-collapsed')) return;
-    box.classList.remove('is-collapsed');
-    SFX.pageTurn();
-    speak(c.example || c.h);
   });
 
   return box;
@@ -674,7 +738,7 @@ const Screens = {
       });
 
       const actions = $('.match-actions', el);
-      actions.appendChild(btn('confirm', () => submit(), { variant: 'pink' }));
+      actions.appendChild(nextDoor('confirm', () => submit()));
 
       function paint(idx) {
         if (tagOf[idx] !== null) {
@@ -744,18 +808,25 @@ const Screens = {
       LanBGM.playResultRandom({ volume: 0.42 });
       const el = $('#screen-stage1-result');
       const result = state.session.matchResult || [];
-      const correctPairs = result.filter(r => r.correct && /* count each pair once */
-                                              result.findIndex(x => x.pairId === r.pairId) === result.indexOf(r)).length;
+      const correctPairs = new Set(result.filter(r => r.correct).map(r => r.pairId)).size;
 
       el.innerHTML = `
         <div class="page-title"><span class="pt-fleur">❦</span>what she paired<span class="pt-fleur">❦</span></div>
+        <div class="score-block">
+          <div class="score-label">your hand</div>
+          <div class="score-value">${correctPairs}<small> / 4</small></div>
+        </div>
+        <div class="stage-actions"></div>
         <div class="match-result-grid"></div>
         <div class="match-result-hint"><span class="hint-fleur">❦</span> touch any word to read its page <span class="hint-fleur">❦</span></div>
-        <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 10);
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
+
+      // Next-stage button sits right below the score so it's a single
+      // glance from "how did I do?" to "let me move on".
+      $('.stage-actions', el).appendChild(nextDoor('the reading', () => go('stage2')));
 
       const grid = $('.match-result-grid', el);
       result.forEach(r => {
@@ -771,8 +842,6 @@ const Screens = {
         });
         grid.appendChild(tile);
       });
-
-      $('.stage-actions', el).appendChild(nextDoor('the reading', () => go('stage2')));
     }
   },
 
@@ -851,20 +920,20 @@ const Screens = {
       const el = $('#screen-stage2-result');
       const right = state.session.words.filter(w => state.results[w].oracle).length;
       el.innerHTML = `
-        ${stageHeader(2, 'the reading')}
-        <div class="score-header">
-          <div class="label">her reading</div>
-          <div class="value">${right}<small> / 8</small></div>
+        <div class="page-title"><span class="pt-fleur">❦</span>what she read<span class="pt-fleur">❦</span></div>
+        <div class="score-block">
+          <div class="score-label">her reading</div>
+          <div class="score-value">${right}<small> / 8</small></div>
         </div>
-        <div class="result-grid"></div>
         <div class="stage-actions"></div>
+        <div class="result-grid"></div>
       `;
       sprinkleStars(el, 10);
-      el.prepend(moonCorner()); el.appendChild(closeCorner());
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner());
+      $('.stage-actions', el).appendChild(nextDoor('the inscription', () => go('stage3')));
       const grid = $('.result-grid', el);
-      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true })));
-      const actions = $('.stage-actions', el);
-      actions.appendChild(nextDoor('the inscription', () => go('stage3')));
+      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true, withControls: false })));
     }
   },
 
@@ -964,17 +1033,25 @@ const Screens = {
 
       const el = $('#screen-stage3-result');
       const right = state.session.words.filter(w => state.results[w].dict).length;
+      const totalCorrect = state.session.words.reduce((acc, w) => {
+        const r = state.results[w];
+        return acc + (r.match ? 1 : 0) + (r.oracle ? 1 : 0) + (r.dict ? 1 : 0);
+      }, 0);
       el.innerHTML = `
-        ${stageHeader(3, 'the inscription')}
-        <div class="score-header">
-          <div class="label">tonight's reading</div>
-          <div class="value">${right}<small> / 8</small></div>
+        <div class="page-title"><span class="pt-fleur">❦</span>the final reading<span class="pt-fleur">❦</span></div>
+        <div class="score-block">
+          <div class="score-label">tonight's chapter</div>
+          <div class="score-value">${totalCorrect}<small> / 24</small></div>
         </div>
+        <div class="stage-actions"></div>
         <div class="summary-list" id="summary"></div>
         <div class="result-grid"></div>
-        <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 12);
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner());
+
+      $('.stage-actions', el).appendChild(nextDoor('next chapter', () => { LanBGM.stop(); go('cover'); }));
 
       const tickHtml = v =>
         v === null ? `<div class="tick">—</div>`
@@ -988,11 +1065,7 @@ const Screens = {
         sum.appendChild(row);
       });
       const grid = $('.result-grid', el);
-      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].dict)));
-
-      const actions = $('.stage-actions', el);
-      actions.appendChild(nextDoor('next chapter', () => { LanBGM.stop(); go('cover'); }));
-      el.prepend(moonCorner()); el.appendChild(closeCorner());
+      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].dict, { withControls: false })));
     }
   },
 
@@ -1028,7 +1101,7 @@ const Screens = {
         body.insertAdjacentHTML('beforeend', `<div class="section-label">— ${label} —</div>`);
         const wrap = document.createElement('div');
         wrap.className = 'result-grid';
-        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true)); });
+        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true, { withControls: false })); });
         body.appendChild(wrap);
       };
       if (!entries.length) {
@@ -1091,18 +1164,18 @@ const Screens = {
     }
   },
 
-  /* ---------- CARD detail (opened from index, with tarot flip) ---------- */
+  /* ---------- CARD detail (opened from sidebar, index, tiles) ---------- */
   card: {
     onEnter(opts) {
       const el = $('#screen-card');
       const word = opts.word;
       const from = opts.from || 'index';
-      el.innerHTML = `
-        ${titleStrip()}
-        <div class="result-grid" id="card-host"></div>
-      `;
+      state._cardFrom = from;
+      el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
       sprinkleStars(el, 10);
-      $('#card-host', el).appendChild(renderExCard(word, null));
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner({ to: from }));
+      $('#card-host', el).appendChild(renderExCard(word, null, { withControls: true }));
     }
   }
 };
