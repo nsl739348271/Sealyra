@@ -1692,3 +1692,91 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png"); }
 body { background: transparent !important; }
 
 
+/* ============================================================
+   25. STAGE 1 RESULT — match-tile grid
+   ============================================================
+   Echoes the matching board: 4 rows × 2 columns of word-name tiles,
+   each kept in the colour the user dyed it.  A correct pair switches
+   to a solid rose fill with a ✓; a wrong pair keeps its tag border
+   only with a ✗.  Tapping any tile opens that word's study card.   */
+.match-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 18px 16px 4px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.match-tile {
+  position: relative;
+  background: rgba(6,3,15,.55);
+  border: 2px solid rgba(245,239,227,.18);
+  border-radius: 14px;
+  padding: 22px 12px;
+  cursor: pointer;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 19px;
+  letter-spacing: .02em;
+  color: var(--cream);
+  text-align: center;
+  transition: transform .15s, box-shadow .25s, background .25s;
+}
+.match-tile:hover  { transform: translateY(-1px); }
+.match-tile:active { transform: translateY(1px); }
+
+.tile-mark {
+  position: absolute;
+  top: 8px; right: 12px;
+  font-size: 13px;
+  letter-spacing: 0;
+  opacity: .85;
+}
+.tile-text { display: block; }
+
+/* The four tag-colour borders — match the in-game match-card palette */
+.match-tile.tag-0 { border-color: #E8C882; color: #F0D9A4; }  /* yellow */
+.match-tile.tag-1 { border-color: #F4B5C8; color: #FBD2DD; }  /* pink   */
+.match-tile.tag-2 { border-color: #A5C8E4; color: #C6DCEE; }  /* blue   */
+.match-tile.tag-3 { border-color: #A5D8C5; color: #C6E5D5; }  /* mint   */
+
+/* The correct pair: solid rose wash, brighter type, glow */
+.match-tile.is-correct {
+  background: linear-gradient(180deg, rgba(244,181,200,.32), rgba(199,122,149,.28));
+  border-color: var(--rose);
+  color: var(--cream);
+  box-shadow: 0 0 18px rgba(237,184,158,.42);
+}
+.match-tile.is-correct .tile-mark { color: var(--rose); }
+
+/* The wrong tiles: keep the tag border, dim the type a little */
+.match-tile.is-wrong { opacity: .72; }
+.match-tile.is-wrong .tile-mark { color: rgba(244,181,200,.55); }
+
+/* The "touch any word" hint sits under the grid, faded italic */
+.match-result-hint {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: var(--pink-soft);
+  opacity: .72;
+  margin: 18px 0 6px;
+}
+.match-result-hint .hint-fleur { color: var(--gold-deep); margin: 0 6px; }
+
+/* Page title for the result page — bigger, italic rose */
+.page-title {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 20px;
+  letter-spacing: .04em;
+  color: var(--pink-soft);
+  margin: 20px 0 4px;
+}
+.page-title .pt-fleur { color: var(--gold-deep); margin: 0 12px; opacity: .75; }
+
+
+
