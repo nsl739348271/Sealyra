@@ -212,7 +212,7 @@ function backToCover(label = '← close the book') {
 function lilGhost(label, onClick) {
   const b = document.createElement('button');
   b.className = 'lil-ghost';
-  b.innerHTML = `<span class="lil-fleur">❦</span><span>${escapeHtml(label)}</span><span class="lil-fleur">❦</span>`;
+  b.innerHTML = `<span>${escapeHtml(label)}</span>`;
   b.addEventListener('click', () => { SFX.tap(); onClick && onClick(); });
   return b;
 }
@@ -246,20 +246,24 @@ function mainCTA(label, onClick) {
   });
   return a;
 }
-// "next stage / next chapter" — pink pill with two keys flanking the label.
-function nextDoor(label, onClick) {
+// "next stage / next chapter" — text-with-rules button (no keys, no pill).
+// Passing { confirm: true } wraps the click in the "are you ready" modal,
+// which is how every stage→stage transition should behave so the BGM swap
+// has a clean handoff moment.
+function nextDoor(label, onClick, { confirm = false } = {}) {
   const a = document.createElement('button');
   a.className = 'next-door';
-  a.innerHTML = `
-    <span class="nd-key">${keyIconHtml()}</span>
-    <span class="nd-text">${escapeHtml(label)}</span>
-    <span class="nd-key">${keyIconHtml()}</span>
-  `;
+  a.innerHTML = `<span class="nd-text">${escapeHtml(label)}</span>`;
   a.addEventListener('click', () => {
     if (a.classList.contains('is-engaged')) return;
-    a.classList.add('is-engaged');
-    SFX.bling();
-    setTimeout(() => onClick && onClick(), 600);
+    if (confirm) {
+      SFX.tap();
+      confirmReady(label, () => { onClick && onClick(); });
+    } else {
+      a.classList.add('is-engaged');
+      SFX.tap();
+      setTimeout(() => onClick && onClick(), 300);
+    }
   });
   return a;
 }
@@ -368,8 +372,25 @@ function confirmLeave(onLeave) {
     title: 'close the book for now?',
     body: `the page won't remember you tonight.`,
     actions: [
-      { label: 'stay a little' },                            // pink (default)
-      { label: 'close it', variant: 'ghost', onClick: onLeave }
+      { label: 'stay a little' },                                  // primary (close modal)
+      { label: 'yes, leave the page', variant: 'ghost', onClick: onLeave }
+    ]
+  });
+}
+
+/* "are you ready" — the transition modal before each next-stage.
+   Confirming triggers a deliberate moment: bling SFX + BGM swap is
+   started by the caller's onReady, then we travel to the next page.
+   "a little longer" simply closes the modal so the user can keep
+   reviewing.                                                       */
+function confirmReady(stageNameAwaits, onReady) {
+  showModal({
+    title:    `${stageNameAwaits} awaits`,
+    body:     `have you learned what you need to?`,
+    variant:  'ready',
+    actions: [
+      { label: `I'm ready ♡`, variant: 'primary', onClick: () => { SFX.bling(); onReady(); } },
+      { label: 'a little longer', variant: 'ghost' }
     ]
   });
 }
@@ -381,7 +402,7 @@ function titleStrip() {
   return `
     <div class="book-header">
       <h1 class="book-title">Her Little Lexicon</h1>
-      <div class="book-subtitle">✦<span class="sp">words come softly, when she calls them</span>✦</div>
+      <div class="book-subtitle"><span class="sp">words come softly, when she calls them</span></div>
     </div>
   `;
 }
@@ -389,13 +410,13 @@ function stageHeader(chapterN, name) {
   return `
     <div class="stage-head">
       <div class="stage-chapter">chapter · ${chapterN}</div>
-      <div class="stage-name"><span class="nm-fleur">❦</span>${escapeHtml(name)}<span class="nm-fleur">❦</span></div>
+      <div class="stage-name">${escapeHtml(name)}</div>
       <div class="stage-rule"></div>
     </div>
   `;
 }
 function pageTitle(name) {
-  return `<div class="page-title"><span class="pt-fleur">❦</span>${escapeHtml(name)}<span class="pt-fleur">❦</span></div>`;
+  return `<div class="page-title">${escapeHtml(name)}</div>`;
 }
 
 function sprinkleStars(container, count = 18) {
@@ -462,9 +483,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
   head.className = 'ex-head';
   head.innerHTML = `
     <button class="ex-speak ex-speak-head" data-sp="${escapeAttr(c.h)}" aria-label="play">♪</button>
-    <span class="ex-hw-fleur">❧</span>
     <span class="ex-headword">${escapeHtml(c.h)}</span>
-    <span class="ex-hw-fleur">❧</span>
     <span class="ex-pos">${escapeHtml((c.pos || '').slice(0, 3))}.</span>
     <span class="ex-headword-zh">${escapeHtml(c.zh || '')}</span>
   `;
@@ -513,7 +532,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
     const fr = document.createElement('div');
     fr.className = 'ex-section ex-friend is-veiled';
     fr.innerHTML = `<div class="ex-label">her friend</div>
-                    <button class="veil-hint friend-veil"><span class="vh-fleur">❦</span> tap to reveal <span class="vh-fleur">❦</span></button>
+                    <button class="veil-hint friend-veil">— tap to reveal —</button>
                     <div class="friend-reveal"></div>`;
     const reveal = fr.querySelector('.friend-reveal');
     c.colloc.forEach(line => {
@@ -543,7 +562,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
     const ex = document.createElement('div');
     ex.className = 'ex-section ex-example is-veiled';
     ex.innerHTML = `
-      <button class="veil-hint example-veil"><span class="vh-fleur">❦</span> tap to reveal <span class="vh-fleur">❦</span></button>
+      <button class="veil-hint example-veil">— tap to reveal —</button>
       <div class="example-reveal">
         <button class="ex-speak" data-sp="${escapeAttr(c.example)}" aria-label="play">♪</button>
         <div class="ex-example-text">
@@ -632,10 +651,11 @@ function buildOracleQuestion(word) {
 /* ------------------------------------------------------------
    10. MODAL
    ------------------------------------------------------------ */
-function showModal({ title, body = '', score = null, actions = [] }) {
+function showModal({ title, body = '', score = null, actions = [], variant = '' }) {
   const veil = $('#modal');
+  const cls = 'modal-card' + (variant ? ` is-${variant}` : '');
   veil.innerHTML = `
-    <div class="modal-card">
+    <div class="${cls}">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -680,7 +700,7 @@ const Screens = {
         </div>
       `;
       el.appendChild(stage);
-      sprinkleStars(el, 18);
+
       el.appendChild(moonCorner());
 
       // Tonight's Reading — unlocks audio on the way into stage 1.
@@ -725,7 +745,7 @@ const Screens = {
         <div class="match-grid"></div>
         <div class="match-actions"></div>
       `;
-      sprinkleStars(el, 12);
+
       el.prepend(moonCorner()); el.appendChild(closeCorner({ confirm: true }));
 
       const grid = $('.match-grid', el);
@@ -818,15 +838,15 @@ const Screens = {
         </div>
         <div class="stage-actions"></div>
         <div class="match-result-grid"></div>
-        <div class="match-result-hint"><span class="hint-fleur">❦</span> touch any word to read its page <span class="hint-fleur">❦</span></div>
+        <div class="match-result-hint">— touch any word to read its page —</div>
       `;
-      sprinkleStars(el, 10);
+
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
 
       // Next-stage button sits right below the score so it's a single
       // glance from "how did I do?" to "let me move on".
-      $('.stage-actions', el).appendChild(nextDoor('the reading', () => go('stage2')));
+      $('.stage-actions', el).appendChild(nextDoor('the reading', () => go('stage2'), { confirm: true }));
 
       const grid = $('.match-result-grid', el);
       result.forEach(r => {
@@ -856,7 +876,7 @@ const Screens = {
         ${stageHeader(2, 'the reading')}
         <div class="oracle-stage" id="oracle-stage"></div>
       `;
-      sprinkleStars(el, 10);
+
       el.prepend(moonCorner()); el.appendChild(closeCorner({ confirm: true }));
       drawQ();
 
@@ -928,10 +948,10 @@ const Screens = {
         <div class="stage-actions"></div>
         <div class="result-grid"></div>
       `;
-      sprinkleStars(el, 10);
+
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
-      $('.stage-actions', el).appendChild(nextDoor('the inscription', () => go('stage3')));
+      $('.stage-actions', el).appendChild(nextDoor('the writing hand', () => go('stage3'), { confirm: true }));
       const grid = $('.result-grid', el);
       state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true, withControls: false })));
     }
@@ -947,20 +967,26 @@ const Screens = {
         ${stageHeader(3, 'the inscription')}
         <div class="dict-stage" id="dict-stage"></div>
       `;
-      sprinkleStars(el, 10);
+
       el.prepend(moonCorner()); el.appendChild(closeCorner({ confirm: true }));
       drawQ();
 
       function drawQ() {
         const stage = $('#dict-stage', el);
         const q = state.session.dict[state.dictIdx];
-        const masked = q.prompt.replace(new RegExp(q.answer, 'i'), '____');
+        // "(p)_______ goods" — keep the answer's first letter visible inside
+        // parens, blank the rest, leave the surrounding phrase intact.
+        const first = q.answer[0];
+        const rest  = '_'.repeat(Math.max(5, q.answer.length - 1));
+        const masked = q.prompt.replace(new RegExp(q.answer, 'i'), `(${first})${rest}`);
         stage.innerHTML = `
           <div class="q-progress">${String(state.dictIdx + 1).padStart(2, '0')} · 08</div>
           <div class="dict-prompt">${escapeHtml(masked)}</div>
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
-          <div class="dict-hint">${q.hint.toUpperCase()} —</div>
-          <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="…">
+          <div class="dict-input-row">
+            <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
+            <img class="dict-quill" src="assets/icon-quill.png" alt="">
+          </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
         `;
@@ -995,17 +1021,15 @@ const Screens = {
         } else {
           state.results[q.head].dict = false;
           recordMistake(q.head);
-          input.disabled = true;
+          // wipe the wrong attempt, keep the SAME input field, ask for a
+          // re-inscription.  on correct match we auto-advance.
+          input.value = '';
           input.classList.add('is-wrong');
-          feedback.innerHTML = `correct · <em style="color:var(--gold)">${escapeHtml(q.answer)}</em> · write it once more`;
+          feedback.innerHTML = `correct · <em>${escapeHtml(q.answer)}</em> · write it once more`;
           feedback.className = 'dict-feedback is-wrong';
           $('#dict-actions', stage).innerHTML = '';
           SFX.wrong();
-          stage.insertAdjacentHTML('beforeend', `
-            <div class="dict-rewrite-label">— inscribe it —</div>
-            <input class="dict-input" id="dict-rewrite" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-          `);
-          const rew = $('#dict-rewrite', stage);
+          const rew = input;
           rew.focus();
           rew.addEventListener('input', () => {
             if (rew.value.trim().toLowerCase() === q.answer.toLowerCase()) {
@@ -1047,11 +1071,11 @@ const Screens = {
         <div class="summary-list" id="summary"></div>
         <div class="result-grid"></div>
       `;
-      sprinkleStars(el, 12);
+
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
 
-      $('.stage-actions', el).appendChild(nextDoor('next chapter', () => { LanBGM.stop(); go('cover'); }));
+      $('.stage-actions', el).appendChild(nextDoor('the next chapter', () => { LanBGM.stop(); go('cover'); }, { confirm: true }));
 
       const tickHtml = v =>
         v === null ? `<div class="tick">—</div>`
@@ -1093,7 +1117,7 @@ const Screens = {
         </div>
         <div id="note-body"></div>
       `;
-      sprinkleStars(el, 12);
+
 
       const body = $('#note-body', el);
       const show = (label, words) => {
@@ -1134,7 +1158,7 @@ const Screens = {
         <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
         <div id="index-body"></div>
       `;
-      sprinkleStars(el, 12);
+
       $$('.alpha-bar a', el).forEach(a => {
         a.addEventListener('click', () => {
           const L = a.getAttribute('data-letter');
@@ -1172,7 +1196,7 @@ const Screens = {
       const from = opts.from || 'index';
       state._cardFrom = from;
       el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
-      sprinkleStars(el, 10);
+
       el.prepend(moonCorner());
       el.appendChild(closeCorner({ to: from }));
       $('#card-host', el).appendChild(renderExCard(word, null, { withControls: true }));
