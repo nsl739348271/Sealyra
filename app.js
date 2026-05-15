@@ -712,11 +712,18 @@ const Screens = {
             cardResult[a] = true; cardResult[b] = true;
           }
         }
+        // Persist the L-side outcome for the chapter summary / mistakes.
         shuffled.forEach((c, i) => {
           if (c.side !== 'L') return;
           if (cardResult[i]) state.results[c.text].match = true;
           else { state.results[c.text].match = false; recordMistake(c.text); }
         });
+        // Persist the full 8-tile result for the dedicated result page —
+        // we want to replay each card in the same colour the user dyed
+        // it, with a ✓ / ✗ on whether its pair was correct.
+        state.session.matchResult = shuffled.map((c, i) => ({
+          text: c.text, pairId: c.pairId, tag: tagOf[i], correct: cardResult[i]
+        }));
         showModal({
           title: 'pages flipped',
           score: { value: correct, total: 4 },
@@ -726,28 +733,46 @@ const Screens = {
     }
   },
 
-  /* ---------- STAGE 1 RESULT ---------- */
+  /* ---------- STAGE 1 RESULT ----------
+     What it is NOT: a stack of full study cards.
+     What it IS: an echo of the matching board the user just finished.
+     Each of the 8 tiles keeps the colour the user painted it (tag-0
+     ..tag-3), gets a ✓ if its pair turned out right or ✗ if not, and
+     becomes a doorway to that word's study card on tap.               */
   'stage1-result': {
     onEnter() {
       LanBGM.playResultRandom({ volume: 0.42 });
       const el = $('#screen-stage1-result');
-      const tested = state.session.words.slice(0, 4);
-      const right = tested.filter(w => state.results[w].match).length;
+      const result = state.session.matchResult || [];
+      const correctPairs = result.filter(r => r.correct && /* count each pair once */
+                                              result.findIndex(x => x.pairId === r.pairId) === result.indexOf(r)).length;
+
       el.innerHTML = `
-        ${stageHeader(1, 'the matching')}
-        <div class="score-header">
-          <div class="label">your hand</div>
-          <div class="value">${right}<small> / 4</small></div>
-        </div>
-        <div class="result-grid"></div>
+        <div class="page-title"><span class="pt-fleur">❦</span>what she paired<span class="pt-fleur">❦</span></div>
+        <div class="match-result-grid"></div>
+        <div class="match-result-hint"><span class="hint-fleur">❦</span> touch any word to read its page <span class="hint-fleur">❦</span></div>
         <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 10);
-      el.prepend(moonCorner()); el.appendChild(closeCorner());
-      const grid = $('.result-grid', el);
-      tested.forEach(w => grid.appendChild(renderExCard(w, state.results[w].match)));
-      const actions = $('.stage-actions', el);
-      actions.appendChild(nextDoor('the reading', () => go('stage2')));
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner());
+
+      const grid = $('.match-result-grid', el);
+      result.forEach(r => {
+        const tile = document.createElement('button');
+        tile.className = `match-tile tag-${r.tag} ${r.correct ? 'is-correct' : 'is-wrong'}`;
+        tile.innerHTML = `
+          <span class="tile-mark">${r.correct ? '✓' : '✗'}</span>
+          <span class="tile-text">${escapeHtml(r.text)}</span>
+        `;
+        tile.addEventListener('click', () => {
+          SFX.pageTurn();
+          go('card', { word: r.text, from: 'stage1-result' });
+        });
+        grid.appendChild(tile);
+      });
+
+      $('.stage-actions', el).appendChild(nextDoor('the reading', () => go('stage2')));
     }
   },
 
