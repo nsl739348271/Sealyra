@@ -1779,4 +1779,301 @@ body { background: transparent !important; }
 .page-title .pt-fleur { color: var(--gold-deep); margin: 0 12px; opacity: .75; }
 
 
+/* ============================================================
+   26. CORNER POSITIONS  +  BLACK-GAP FIX
+   ============================================================
+   The previous .close-corner / .moon-corner top calc double-counted
+   the banner height: those buttons live INSIDE .screen, which is
+   already pushed below the banner by #app's padding-top.  So they
+   just need a small margin from the screen's top edge.              */
+.close-corner { top: 12px; }
+.moon-corner  { top: 10px; left: 14px; }
+
+/* The "black bottom gap" was the html/body fallback colour (an
+   almost-black --bg-deep) showing through wherever the bg-layer
+   couldn't reach (safe-area-inset-bottom, scroll overshoot, etc).
+   Match every layer to the artwork's deep violet so any leakage
+   is invisible.                                                     */
+html, body { background-color: #1A1530 !important; }
+
+
+/* ============================================================
+   27. SCORE BLOCK  +  STAGE-ACTIONS NEAR THE SCORE
+   ============================================================
+   Result pages now put the score and the next-stage button at the
+   top, so the user can move forward without scrolling past their
+   review.  Below them comes the cards/tiles for studying.           */
+.score-block {
+  text-align: center;
+  margin: 6px 0 14px;
+}
+.score-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .22em;
+  color: var(--soft);
+  text-transform: lowercase;
+}
+.score-value {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 44px;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  line-height: 1.1;
+  margin-top: 4px;
+}
+.score-value small {
+  font-size: 18px;
+  color: var(--soft);
+  margin-left: 6px;
+  letter-spacing: 0;
+  text-shadow: none;
+}
+
+/* The next-stage button row sits right below the score */
+.stage-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px 0 22px;
+}
+.match-actions {
+  display: flex;
+  justify-content: center;
+  margin: 22px 0 14px;
+}
+
+
+/* ============================================================
+   28. STUDY CARD  v21  — frame + head + sections + reveal mechanic
+   ============================================================ */
+
+.ex-card {
+  position: relative;
+  background: rgba(8,4,18,.62);
+  border: 1px solid rgba(244,181,200,.36);
+  border-radius: 16px;
+  padding: 56px 22px 60px;   /* leave room for the two corner buttons */
+  margin: 18px 14px 22px;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow:
+    0 0 24px rgba(244,181,200,.18),
+    inset 0 0 22px rgba(199,122,149,.06);
+}
+.ex-card.is-correct { border-color: var(--rose);  box-shadow: var(--rose-glow), 0 6px 28px rgba(0,0,0,.35); }
+.ex-card.is-wrong   { border-color: rgba(244,181,200,.45); box-shadow: 0 0 14px rgba(199,122,149,.18); }
+
+/* Card's own close + fold pills — top-right / bottom-right */
+.ex-card-close, .ex-card-fold {
+  position: absolute;
+  right: 18px;
+  background: rgba(6,3,15,.55);
+  border: 1px solid rgba(244,181,200,.45);
+  color: var(--pink-soft);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .14em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: box-shadow .2s, border-color .2s;
+}
+.ex-card-close { top: 16px; }
+.ex-card-fold  { bottom: 16px; }
+.ex-card-close:hover, .ex-card-fold:hover {
+  border-color: var(--rose);
+  box-shadow: 0 0 12px rgba(237,184,158,.38);
+}
+
+/* HEAD row — ▷ ❧ word ❧ pos.   chinese on the right of the same line */
+.ex-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: nowrap;
+  padding: 0 0 6px;
+  overflow: hidden;
+}
+.ex-head .ex-headword {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 28px;
+  color: var(--rose);
+  letter-spacing: .02em;
+  text-shadow: var(--rose-glow);
+  white-space: nowrap;
+}
+.ex-head .ex-pos {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--soft);
+  white-space: nowrap;
+}
+.ex-head .ex-hw-fleur {
+  color: var(--gold-deep);
+  font-size: 14px;
+  opacity: .8;
+}
+.ex-head .ex-headword-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--pink-soft);
+  opacity: .82;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Section label — small caps, gold-deep, spaced */
+.ex-section .ex-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin: 14px 0 6px;
+}
+
+/* Subtle dashed divider between sections */
+.ex-divider {
+  border-top: 1px dashed rgba(244,181,200,.22);
+  margin: 14px 0;
+}
+
+/* The veil-hint button — "❦ tap to reveal ❦" */
+.veil-hint {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: .14em;
+  color: var(--pink-soft);
+  padding: 10px 0;
+  text-align: center;
+  opacity: .78;
+  transition: opacity .2s, color .2s;
+}
+.veil-hint:hover { color: var(--rose); opacity: 1; }
+.vh-fleur { color: var(--gold-deep); margin: 0 8px; opacity: .8; }
+
+/* Reveal/veil display logic */
+.fam-row.is-veiled  .fam-reveal         { display: none; }
+.ex-friend.is-veiled .friend-reveal     { display: none; }
+.ex-friend:not(.is-veiled) .friend-veil { display: none; }
+.ex-example.is-veiled .example-reveal   { display: none; }
+.ex-example:not(.is-veiled) .example-veil { display: none; }
+
+/* FAMILY rows */
+.fam-row { padding: 4px 0; }
+.fam-trigger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  color: inherit;
+}
+.fam-trigger:hover .fam-word { color: var(--rose); }
+.fam-word {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--gold-warm);
+  transition: color .15s;
+}
+.fam-pos {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--soft);
+  letter-spacing: .02em;
+}
+.fam-reveal {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0 10px 14px;
+}
+.fam-reveal .ex-speak  { flex: 0 0 auto; }
+.fam-reveal .fam-ex {
+  font-family: var(--f-body);
+  font-size: 14px;
+  color: var(--pink-soft);
+  flex: 1;
+}
+.fam-reveal .fam-ex-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--soft);
+  white-space: nowrap;
+}
+
+/* FRIEND (collocations) */
+.colloc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+}
+.colloc-row .ex-speak { flex: 0 0 auto; }
+.colloc-en {
+  font-family: var(--f-body);
+  font-size: 15px;
+  color: var(--pink-soft);
+  flex: 1;
+}
+.colloc-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--soft);
+}
+
+/* EXAMPLE */
+.example-reveal {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0 4px;
+}
+.example-reveal .ex-speak { flex: 0 0 auto; }
+.example-reveal .ex-example-text { flex: 1; }
+.example-reveal .ex-example-en {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--cream);
+  line-height: 1.45;
+}
+.example-reveal .ex-example-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--soft);
+  margin-top: 4px;
+}
+
+/* The previous .is-collapsed mechanic is retired in favour of per-
+   section veiling.  Suppress any leftover styles.                   */
+.ex-card.is-collapsed .ex-body { display: block; }
+.ex-card.is-collapsed::after   { content: none; }
+.ex-card.is-collapsed          { cursor: default; }
+
+
+
 
