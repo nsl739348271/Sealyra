@@ -171,13 +171,23 @@ function freshSession() {
 }
 
 /* ------------------------------------------------------------
-   5. ROUTER
+   5. ROUTER  +  background-layer driver
    ------------------------------------------------------------ */
+const BG_BY_SCREEN = {
+  cover: 'bg-cover',
+  stage1: 'bg-stage', stage2: 'bg-stage', stage3: 'bg-stage',
+  'stage1-result': 'bg-result',
+  'stage2-result': 'bg-result',
+  'stage3-result': 'bg-result',
+  note: 'bg-note', index: 'bg-note', card: 'bg-note'
+};
 function go(screenId, opts = {}) {
   state.screen = screenId;
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === `screen-${screenId}`));
   window.scrollTo(0, 0);
-  document.body.classList.remove('cover-pending');  // any screen except the cover gate is "awake"
+  // swap the fixed background layer to match this screen's atmosphere.
+  ['bg-cover','bg-stage','bg-result','bg-note'].forEach(c => document.body.classList.remove(c));
+  document.body.classList.add(BG_BY_SCREEN[screenId] || 'bg-cover');
   if (Screens[screenId] && Screens[screenId].onEnter) Screens[screenId].onEnter(opts);
 }
 
@@ -253,41 +263,103 @@ function nextDoor(label, onClick) {
   });
   return a;
 }
-// page footer — the discreet "close the book" link at the very bottom of
-// stage / result / note / index pages, like the page-number of a real book.
-// In-stage variants pop a leave-confirm modal first.
-function pageFooter(opts = {}) {
-  const wrap = document.createElement('div');
-  wrap.className = 'page-footer';
-  const a = document.createElement('button');
-  a.className = 'foot-link';
-  a.innerHTML = `<span class="foot-fleur">❦</span> ${escapeHtml(opts.label || 'cover')} <span class="foot-fleur">❦</span>`;
-  a.addEventListener('click', () => {
-    SFX.tap();
-    if (opts.confirm) confirmLeave(() => { LanBGM.stop(); go('cover'); });
-    else { LanBGM.stop(); go(opts.to || 'cover'); }
-  });
-  wrap.appendChild(a);
-  return wrap;
-}
-// Left-top moon button — "her unfinished pages" / mistakes book.
-// In-stage clicks pop a leave-confirm modal.
-function moonCorner(opts = {}) {
+// Top-right "close the page" pill — the universal way home.  Visible on
+// every screen except the cover itself.  On in-game screens we pop the
+// leave-confirm modal first so the user doesn't kill their stage by accident.
+function closeCorner({ confirm = false, to = 'cover', label = 'close the page' } = {}) {
   const b = document.createElement('button');
-  b.className = 'moon-corner';
-  b.title = 'her unfinished pages';
-  b.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">
-    <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
-      <path d="M22 6 a12 12 0 1 0 0 20 a9 9 0 0 1 0 -20 z" fill="currentColor" opacity=".18"/>
-      <path d="M22 6 a12 12 0 1 0 0 20 a9 9 0 0 1 0 -20 z"/>
-    </g>
-  </svg>`;
+  b.className = 'close-corner';
+  b.textContent = label;
   b.addEventListener('click', () => {
     SFX.tap();
-    if (opts.confirm) confirmLeave(() => { LanBGM.stop(); go('note'); });
-    else go('note');
+    const exit = () => { LanBGM.stop(); go(to); };
+    if (confirm) confirmLeave(exit);
+    else exit();
   });
   return b;
+}
+// Top-left moon button — opens the side-drawer of "her words".
+// The drawer is an OVERLAY (not navigation), so no leave-confirm
+// is needed — picking a word from it is the user's explicit action.
+function moonCorner() {
+  const b = document.createElement('button');
+  b.className = 'moon-corner';
+  b.title = 'her words';
+  b.setAttribute('aria-label', 'open her words');
+  b.addEventListener('click', () => { SFX.tap(); openSidebar(); });
+  return b;
+}
+
+/* ---------- SIDE DRAWER ("her words")  ----------
+   Single global instance, lazy-built on first open.  Holds:
+     - a counter of awakened / total words
+     - a live-filter search input
+     - the "still waking" list (everything not yet learned)
+   Tapping any word closes the drawer and jumps to that word's card.   */
+function _buildSidebar() {
+  let drawer = document.getElementById('drawer');
+  if (drawer) return drawer;
+  drawer = document.createElement('aside');
+  drawer.id = 'drawer';
+  drawer.className = 'drawer';
+  drawer.innerHTML = `
+    <div class="drawer-veil"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title"><em>her words</em></div>
+          <div class="drawer-count">…</div>
+        </div>
+        <button class="drawer-close" aria-label="close">×</button>
+      </div>
+      <div class="drawer-search-wrap">
+        <input class="drawer-search" type="text" placeholder="search words…" autocomplete="off" spellcheck="false" autocapitalize="off">
+      </div>
+      <div class="drawer-list-label">…</div>
+      <div class="drawer-list"></div>
+    </div>
+  `;
+  document.body.appendChild(drawer);
+  drawer.querySelector('.drawer-veil').addEventListener('click', closeSidebar);
+  drawer.querySelector('.drawer-close').addEventListener('click', closeSidebar);
+  drawer.querySelector('.drawer-search').addEventListener('input', refreshSidebarList);
+  return drawer;
+}
+function openSidebar() {
+  const drawer = _buildSidebar();
+  refreshSidebarList();
+  drawer.classList.add('open');
+}
+function closeSidebar() {
+  const d = document.getElementById('drawer');
+  if (d) d.classList.remove('open');
+}
+function refreshSidebarList() {
+  const drawer = document.getElementById('drawer');
+  if (!drawer) return;
+  const all = Object.keys(CARDS).sort();
+  const waking  = all.filter(w => !saved.learned[w]);
+  const learned = all.filter(w =>  saved.learned[w]);
+  const q = (drawer.querySelector('.drawer-search').value || '').toLowerCase().trim();
+  drawer.querySelector('.drawer-count').textContent =
+    `${learned.length} / ${all.length} awakened`;
+  drawer.querySelector('.drawer-list-label').textContent =
+    `still waking · ${waking.length}`;
+  const list = drawer.querySelector('.drawer-list');
+  list.innerHTML = '';
+  waking
+    .filter(w => !q || w.toLowerCase().includes(q))
+    .forEach(w => {
+      const a = document.createElement('button');
+      a.className = 'drawer-word';
+      a.textContent = w;
+      a.addEventListener('click', () => {
+        closeSidebar();
+        SFX.pageTurn();
+        go('card', { word: w, from: state.screen });
+      });
+      list.appendChild(a);
+    });
 }
 // "Are you sure?" — close-the-book confirmation, shown when the user
 // tries to exit a stage mid-way.  Closing forfeits the current page.
@@ -330,14 +402,16 @@ function sprinkleStars(container, count = 18) {
   if (!container || container.querySelector('.deco-stars')) return;
   const wrap = document.createElement('div');
   wrap.className = 'deco-stars';
-  const glyphs = ['✦','✧','⋆','·'];
   for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
     s.className = 's';
-    s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
-    s.style.top  = (Math.random() * 92) + '%';
-    s.style.left = (Math.random() * 96) + '%';
-    s.style.fontSize = (4 + Math.random() * 7) + 'px';
+    // No text content — the sparkle is the PNG background.  Sizing the
+    // box (not the font) is what actually makes the image visible.
+    const sz = 8 + Math.floor(Math.random() * 12);    // 8–19 px
+    s.style.top    = (Math.random() * 92) + '%';
+    s.style.left   = (Math.random() * 96) + '%';
+    s.style.width  = sz + 'px';
+    s.style.height = sz + 'px';
     s.style.animationDelay = (Math.random() * 4) + 's';
     wrap.appendChild(s);
   }
@@ -349,7 +423,7 @@ function sprinkleStars(container, count = 18) {
    Shared by stage results, note, index detail view.
    classes here mirror the old aesthetic but are reusable.
    ------------------------------------------------------------ */
-function renderExCard(headWord, mark = null, { rewrite = false } = {}) {
+function renderExCard(headWord, mark = null, { rewrite = false, expanded = false } = {}) {
   const c = CARDS[headWord];
   if (!c) {
     const x = document.createElement('div');
@@ -358,78 +432,117 @@ function renderExCard(headWord, mark = null, { rewrite = false } = {}) {
     return x;
   }
   const box = document.createElement('div');
-  box.className = 'ex-card' + (mark === true ? ' is-correct' : mark === false ? ' is-wrong' : '');
+  box.className = 'ex-card'
+    + (mark === true ? ' is-correct' : mark === false ? ' is-wrong' : '')
+    + (expanded ? '' : ' is-collapsed');
 
-  /* headword row */
-  const row = document.createElement('div');
-  row.className = 'ex-headword-row';
-  row.innerHTML = `
-    <button class="ex-speak" data-sp="${escapeAttr(c.example || c.h)}">♪</button>
+  /* The HEAD strip — always visible.  This is the "compact card" face. */
+  const head = document.createElement('div');
+  head.className = 'ex-head';
+  head.innerHTML = `
+    <button class="ex-speak ex-speak-head" data-sp="${escapeAttr(c.h)}" aria-label="play">♪</button>
     <span class="ex-hw-fleur">❧</span>
     <span class="ex-headword">${escapeHtml(c.h)}</span>
     <span class="ex-hw-fleur">❧</span>
     <span class="ex-pos">${escapeHtml(c.pos || '')}</span>
     <span class="ex-headword-zh">${escapeHtml(c.zh || '')}</span>
   `;
-  box.appendChild(row);
+  box.appendChild(head);
 
-  /* gold rule */
-  const rule = document.createElement('div'); rule.className = 'ex-hw-rule'; box.appendChild(rule);
+  /* The BODY — hidden until the user taps to wake the card. */
+  const body = document.createElement('div');
+  body.className = 'ex-body';
 
   /* family */
   if (c.family && c.family.length) {
     const fam = document.createElement('div');
-    fam.className = 'ex-family';
+    fam.className = 'ex-section ex-family';
     fam.innerHTML = `<div class="ex-label">her family</div>` + c.family.map(line => {
       const [w, pos, ex, ezh] = line.split('|').map(s => s.trim());
       return `<div class="fam-row">
         <span class="fam-word">${escapeHtml(w)}</span>
         <span class="fam-pos">${escapeHtml(pos)}</span>
+        <button class="ex-speak" data-sp="${escapeAttr(ex)}" aria-label="play">♪</button>
         <span class="fam-ex">${escapeHtml(ex)}</span>
         <span class="fam-ex-zh">${escapeHtml(ezh || '')}</span>
       </div>`;
     }).join('');
-    box.appendChild(fam);
+    body.appendChild(fam);
   }
 
   /* collocations (her friend) */
   if (c.colloc && c.colloc.length) {
     const fr = document.createElement('div');
-    fr.className = 'ex-friend';
+    fr.className = 'ex-section ex-friend';
     fr.innerHTML = `<div class="ex-label">her friend</div>` + c.colloc.map(line => {
       const [phrase, zh] = line.split('|').map(s => s.trim());
       return `<div class="colloc-row">
+        <button class="ex-speak" data-sp="${escapeAttr(phrase)}" aria-label="play">♪</button>
         <span class="colloc-en">${escapeHtml(phrase)}</span>
         <span class="colloc-zh">${escapeHtml(zh || '')}</span>
       </div>`;
     }).join('');
-    box.appendChild(fr);
+    body.appendChild(fr);
   }
 
   /* example */
   if (c.example) {
     const ex = document.createElement('div');
     ex.className = 'ex-example';
-    ex.innerHTML = `<div class="ex-example-en">${escapeHtml(c.example)}</div>
-                    <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>`;
-    box.appendChild(ex);
+    ex.innerHTML = `
+      <button class="ex-speak" data-sp="${escapeAttr(c.example)}" aria-label="play">♪</button>
+      <div class="ex-example-text">
+        <div class="ex-example-en">${escapeHtml(c.example)}</div>
+        <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>
+      </div>`;
+    body.appendChild(ex);
   }
 
-  /* optional rewrite input */
+  /* her neighbor — the synonym partner.  Clicking it jumps to that
+     word's card without losing the current stage state.            */
+  if (c.partner) {
+    const nb = document.createElement('div');
+    nb.className = 'ex-section ex-neighbor';
+    nb.innerHTML = `<span class="ex-label">her neighbor</span>
+                    <button class="ex-neighbor-link">${escapeHtml(c.partner)}</button>`;
+    nb.querySelector('.ex-neighbor-link').addEventListener('click', e => {
+      e.stopPropagation();
+      SFX.pageTurn();
+      go('card', { word: c.partner, from: state.screen });
+    });
+    body.appendChild(nb);
+  }
+
+  /* optional rewrite input — used by stage-2 result for handwriting. */
   if (rewrite) {
     const rw = document.createElement('div');
     rw.className = 'ex-rewrite';
-    rw.innerHTML = `<div class="ex-rewrite-label">her hand</div>
+    rw.innerHTML = `<div class="ex-rewrite-label">copy once</div>
                     <input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(c.h)}">`;
-    box.appendChild(rw);
+    body.appendChild(rw);
   }
 
-  /* speak buttons */
+  box.appendChild(body);
+
+  /* every ♪ play button speaks its own segment, never bubbling up to
+     trigger a card-wide reveal. */
   box.querySelectorAll('.ex-speak').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
       speak(b.getAttribute('data-sp'));
     });
+  });
+
+  /* TAP TO WAKE — the "forced learning" beat.  When the card is
+     collapsed, any tap on the head expands the body AND auto-plays
+     the example sentence once.  After that the card stays open and
+     the per-segment ♪ buttons handle further audio.                  */
+  head.addEventListener('click', e => {
+    if (e.target.closest('.ex-speak')) return;
+    if (!box.classList.contains('is-collapsed')) return;
+    box.classList.remove('is-collapsed');
+    SFX.pageTurn();
+    speak(c.example || c.h);
   });
 
   return box;
@@ -480,42 +593,21 @@ function hideModal() { $('#modal').classList.remove('show'); }
 const Screens = {
 
   /* ---------- COVER (the hub) ----------
-     Two-phase reveal:
-       phase 1 — pure starry illustration, no text, no audio. one tap.
-       phase 2 — title + three buttons fade in, BGM rises, every button
-                 becomes clickable.  The gate <div> is REMOVED, not hidden,
-                 so it cannot keep eating clicks after we wake.            */
+     Plain reveal — content is visible immediately.  BGM unlocks on
+     the FIRST real click on the page (the "Tonight's Reading" tap or
+     either of the cover-side links), which is the Safari-safe spot
+     to do it.  The moon-corner button isn't shown here because the
+     cover IS the hub; the two cover-side links live in the layout.  */
   cover: {
     onEnter() {
-      // Make sure no leftover body class blocks the new cover.
-      document.body.classList.add('cover-pending');
-
       const el = $('#screen-cover');
       const learnedCount = Object.keys(saved.learned).length;
       el.innerHTML = '';
 
-      // The full-screen tap-target.  Holds a soft "tap" hint.
-      const gate = document.createElement('div');
-      gate.className = 'cover-gate';
-      gate.innerHTML = `<div class="hint">tap anywhere · she stirs</div>`;
-      el.appendChild(gate);
-
-      // The hidden-until-tap content layer.
       const stage = document.createElement('div');
       stage.className = 'cover-stage';
       stage.innerHTML = `
-        <div class="cover-top">${titleStrip()}</div>
         <div class="cover-mid">
-          <div class="moonlit">
-            <span class="moon">☾</span>
-            <span class="star" style="top:14px;left:18%;font-size:9px">✦</span>
-            <span class="star" style="top:30px;right:14%;font-size:7px">✧</span>
-            <span class="star" style="top:62px;left:8%;font-size:5px">⋆</span>
-            <span class="star" style="top:96px;right:6%;font-size:6px">✦</span>
-            <span class="star" style="top:118px;left:30%;font-size:5px">✧</span>
-            <span class="star" style="bottom:8px;right:32%;font-size:6px">⋆</span>
-            <span class="star" style="bottom:30px;left:40%;font-size:5px">·</span>
-          </div>
           <div id="cover-cta-slot"></div>
           <div class="home-stats">${learnedCount} of ${TOTAL_WORDS} awakened</div>
         </div>
@@ -524,10 +616,12 @@ const Screens = {
         </div>
       `;
       el.appendChild(stage);
-      sprinkleStars(el, 22);
+      sprinkleStars(el, 18);
+      el.appendChild(moonCorner());
 
-      // CTA + the two cover-side links.
+      // Tonight's Reading — unlocks audio on the way into stage 1.
       $('#cover-cta-slot', el).appendChild(mainCTA(`Tonight's Reading`, () => {
+        LanBGM.unlock();
         const fade = document.createElement('div');
         fade.className = 'fade-out';
         document.body.appendChild(fade);
@@ -540,22 +634,8 @@ const Screens = {
           fade.classList.remove('show');
         }, 1000);
       }));
-      $('#cover-links', el).appendChild(lilGhost('her note',  () => go('note')));
-      $('#cover-links', el).appendChild(lilGhost('the index', () => go('index')));
-
-      // wake-on-tap, with the audio handshake done SYNCHRONOUSLY in the
-      // gesture (Safari otherwise refuses to start BGM).  And, critically,
-      // the gate element is removed from the DOM — leaving it would keep
-      // its position:absolute overlay sitting on top of every button.
-      const wake = (e) => {
-        e && e.stopPropagation();
-        LanBGM.unlock();           // synchronous — must be first
-        SFX.bling();               // unlocks SFX's own AudioContext too
-        gate.remove();             // *** the fix for "clicks dead" ***
-        document.body.classList.remove('cover-pending');
-        LanBGM.playHomeRandom({ volume: 0.42 });
-      };
-      gate.addEventListener('click', wake, { once: true });
+      $('#cover-links', el).appendChild(lilGhost('her note',  () => { LanBGM.unlock(); LanBGM.playHomeRandom({ volume: 0.42 }); go('note'); }));
+      $('#cover-links', el).appendChild(lilGhost('the index', () => { LanBGM.unlock(); LanBGM.playHomeRandom({ volume: 0.42 }); go('index'); }));
     }
   },
 
@@ -582,7 +662,7 @@ const Screens = {
         <div class="match-actions"></div>
       `;
       sprinkleStars(el, 12);
-      el.prepend(moonCorner({ confirm: true }));
+      el.prepend(moonCorner()); el.appendChild(closeCorner({ confirm: true }));
 
       const grid = $('.match-grid', el);
       shuffled.forEach((c, idx) => {
@@ -595,7 +675,6 @@ const Screens = {
 
       const actions = $('.match-actions', el);
       actions.appendChild(btn('confirm', () => submit(), { variant: 'pink' }));
-      el.appendChild(pageFooter({ confirm: true }));
 
       function paint(idx) {
         if (tagOf[idx] !== null) {
@@ -664,12 +743,11 @@ const Screens = {
         <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 10);
-      el.prepend(moonCorner({ confirm: false }));
+      el.prepend(moonCorner()); el.appendChild(closeCorner());
       const grid = $('.result-grid', el);
       tested.forEach(w => grid.appendChild(renderExCard(w, state.results[w].match)));
       const actions = $('.stage-actions', el);
       actions.appendChild(nextDoor('the reading', () => go('stage2')));
-      el.appendChild(pageFooter({ confirm: false }));
     }
   },
 
@@ -685,8 +763,7 @@ const Screens = {
         <div class="oracle-stage" id="oracle-stage"></div>
       `;
       sprinkleStars(el, 10);
-      el.prepend(moonCorner({ confirm: true }));
-      el.appendChild(pageFooter({ confirm: true }));
+      el.prepend(moonCorner()); el.appendChild(closeCorner({ confirm: true }));
       drawQ();
 
       function drawQ() {
@@ -758,12 +835,11 @@ const Screens = {
         <div class="stage-actions"></div>
       `;
       sprinkleStars(el, 10);
-      el.prepend(moonCorner({ confirm: false }));
+      el.prepend(moonCorner()); el.appendChild(closeCorner());
       const grid = $('.result-grid', el);
       state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true })));
       const actions = $('.stage-actions', el);
       actions.appendChild(nextDoor('the inscription', () => go('stage3')));
-      el.appendChild(pageFooter({ confirm: false }));
     }
   },
 
@@ -778,8 +854,7 @@ const Screens = {
         <div class="dict-stage" id="dict-stage"></div>
       `;
       sprinkleStars(el, 10);
-      el.prepend(moonCorner({ confirm: true }));
-      el.appendChild(pageFooter({ confirm: true }));
+      el.prepend(moonCorner()); el.appendChild(closeCorner({ confirm: true }));
       drawQ();
 
       function drawQ() {
@@ -892,8 +967,7 @@ const Screens = {
 
       const actions = $('.stage-actions', el);
       actions.appendChild(nextDoor('next chapter', () => { LanBGM.stop(); go('cover'); }));
-      el.prepend(moonCorner({ confirm: false }));
-      el.appendChild(pageFooter({ confirm: false }));
+      el.prepend(moonCorner()); el.appendChild(closeCorner());
     }
   },
 
@@ -922,7 +996,6 @@ const Screens = {
         <div id="note-body"></div>
       `;
       sprinkleStars(el, 12);
-      el.appendChild(pageFooter({ confirm: false }));
 
       const body = $('#note-body', el);
       const show = (label, words) => {
@@ -964,7 +1037,6 @@ const Screens = {
         <div id="index-body"></div>
       `;
       sprinkleStars(el, 12);
-      el.appendChild(pageFooter({ confirm: false }));
       $$('.alpha-bar a', el).forEach(a => {
         a.addEventListener('click', () => {
           const L = a.getAttribute('data-letter');
@@ -1005,7 +1077,6 @@ const Screens = {
         <div class="result-grid" id="card-host"></div>
       `;
       sprinkleStars(el, 10);
-      el.appendChild(pageFooter({ to: from, label: 'back', confirm: false }));
       $('#card-host', el).appendChild(renderExCard(word, null));
     }
   }

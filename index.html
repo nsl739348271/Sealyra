@@ -16,10 +16,15 @@
 
 <link rel="stylesheet" href="styles.css">
 </head>
-<body class="cover-pending">
+<body>
 
-<!-- Fixed banner at the very top of every screen.  The illustration
-     is a 1916×821 lockup, scaled to fit width, anchored to the top.   -->
+<!-- Fixed atmospheric layer that sits behind every screen.  We swap
+     its background-image via a body class (bg-cover / bg-stage / ...)
+     so the illustration stays put while the actual page content
+     scrolls over it.                                                 -->
+<div id="bg-layer"></div>
+
+<!-- Fixed banner at the very top of every screen. -->
 <header id="banner-top">
   <img src="assets/banner.png" alt="Her Little Lexicon">
 </header>

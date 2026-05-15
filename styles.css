@@ -1418,5 +1418,277 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 
 /* The "Her Little Lexicon" title in the cover content is now
    redundant — the banner already shows it.  Hide the duplicate. */
-.cover-top { display: none; }
+.cover-top, .book-header { display: none; }
+
+
+/* ============================================================
+   20. FIXED BACKGROUND LAYER  (#bg-layer)
+   ============================================================
+   The previous approach pinned background-image directly on each
+   .screen, which caused the artwork to stretch with content as the
+   page grew.  Now there's a single fixed element behind everything
+   and we just swap its image via a body class.  Content scrolls
+   over a steady artwork — what the brief actually asks for.       */
+#bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: #1A1530;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png"); }
+
+/* Screens themselves no longer paint backgrounds — they live on top
+   of the fixed layer.  Older per-screen background-image rules are
+   overridden here.                                                 */
+.screen.active,
+#screen-cover.active,
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active,
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active,
+#screen-note.active, #screen-index.active, #screen-card.active {
+  background-image: none !important;
+  background-color: transparent !important;
+}
+
+
+/* ============================================================
+   21. TOP-RIGHT "close the page" PILL
+   ============================================================
+   The universal exit on every non-cover screen.  Pinned just below
+   the banner so the user can always find their way home.            */
+.close-corner {
+  position: absolute;
+  top: calc(100vw * 821 / 1916 + 12px);
+  right: 14px;
+  z-index: 60;
+  background: rgba(6,3,15,.55);
+  border: 1px solid rgba(244,181,200,.42);
+  color: var(--pink-soft);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .18em;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: box-shadow .2s, border-color .2s;
+}
+.close-corner:hover  { box-shadow: 0 0 14px rgba(244,181,200,.40); border-color: rgba(244,181,200,.7); }
+.close-corner:active { transform: translateY(1px); }
+
+
+/* ============================================================
+   22. SIDEBAR DRAWER  ("her words")
+   ============================================================
+   Slides in from the left with a soft veil over the rest of the
+   page.  Holds the awakened-counter, a search input, and a live
+   list of the words you haven't learned yet.                        */
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.drawer.open { pointer-events: auto; opacity: 1; }
+
+.drawer-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,4,18,.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.drawer-panel {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: min(86%, 360px);
+  background: linear-gradient(180deg, #1E1638 0%, #14102A 100%);
+  border-right: 1px solid rgba(244,181,200,.22);
+  box-shadow: 4px 0 28px rgba(0,0,0,.55);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform .28s cubic-bezier(.2,.7,.2,1);
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.drawer.open .drawer-panel { transform: translateX(0); }
+
+.drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 22px 14px;
+}
+.drawer-title {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--pink-soft);
+  letter-spacing: .04em;
+}
+.drawer-title em { font-style: italic; }
+.drawer-count {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--soft);
+  letter-spacing: .18em;
+  margin-top: 4px;
+}
+.drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--gold-deep);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+}
+.drawer-close:hover { color: var(--rose); }
+
+.drawer-search-wrap {
+  padding: 4px 22px 12px;
+}
+.drawer-search {
+  width: 100%;
+  background: rgba(6,3,15,.45);
+  border: 1px solid rgba(244,181,200,.22);
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: var(--cream);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .04em;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.drawer-search::placeholder { color: var(--muted); }
+.drawer-search:focus { border-color: rgba(244,181,200,.55); box-shadow: 0 0 12px rgba(244,181,200,.22); }
+
+.drawer-list-label {
+  padding: 14px 22px 8px;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--pink-deep);
+}
+
+.drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 22px 28px;
+  -webkit-overflow-scrolling: touch;
+}
+.drawer-word {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 7px 0;
+  color: var(--cream);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: color .15s, transform .15s;
+}
+.drawer-word:hover { color: var(--rose); transform: translateX(4px); }
+
+
+/* ============================================================
+   23. STUDY CARD — collapsed vs awake
+   ============================================================
+   The "force learning" mechanism: cards arrive collapsed, showing
+   only the head row.  A tap on the head wakes the body AND auto-
+   plays the example sentence, then the per-segment ♪ buttons take
+   over.  Old rules from section 8 still style the inner content;
+   we just toggle visibility via .is-collapsed.                    */
+.ex-card {
+  cursor: default;
+  transition: box-shadow .25s, border-color .25s;
+}
+.ex-card.is-collapsed { cursor: pointer; }
+.ex-card.is-collapsed .ex-body { display: none; }
+.ex-card.is-collapsed::after {
+  content: "tap to wake";
+  display: block;
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: .28em;
+  color: rgba(245,239,227,.30);
+  margin-top: 10px;
+}
+.ex-card.is-collapsed:hover::after { color: var(--rose); }
+
+/* The ♪ play button — small, gold, neat */
+.ex-speak {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--gold);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+  transition: color .15s, transform .15s;
+}
+.ex-speak:hover  { color: var(--rose); transform: scale(1.15); }
+.ex-speak:active { transform: scale(.92); }
+
+/* "her neighbor" — partner link, italic, dashed underline */
+.ex-neighbor {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 6px 0;
+}
+.ex-neighbor-link {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--pink-soft);
+  letter-spacing: .02em;
+  border-bottom: 1px dashed rgba(244,181,200,.45);
+  padding: 0 2px 2px;
+}
+.ex-neighbor-link:hover { color: var(--rose); border-bottom-color: var(--rose); }
+
+
+/* ============================================================
+   24. SPARKLE FIX  +  obsolete rules wiped
+   ============================================================ */
+.deco-stars .s {
+  display: block;            /* inline spans ignore width/height */
+  font-size: 0 !important;   /* kill the old unicode text rendering */
+  color: transparent;
+  text-shadow: none;
+  pointer-events: none;
+}
+
+/* Page-footer is gone — closeCorner replaces it.  Hide any stragglers. */
+.page-footer { display: none; }
+.cover-gate  { display: none; }   /* the old tap-to-wake gate is retired */
+
+/* Body bg was forced to var(--bg-deep) by an older rule; let bg-layer take over. */
+body { background: transparent !important; }
+
 
