@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="theme-color" content="#0E0B1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Her Little Lexicon">
+<title>Her Little Lexicon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== App shell. Each <section> is one screen. =====
+     One screen visible at a time; everything else is display:none.
+     All content inside each screen is rendered by app.js -->
+<div id="app">
+
+  <section id="screen-cover"          class="screen screen-cover"></section>
+  <section id="screen-index"          class="screen screen-index"></section>
+  <section id="screen-chapter"        class="screen screen-chapter"></section>
+
+  <section id="screen-match"          class="screen screen-match"></section>
+  <section id="screen-match-result"   class="screen screen-result"></section>
+
+  <section id="screen-oracle"         class="screen screen-oracle"></section>
+  <section id="screen-oracle-result"  class="screen screen-result"></section>
+
+  <section id="screen-dict"           class="screen screen-dict"></section>
+  <section id="screen-dict-result"    class="screen screen-result"></section>
+
+  <section id="screen-note"           class="screen screen-note"></section>
+
+</div>
+
+<!-- Modal layer -->
+<div id="modal" class="modal-veil"></div>
+
+<!-- Data + BGM + App  ----- loaded in order -->
+<script src="data.js"></script>
+<script src="bgm.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
