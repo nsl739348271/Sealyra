@@ -1786,12 +1786,12 @@ body { background: transparent !important; }
 .close-corner { top: 12px; }
 .moon-corner  { top: 10px; left: 14px; }
 
-/* The "black bottom gap" was the html/body fallback colour (an
-   almost-black --bg-deep) showing through wherever the bg-layer
-   couldn't reach (safe-area-inset-bottom, scroll overshoot, etc).
-   Match every layer to the artwork's deep violet so any leakage
-   is invisible.                                                     */
-html, body { background-color: #1A1530 !important; }
+/* The "black bottom gap" was the html fallback colour bleeding
+   through.  We paint html itself with the deep violet so any
+   leakage stays invisible, but body has to stay TRANSPARENT or it
+   will sit on top of the fixed #bg-layer and hide the artwork.    */
+html { background-color: #1A1530 !important; }
+body { background: transparent !important; }
 
 
 /* ============================================================
@@ -1849,17 +1849,36 @@ html, body { background-color: #1A1530 !important; }
 
 .ex-card {
   position: relative;
+  display: block;
+  width: calc(100% - 28px);     /* same width whichever card it is */
+  max-width: 540px;
+  margin: 18px auto 22px;
+  box-sizing: border-box;
   background: rgba(8,4,18,.62);
   border: 1px solid rgba(244,181,200,.36);
   border-radius: 16px;
-  padding: 56px 22px 60px;   /* leave room for the two corner buttons */
-  margin: 18px 14px 22px;
-  max-width: 540px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 56px 22px 60px;
+  cursor: pointer;              /* hints at the tap-to-reveal */
   box-shadow:
     0 0 24px rgba(244,181,200,.18),
     inset 0 0 22px rgba(199,122,149,.06);
+}
+.ex-card.is-done { cursor: default; }
+/* The veiled state — every revealable row starts hidden, gets shown
+   on the next card-wide tap.                                        */
+.fam-row.is-veiled    .fam-reveal,
+.colloc-row.is-veiled,
+.ex-example.is-veiled { display: none; }
+
+.ex-tap-hint {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .22em;
+  color: var(--pink-soft);
+  opacity: .65;
+  padding: 10px 0 4px;
 }
 .ex-card.is-correct { border-color: var(--rose);  box-shadow: var(--rose-glow), 0 6px 28px rgba(0,0,0,.35); }
 .ex-card.is-wrong   { border-color: rgba(244,181,200,.45); box-shadow: 0 0 14px rgba(199,122,149,.18); }
