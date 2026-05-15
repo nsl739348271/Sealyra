@@ -1439,10 +1439,14 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
   background-repeat: no-repeat;
   pointer-events: none;
 }
-#app, #banner-top, .drawer, .modal-veil { position: relative; z-index: 1; }
-#banner-top  { z-index: 200; }
-.drawer      { z-index: 500; }
-.modal-veil  { z-index: 700; }
+/* Only bump z-indexes here — don't touch the position properties
+   that the original rules already set (banner = fixed top, drawer
+   and modal = fixed full-viewport).  Overriding them to "relative"
+   was what sent the modal sliding to the bottom of the document.   */
+#app          { position: relative; z-index: 1; }
+#banner-top   { z-index: 200; }
+.drawer       { z-index: 500; }
+.modal-veil   { z-index: 700; }
 body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png"); }
 body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png"); }
 body.bg-result #bg-layer { background-image: url("assets/bg-result.png"); }
@@ -2338,6 +2342,24 @@ body { background: transparent !important; }
    kept tofu-ing into a white tile — pull it out entirely.          */
 .stage-head::after { content: none !important; }
 .stage-head        { padding-bottom: 14px !important; }
+
+/* Defensive: a higher-specificity copy of the outlined-btn rules,
+   in case an older sheet pinned .modal-actions .btn to the solid
+   pink without leaving a wedge for !important.                     */
+.modal-card .btn,
+.modal-actions .btn,
+.modal-actions button.btn {
+  background: transparent !important;
+  color: var(--cream) !important;
+  border: 1px solid rgba(244,181,200,.45) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+.modal-card .btn.ghost,
+.modal-actions .btn.ghost {
+  border-color: rgba(245,239,227,.28) !important;
+  color: var(--soft) !important;
+}
 
 
 
