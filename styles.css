@@ -2362,6 +2362,56 @@ body { background: transparent !important; }
 }
 
 
+/* ============================================================
+   34. THE LAYOUT TRIO  (banner ⌃ content ⌃ modal)
+   ============================================================
+   Multiple earlier patches accidentally let:
+     - the banner lose its position:fixed and scroll away,
+     - the modal-veil un-center and sink to the bottom of the doc,
+     - the cover-mid centre its CTA so far down the page that the
+       user's eye lands on dark sky, not on Tonight's Reading.
+   Force the three of them back to a known good state with the most
+   specific selectors we can swing.                                  */
+
+#banner-top {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 200 !important;
+}
+
+#modal.modal-veil {
+  position: fixed !important;
+  inset: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+}
+#modal.modal-veil.show { display: flex !important; }
+
+/* Pull cover-mid's content up next to the banner — the previous
+   center-justify left a ~60% empty band before the CTA appeared.   */
+.cover-stage {
+  justify-content: flex-start !important;
+  padding-top: 26px !important;
+}
+.cover-mid {
+  flex: 0 0 auto !important;
+  justify-content: flex-start !important;
+  padding-top: 40px !important;
+  gap: 16px !important;
+}
+.cover-bottom {
+  margin-top: auto !important;       /* sits at the bottom on its own */
+}
+
+/* Stage headers were sitting in the lower half too — the flex
+   "fill" on .screen was stretching their preceding spacer.         */
+.screen.active { justify-content: flex-start !important; }
+.stage-head { margin-top: 12px !important; }
+
+
 
 
 
