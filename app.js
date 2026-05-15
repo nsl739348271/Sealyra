@@ -232,12 +232,9 @@ function keyIconHtml() {
 function mainCTA(label, onClick) {
   const a = document.createElement('button');
   a.className = 'main-cta';
-  a.innerHTML = `
-    <span class="cta-key cta-key-l">${keyIconHtml()}</span>
-    <span class="cta-text">${escapeHtml(label)}</span>
-    <span class="cta-key cta-key-r">${keyIconHtml()}</span>
-    <span class="cta-rule"></span>
-  `;
+  // No flanking keys — they kept iOS-Safari'ing into white tiles.
+  // The gradient gold rule beneath the text carries the ornament alone.
+  a.innerHTML = `<span class="cta-text">${escapeHtml(label)}</span>`;
   a.addEventListener('click', () => {
     if (a.classList.contains('is-engaged')) return;
     a.classList.add('is-engaged');
@@ -290,6 +287,10 @@ function moonCorner() {
   b.className = 'moon-corner';
   b.title = 'her words';
   b.setAttribute('aria-label', 'open her words');
+  // CSS-drawn three-line menu glyph — no png, no unicode glyph that
+  // might tofu on ios.  The "menu" is built from one element + two
+  // box-shadows so it always paints.
+  b.innerHTML = '<span class="mc-bar"></span>';
   b.addEventListener('click', () => { SFX.tap(); openSidebar(); });
   return b;
 }

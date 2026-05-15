@@ -2177,5 +2177,169 @@ body { background: transparent !important; }
 }
 
 
+/* ============================================================
+   33. BUTTON FAMILY  v3  — outlined, text-led, no pink fills
+   ============================================================
+   Every ::before / ::after that loaded a PNG kept rendering as a
+   white tile on iOS Safari, and the pink-pill .btn that came
+   along with v1 read like a generic app button.  Rebuilding the
+   family here.  These rules use !important to guarantee they win
+   against the earlier sections without having to track every
+   precedent rule.                                                 */
+
+/* A. Default .btn — outlined italic pill */
+.btn {
+  background: transparent !important;
+  color: var(--cream) !important;
+  border: 1px solid rgba(244,181,200,.45) !important;
+  border-radius: 999px !important;
+  padding: 9px 22px !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  letter-spacing: .04em !important;
+  cursor: pointer;
+  box-shadow: none !important;
+  transition: border-color .2s, color .2s, box-shadow .2s, transform .12s;
+}
+.btn:hover  { border-color: var(--rose) !important; color: var(--rose) !important; box-shadow: 0 0 14px rgba(237,184,158,.32) !important; }
+.btn:active { transform: translateY(1px); }
+.btn.ghost  { border-color: rgba(245,239,227,.28) !important; color: var(--soft) !important; }
+.btn.ghost:hover { border-color: rgba(244,181,200,.55) !important; color: var(--cream) !important; }
+.btn.primary, .btn[data-variant="primary"] {
+  background: rgba(237,184,158,.10) !important;
+  border-color: rgba(237,184,158,.55) !important;
+}
+.btn[disabled] {
+  border-color: rgba(245,239,227,.14) !important;
+  color: rgba(245,239,227,.24) !important;
+  cursor: default;
+}
+
+/* B. Main CTA "Tonight's Reading" — italic display + gradient gold rule */
+.main-cta {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+  max-width: 360px;
+  margin: 0 auto !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 18px 24px !important;
+  cursor: pointer;
+}
+.main-cta .cta-text {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 30px !important;
+  letter-spacing: .02em !important;
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+  text-shadow: 0 0 16px rgba(237,184,158,.45) !important;
+  background: none !important;
+}
+.main-cta::after {
+  content: '' !important;
+  display: block !important;
+  width: 240px !important;
+  height: 1px !important;
+  margin: 10px auto 0 !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(232,200,130,.9) 50%, transparent 100%) !important;
+  pointer-events: none;
+}
+.main-cta:hover .cta-text  { text-shadow: 0 0 22px rgba(237,184,158,.85) !important; }
+.main-cta .cta-key,
+.main-cta .cta-fleur,
+.main-cta .cta-rule        { display: none !important; }
+
+/* C. next-door — chapter-divider:  ──── label ──── */
+.next-door {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 8px 0 !important;
+  color: var(--cream) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 18px !important;
+  letter-spacing: .04em !important;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+.next-door::before, .next-door::after {
+  content: '' !important;
+  display: inline-block;
+  width: 38px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,200,130,.85)) !important;
+}
+.next-door::after {
+  background: linear-gradient(90deg, rgba(232,200,130,.85), transparent) !important;
+}
+.next-door:hover         { color: var(--rose) !important; }
+.next-door:hover::before { background: linear-gradient(90deg, transparent, var(--rose)) !important; }
+.next-door:hover::after  { background: linear-gradient(90deg, var(--rose), transparent) !important; }
+.next-door.is-engaged    { color: var(--rose) !important; }
+.next-door .nd-key,
+.next-door img           { display: none !important; }
+
+/* D. moon-corner — CSS-drawn three-bar menu (no PNG, no unicode) */
+.moon-corner {
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: 1px solid rgba(244,181,200,.32) !important;
+  border-radius: 999px !important;
+  cursor: pointer;
+  padding: 0 !important;
+  color: var(--gold-deep) !important;
+  filter: none !important;
+}
+.moon-corner:hover { border-color: var(--rose) !important; color: var(--rose) !important; }
+.moon-corner::before { content: none !important; }   /* kill the old png pseudo */
+.moon-corner svg     { display: none !important; }   /* kill the old svg moon  */
+.moon-corner .mc-bar {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+  box-shadow:
+    0 -5px 0 currentColor,
+    0  5px 0 currentColor;
+}
+
+/* E. close-corner — slightly smaller .btn-like outline */
+.close-corner {
+  background: rgba(8,4,18,.45) !important;
+  border: 1px solid rgba(244,181,200,.42) !important;
+  color: var(--pink-soft) !important;
+  border-radius: 999px !important;
+  padding: 6px 14px !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .18em !important;
+  backdrop-filter: blur(4px);
+}
+.close-corner:hover {
+  border-color: var(--rose) !important;
+  color: var(--rose) !important;
+}
+
+/* The bow ornament under stage-head was a ::after PNG bg-image and
+   kept tofu-ing into a white tile — pull it out entirely.          */
+.stage-head::after { content: none !important; }
+.stage-head        { padding-bottom: 14px !important; }
+
+
+
 
 
