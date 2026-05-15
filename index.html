@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="theme-color" content="#0E0B1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Her Little Lexicon">
+<title>Her Little Lexicon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="cover-pending">
+
+<!-- Fixed banner at the very top of every screen.  The illustration
+     is a 1916×821 lockup, scaled to fit width, anchored to the top.   -->
+<header id="banner-top">
+  <img src="assets/banner.png" alt="Her Little Lexicon">
+</header>
+
+<!-- ===== App shell. Each <section> is one screen. =====
+     Cover is the hub. Game flow is strictly linear; note + index
+     are cover-side pages, not in the game flow. -->
+<div id="app">
+
+  <!-- Cover hub (the home) -->
+  <section id="screen-cover"   class="screen"></section>
+
+  <!-- Game flow: stage 1 → stage 2 → stage 3 -->
+  <section id="screen-stage1"        class="screen"></section>
+  <section id="screen-stage1-result" class="screen"></section>
+  <section id="screen-stage2"        class="screen"></section>
+  <section id="screen-stage2-result" class="screen"></section>
+  <section id="screen-stage3"        class="screen"></section>
+  <section id="screen-stage3-result" class="screen"></section>
+
+  <!-- Cover-side: archive + word index -->
+  <section id="screen-note"  class="screen"></section>
+  <section id="screen-index" class="screen"></section>
+
+  <!-- Vocab card detail (opened from note / index with the tarot flip) -->
+  <section id="screen-card" class="screen"></section>
+
+</div>
+
+<!-- Modal layer -->
+<div id="modal" class="modal-veil"></div>
+
+<!-- Data + BGM + App  ----- loaded in order -->
+<script src="data.js"></script>
+<script src="bgm.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

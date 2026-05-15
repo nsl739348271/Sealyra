@@ -1,0 +1,1422 @@
+/* ============================================================
+   Her Little Lexicon — styles.css
+   Visual layer ONLY. Logic lives in app.js.
+   Aesthetic anchor: tiny serifs + wide letter-spacing + unicode
+   fleurons (❦ ❧) + unicode stars (✦ ✧ ⋆) + a single ☾ moon.
+   No SVG icons. Default button = pink pill. CTA = gold italic
+   text with fleurons + thin gold gradient rule beneath.
+   ============================================================ */
+
+/* ---------- 0. Tokens ---------- */
+:root {
+  /* Brand */
+  --pink:        #F4B5C8;
+  --pink-soft:   #FBD2DD;
+  --pink-deep:   #C77A95;
+  --gold:        #F0C894;
+  --gold-deep:   #DAA868;
+  --gold-warm:   #E8C882;
+  --cream:       #F5EFE3;
+  --soft:        rgba(245,239,227,.72);
+  --muted:       rgba(245,239,227,.36);
+  --gloss:       rgba(100,92,142,.72);
+
+  /* Palette tags */
+  --p0: #F4B5C8;
+  --p1: #EEC0B4;
+  --p2: #B0B4E4;
+  --p3: #C4C8C4;
+
+  /* Backgrounds */
+  --bg-deep:   #0E0B1A;
+  --bg-violet: #1F1842;
+  --panel:     rgba(6,3,15,.44);
+  --line-gold: rgba(240,200,148,.20);
+
+  /* Fonts */
+  --f-body:   Georgia, "Hiragino Mincho ProN", STSong, "Songti SC", serif;
+  --f-display:'Bodoni 72','Didot','Bodoni Moda', Georgia, serif;
+  --f-card:   "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --f-iowan:  "Iowan Old Style", Georgia, Palatino, serif;
+  --f-italic: 'EB Garamond', Georgia, serif;
+  --f-zh:     "STSong", "Songti SC", "Hiragino Mincho ProN", serif;
+}
+
+/* ---------- 1. Reset ---------- */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  min-height: 100%;
+  background: var(--bg-deep);
+  color: var(--cream);
+  font-family: var(--f-body);
+  font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+body {
+  background:
+    radial-gradient(ellipse at 30% 18%, rgba(244,181,200,.18), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(200,155,230,.14), transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(170,140,210,.10), transparent 60%),
+    linear-gradient(180deg, #251A4A 0%, #1F1842 38%, #1A1438 70%, #15102E 100%);
+  background-attachment: fixed;
+}
+button { font-family: inherit; color: inherit; }
+
+/* ---------- 2. App shell ---------- */
+#app {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+.screen {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  padding: 22px 18px 48px;
+  min-height: 100vh;
+  position: relative;
+}
+.screen.active { display: flex; }
+
+/* ---------- 3. Header (title strip across most screens) ---------- */
+.book-header {
+  text-align: center;
+  padding: 22px 18px 16px;
+  position: relative;
+}
+.book-title {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: .04em;
+  line-height: 1.1;
+  margin: 0;
+  background: linear-gradient(180deg, #F5D9A4 0%, #E8B57A 35%, #C99458 55%, #F0CB94 80%, #DAA868 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 0 1px 0 rgba(255,220,160,.10);
+}
+.book-subtitle {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--gold-warm);
+  margin-top: 6px;
+  opacity: .92;
+}
+.book-subtitle .sp { margin: 0 8px; opacity: .8; }
+
+/* Decorative star constellation behind/around content. Unicode glyphs. */
+.deco-stars {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-stars .s {
+  position: absolute;
+  color: var(--cream);
+  font-family: serif;
+  user-select: none;
+  animation: twinkle 3.8s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .15; text-shadow: 0 0 4px currentColor; }
+  50%      { opacity: .75; text-shadow: 0 0 10px currentColor; }
+}
+
+/* ---------- 4. Cover hub ---------- */
+.cover-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  z-index: 1;
+  padding-top: 18px;
+}
+.cover-top { width: 100%; }
+.cover-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.cover-bottom {
+  padding-bottom: 18px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Moon + star block */
+.moonlit {
+  position: relative;
+  width: 280px;
+  height: 180px;
+  margin: 0 auto 22px;
+}
+.moonlit .moon {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-12deg);
+  font-size: 56px;
+  color: var(--gold);
+  line-height: 1;
+  text-shadow: 0 0 18px rgba(240,200,148,.55), 0 0 36px rgba(240,200,148,.28);
+  animation: moonHalo 4.2s ease-in-out infinite;
+}
+@keyframes moonHalo {
+  0%, 100% { text-shadow: 0 0 14px rgba(240,200,148,.45); }
+  50%      { text-shadow: 0 0 22px rgba(240,200,148,.75), 0 0 40px rgba(240,200,148,.35); }
+}
+.moonlit .star {
+  position: absolute;
+  color: var(--cream);
+  font-family: serif;
+  user-select: none;
+  animation: twinkle 3.8s ease-in-out infinite;
+}
+
+/* Tonight's Reading CTA — NOT a framed button.
+   Gold italic text, fleurons each side, gold gradient rule beneath. */
+.main-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+}
+.main-cta .cta-fleur {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  color: var(--gold-deep);
+  line-height: 1;
+}
+.main-cta .cta-text {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: .03em;
+  line-height: 1;
+  animation: ctaGold 4s ease-in-out infinite;
+}
+.main-cta .cta-rule {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 60%;
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, rgba(218,168,104,0) 0%, rgba(218,168,104,.55) 50%, rgba(218,168,104,0) 100%);
+}
+.main-cta:active { opacity: .75; }
+.main-cta.is-engaged .cta-text { color: var(--cream); text-shadow: 0 0 16px rgba(240,200,148,.75); }
+@keyframes ctaGold {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50%      { text-shadow: 0 0 10px rgba(240,200,148,.35); }
+}
+
+/* counter under CTA */
+.home-stats {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  color: #F4C2A8;
+  opacity: .65;
+  letter-spacing: .06em;
+  margin-top: 18px;
+}
+
+/* small "her note" / "the index" links at cover bottom */
+.lil-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 26px;
+  justify-content: center;
+}
+.lil-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(240,194,148,.72);
+  font-family: var(--f-iowan);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-decoration: none;
+  padding: 6px 4px;
+  transition: color .2s;
+}
+.lil-ghost:hover { color: var(--gold); }
+.lil-ghost .lil-fleur {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: var(--gold-deep);
+  line-height: 1;
+}
+
+/* Cover gate — "tap to begin" pre-state */
+.cover-gate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 64px;
+  z-index: 5;
+  cursor: pointer;
+}
+.cover-gate .hint {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--soft);
+  opacity: .5;
+  letter-spacing: .22em;
+  animation: pulse-soft 2.2s ease-in-out infinite;
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: .25; }
+  50%      { opacity: .7; }
+}
+
+/* a body class hides cover content until first tap */
+body.cover-pending .cover-stage > * { visibility: hidden; }
+body.cover-pending .cover-gate     { visibility: visible; }
+
+/* fade-to-black overlay used during cover→game transition */
+.fade-out {
+  position: fixed; inset: 0;
+  background: var(--bg-deep);
+  opacity: 0; pointer-events: none;
+  z-index: 9000;
+  transition: opacity 1s ease;
+}
+.fade-out.show { opacity: 1; pointer-events: all; }
+
+/* ---------- 5. Default button (.btn) — pink pill ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: .02em;
+  padding: 13px 26px;
+  min-width: 140px;
+  background: var(--pink);
+  color: #1A1330;
+  border-radius: 100px;
+  box-shadow: 0 6px 20px rgba(244,181,200,.16);
+  transition: transform .12s, filter .15s, box-shadow .15s;
+}
+.btn:active { transform: translateY(1px); filter: brightness(1.08); }
+.btn[disabled] { background: #5A547A; color: rgba(245,239,227,.55); opacity: .55; cursor: default; box-shadow: none; }
+
+/* ghost variant for "back to cover" / secondary */
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(199,122,149,.55);
+  color: var(--pink-deep);
+  font-size: 13px;
+  padding: 9px 18px;
+  min-width: 100px;
+  box-shadow: none;
+}
+.btn.ghost:active { background: rgba(199,122,149,.10); }
+
+/* mint = "right" / success */
+.btn.mint { background: #A5D8C5; color: #14241D; }
+
+/* ---------- 6. Stage header (chapter · N + stage name) ---------- */
+.stage-head {
+  text-align: center;
+  margin: 14px 0 8px;
+  z-index: 1;
+}
+.stage-chapter {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .32em;
+  color: var(--gold-deep);
+  text-transform: lowercase;
+}
+.stage-name {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: .03em;
+  color: var(--gold);
+  margin-top: 4px;
+}
+.stage-name .nm-fleur {
+  font-size: 16px;
+  color: var(--gold-deep);
+  margin: 0 8px;
+  font-style: normal;
+}
+.stage-rule {
+  width: 60%;
+  height: 1px;
+  margin: 10px auto 0;
+  background: linear-gradient(90deg, rgba(218,168,104,0) 0%, rgba(218,168,104,.55) 50%, rgba(218,168,104,0) 100%);
+}
+
+/* progress dots for stages */
+.q-progress {
+  text-align: center;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: .32em;
+  color: var(--muted);
+  margin: 14px 0 18px;
+  text-transform: lowercase;
+}
+
+/* ---------- 7. Match stage ---------- */
+.match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 400px;
+  margin: 14px auto 18px;
+  width: 100%;
+  z-index: 1;
+}
+.match-card {
+  position: relative;
+  padding: 16px 14px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: .045em;
+  color: var(--cream);
+  background: rgba(6,3,15,.44);
+  border: 1px solid rgba(245,239,227,.10);
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .25s, background .25s, color .25s, transform .15s;
+}
+.match-card:active { transform: translateY(1px); }
+.match-card.tag-0 { border-color: var(--p0); color: var(--p0); background: rgba(244,181,200,.10); box-shadow: 0 0 18px rgba(244,181,200,.16); }
+.match-card.tag-1 { border-color: var(--p1); color: var(--p1); background: rgba(238,192,180,.10); box-shadow: 0 0 18px rgba(238,192,180,.16); }
+.match-card.tag-2 { border-color: var(--p2); color: var(--p2); background: rgba(176,180,228,.10); box-shadow: 0 0 18px rgba(176,180,228,.16); }
+.match-card.tag-3 { border-color: var(--p3); color: var(--p3); background: rgba(196,200,196,.10); box-shadow: 0 0 18px rgba(196,200,196,.16); }
+.match-card.flipping { animation: tarotFlip .42s ease-out forwards; }
+@keyframes tarotFlip {
+  0%   { transform: scale(1)    rotateY(0); opacity: 1; box-shadow: 0 0 0 rgba(255,242,210,0); }
+  50%  { transform: scale(1.05) rotateY(90deg); opacity: .8; box-shadow: 0 0 24px rgba(255,242,210,.55); }
+  100% { transform: scale(1.05) rotateY(90deg); opacity: 0; }
+}
+
+.match-card.correct { border-color: var(--gold); color: var(--gold); background: rgba(240,200,148,.10); box-shadow: 0 0 22px rgba(240,200,148,.30); }
+.match-card.wrong   { opacity: .35; filter: grayscale(.5); }
+
+.match-actions, .stage-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px auto 0;
+  max-width: 400px;
+  width: 100%;
+  gap: 10px;
+  z-index: 1;
+}
+.stage-actions .spacer { flex: 1; }
+
+/* ---------- 8. Oracle stage ---------- */
+.oracle-stage, .dict-stage {
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
+  z-index: 1;
+}
+.q-sentence {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 16px;
+  color: #C4BEE8;
+  line-height: 1.65;
+  padding: 16px 12px;
+  border-top: 1px solid var(--line-gold);
+  border-bottom: 1px solid var(--line-gold);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.q-sentence em { font-style: italic; color: var(--gold); }
+.q-sentence-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--gloss);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.oracle-options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.oracle-option {
+  padding: 11px 14px;
+  border: 1px solid rgba(245,239,227,.10);
+  border-radius: 4px;
+  background: rgba(6,3,15,.40);
+  color: var(--cream);
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-align: left;
+  cursor: pointer;
+  transition: all .18s;
+}
+.oracle-option:active { transform: translateY(1px); }
+.oracle-option.picked-wrong {
+  border-color: var(--pink-deep);
+  background: rgba(199,122,149,.10);
+  color: var(--pink-deep);
+}
+.oracle-option.picked-right,
+.oracle-option.reveal-right {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(240,200,148,.10);
+  box-shadow: 0 0 22px rgba(240,200,148,.35);
+  animation: pulse-gold 1.6s ease-in-out infinite;
+}
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 14px rgba(240,200,148,.28); }
+  50%      { box-shadow: 0 0 28px rgba(240,200,148,.55); }
+}
+.tap-hint {
+  text-align: center;
+  margin-top: 18px;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .26em;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .4s;
+}
+.tap-hint.show { opacity: 1; }
+
+/* ---------- 9. Dictation stage ---------- */
+.dict-prompt {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: .03em;
+  text-align: center;
+  padding: 16px 8px;
+  border-top: 1px solid var(--line-gold);
+  border-bottom: 1px solid var(--line-gold);
+  margin-bottom: 8px;
+}
+.dict-prompt-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--gloss);
+  text-align: center;
+  margin-bottom: 18px;
+  letter-spacing: .08em;
+}
+.dict-hint {
+  text-align: center;
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .4em;
+  color: var(--gold-deep);
+  margin-bottom: 8px;
+}
+.dict-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(6,3,15,.40);
+  border: 1px solid rgba(245,239,227,.12);
+  border-radius: 4px;
+  color: var(--cream);
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: .04em;
+  text-align: center;
+  outline: none;
+}
+.dict-input:focus { border-color: var(--gold); box-shadow: 0 0 14px rgba(240,200,148,.20); }
+.dict-input.is-wrong { border-color: var(--pink-deep); color: var(--pink-deep); }
+.dict-feedback {
+  text-align: center;
+  margin-top: 14px;
+  min-height: 22px;
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+.dict-feedback.is-correct { color: var(--gold); }
+.dict-feedback.is-wrong   { color: var(--pink-deep); }
+.dict-rewrite-label {
+  text-align: center;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: var(--muted);
+  margin: 16px 0 6px;
+}
+.dict-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+
+/* ---------- 10. Modal ---------- */
+.modal-veil {
+  position: fixed; inset: 0;
+  background: rgba(6,3,15,.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-veil.show { display: flex; }
+.modal-card {
+  width: min(86vw, 320px);
+  background: #06030F;
+  border: 1px dashed rgba(244,194,168,.35);
+  border-radius: 8px;
+  padding: 22px 20px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(240,200,148,.20);
+  animation: pop-in .35s ease;
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.modal-title {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: .04em;
+  color: var(--gold);
+}
+.modal-score {
+  font-family: var(--f-card);
+  color: var(--cream);
+  font-size: 32px;
+  margin: 10px 0 14px;
+  letter-spacing: .04em;
+  font-style: italic;
+}
+.modal-score small { font-size: 14px; color: var(--muted); }
+.modal-actions { margin-top: 12px; display: flex; gap: 10px; justify-content: center; }
+
+/* ---------- 11. Result page ---------- */
+.score-header { text-align: center; margin: 10px 0 18px; z-index: 1; }
+.score-header .label {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .32em;
+  color: var(--gold-deep);
+  text-transform: lowercase;
+}
+.score-header .value {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 34px;
+  letter-spacing: .04em;
+  color: var(--gold);
+  margin-top: 2px;
+}
+.score-header .value small { font-size: 14px; color: var(--muted); }
+
+.result-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 440px;
+  margin: 4px auto 12px;
+  width: 100%;
+  z-index: 1;
+}
+
+/* learning card ("ex-card") — what shows after each stage / on note / index */
+.ex-card {
+  border: 1px solid rgba(245,239,227,.10);
+  border-radius: 8px;
+  background: rgba(6,3,15,.50);
+  padding: 14px 16px 16px;
+  position: relative;
+  animation: tarotOpen .42s ease-out;
+}
+@keyframes tarotOpen {
+  0%   { opacity: 0; transform: scale(1.05) rotateY(90deg); }
+  60%  { opacity: 1; transform: scale(1.02) rotateY(0); }
+  100% { opacity: 1; transform: scale(1) rotateY(0); }
+}
+.ex-card.is-correct { box-shadow: 0 0 22px rgba(240,200,148,.28); border-color: rgba(240,200,148,.45); }
+.ex-card.is-wrong   { opacity: .55; filter: grayscale(.35); }
+
+.ex-headword-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ex-speak {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border: none;
+  background: transparent;
+  color: rgba(245,239,227,.28);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0;
+  margin-right: 4px;
+}
+.ex-speak:active { color: rgba(245,239,227,.90); }
+.ex-hw-fleur {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--gold-deep);
+}
+.ex-headword {
+  font-family: var(--f-iowan);
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: .04em;
+  color: var(--gold);
+}
+.ex-pos {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+.ex-headword-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gloss);
+  margin-left: auto;
+}
+.ex-hw-rule {
+  height: 1px;
+  margin: 8px 0 10px;
+  background: linear-gradient(90deg, rgba(218,168,104,0) 0%, rgba(218,168,104,.45) 50%, rgba(218,168,104,0) 100%);
+}
+
+.ex-label {
+  font-family: var(--f-body);
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #F4C2A8;
+  opacity: .65;
+  margin-bottom: 4px;
+}
+.ex-family { margin-bottom: 10px; }
+.fam-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.fam-row .fam-word {
+  font-family: var(--f-card);
+  font-style: italic;
+  color: var(--pink);
+  letter-spacing: .03em;
+}
+.fam-row .fam-pos {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--muted);
+}
+.fam-row .fam-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--gloss);
+}
+.fam-row .fam-ex {
+  font-family: var(--f-card);
+  font-size: 12px;
+  color: #F0C8A0;
+}
+.fam-row .fam-ex-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--gloss);
+  margin-left: auto;
+}
+
+.ex-friend { margin-bottom: 10px; }
+.ex-friend .colloc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 3px 0;
+}
+.ex-friend .colloc-en {
+  font-family: var(--f-card);
+  font-size: 16px;
+  color: #F0C8A0;
+  letter-spacing: .02em;
+}
+.ex-friend .colloc-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--gloss);
+  margin-left: auto;
+}
+
+.ex-example {
+  padding-top: 8px;
+  border-top: 1px dashed rgba(244,194,168,.18);
+}
+.ex-example-en {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 14px;
+  color: #C4BEE8;
+  line-height: 1.6;
+}
+.ex-example-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--gloss);
+  margin-top: 2px;
+}
+
+/* rewrite input on oracle-result vocab card */
+.ex-rewrite { margin-top: 10px; padding-top: 6px; border-top: 1px dashed rgba(244,194,168,.14); }
+.ex-rewrite-label {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #F4C2A8;
+  opacity: .6;
+  margin-bottom: 4px;
+}
+.ex-rewrite input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed rgba(244,194,168,.22);
+  color: var(--cream);
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 14px;
+  padding: 3px 2px;
+  outline: none;
+  letter-spacing: .03em;
+}
+
+/* ---------- 12. Chapter summary row ---------- */
+.summary-list {
+  display: flex; flex-direction: column;
+  gap: 8px;
+  max-width: 440px;
+  margin: 6px auto 16px;
+  width: 100%;
+}
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(245,239,227,.08);
+  border-radius: 4px;
+  background: rgba(6,3,15,.32);
+}
+.summary-row .sum-word {
+  font-family: var(--f-iowan);
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: .02em;
+  color: var(--gold);
+}
+.summary-row .tick     { font-size: 12px; color: var(--muted); }
+.summary-row .tick.ok  { color: #A5D8C5; }
+.summary-row .tick.bad { color: #E89B9B; }
+
+/* ---------- 13. Index / Note (cover-side pages, NOT in game flow) ---------- */
+.page-title {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: .03em;
+  color: var(--gold);
+  text-align: center;
+  margin: 14px 0 4px;
+}
+.page-title .pt-fleur {
+  font-size: 16px;
+  color: var(--gold-deep);
+  font-style: normal;
+  margin: 0 8px;
+}
+.page-subtitle {
+  text-align: center;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--pink);
+  margin-bottom: 16px;
+}
+
+.note-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 440px;
+  margin: 0 auto 16px;
+  width: 100%;
+}
+.note-stat {
+  border: 1px solid rgba(245,239,227,.10);
+  border-radius: 4px;
+  padding: 10px 12px;
+  background: rgba(6,3,15,.32);
+}
+.note-stat .lbl {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: .24em;
+  color: var(--muted);
+  text-transform: lowercase;
+}
+.note-stat .val {
+  font-family: var(--f-card);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--gold);
+  margin-top: 2px;
+  letter-spacing: .03em;
+}
+.note-stat.warn .val { color: #E89B9B; }
+
+.section-label {
+  text-align: center;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: var(--gold-deep);
+  text-transform: lowercase;
+  margin: 14px 0 8px;
+}
+.note-empty {
+  text-align: center;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .18em;
+  margin: 18px 0;
+}
+
+/* index alphabet bar */
+.alpha-bar {
+  display: flex; flex-wrap: wrap;
+  gap: 6px 10px;
+  justify-content: center;
+  max-width: 440px;
+  margin: 0 auto 14px;
+}
+.alpha-bar a {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--gold-deep);
+  text-decoration: none;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+.alpha-bar a:hover { color: var(--gold); }
+.alpha-section-title {
+  font-family: var(--f-body);
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: var(--pink);
+  text-align: center;
+  margin: 16px 0 6px;
+}
+.word-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 12px;
+  border-bottom: 1px dotted rgba(245,239,227,.08);
+  max-width: 440px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+.word-row .wr-word {
+  font-family: var(--f-iowan);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: .02em;
+}
+.word-row .wr-pos {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--muted);
+}
+.word-row .wr-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gloss);
+  margin-left: auto;
+  text-align: right;
+}
+
+/* ---------- 14. Back-to-cover (small left-bottom link on result pages) ---------- */
+.back-to-cover {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  padding: 6px 4px;
+}
+.back-to-cover:hover { color: var(--gold-deep); }
+
+/* ---------- 15. Utility ---------- */
+.center-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.spacer     { flex: 1; }
+.hidden     { display: none !important; }
+
+
+/* ============================================================
+   16. UNIFIED ROSE GLOW + KEY ICONS + LEAVE CONFIRM + FOOTER
+   ============================================================
+   Single source of truth for the "lit-from-within" effect we use
+   for every correct / activated state in the app.  Anywhere this
+   needs to glow the same warm flesh-tone, add .glow-rose or the
+   relevant class below — never invent a new gold variant.        */
+:root {
+  --rose:        #EDB89E;   /* the one unified "correct / activated" glow */
+  --rose-deep:   #D89A82;
+  --rose-soft:   rgba(237,184,158,.55);
+  --rose-glow:   0 0 18px rgba(237,184,158,.55), 0 0 4px rgba(237,184,158,.85);
+  --pink-glow:   0 0 16px rgba(244,181,200,.65), 0 0 4px rgba(244,181,200,.95);
+}
+
+/* Tonight's Reading — italic display in rose, the keys flanking it */
+.main-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+.main-cta .cta-text {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: .04em;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  background: none;
+  -webkit-text-fill-color: var(--rose);
+}
+.main-cta .cta-key {
+  color: var(--gold-deep);
+  display: inline-flex;
+  align-items: center;
+  opacity: .85;
+}
+.main-cta .cta-key .ico-key {
+  width: 16px; height: 56px;
+  filter: drop-shadow(0 0 6px rgba(218,168,104,.35));
+}
+.main-cta .cta-key-l .ico-key { transform: rotate(-12deg); }
+.main-cta .cta-key-r .ico-key { transform: rotate( 12deg); }
+.main-cta .cta-rule { display: none; }   /* keys replace the underline */
+.main-cta:hover .cta-text { text-shadow: 0 0 24px rgba(237,184,158,.85); }
+.main-cta:active { opacity: .85; transform: translateY(1px); }
+.main-cta.is-engaged .cta-text { color: var(--cream); -webkit-text-fill-color: var(--cream); }
+.main-cta.is-engaged .cta-key  { color: var(--rose); opacity: 1; }
+
+/* "next stage / next chapter" door button — pink pill with two keys */
+.next-door {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 22px;
+  background: linear-gradient(180deg, rgba(244,181,200,.18), rgba(199,122,149,.22));
+  border: 1px solid rgba(244,181,200,.55);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--pink-soft);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: .08em;
+  box-shadow: 0 0 14px rgba(244,181,200,.18);
+  transition: box-shadow .25s, transform .15s;
+}
+.next-door:hover { box-shadow: 0 0 20px rgba(244,181,200,.42); }
+.next-door:active { transform: translateY(1px); }
+.next-door.is-engaged { box-shadow: 0 0 26px rgba(237,184,158,.7); color: var(--cream); }
+.next-door .nd-key { color: var(--gold-deep); display: inline-flex; }
+.next-door .nd-key .ico-key { width: 10px; height: 32px; }
+.next-door .nd-key:first-child .ico-key { transform: rotate(-12deg); }
+.next-door .nd-key:last-child  .ico-key { transform: rotate( 12deg); }
+
+/* Tiny moon button anchored to the top-left of every game screen.
+   "her unfinished pages" — opens the mistakes notebook.            */
+.moon-corner {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--gold-deep);
+  z-index: 50;
+  padding: 4px;
+  opacity: .78;
+  transition: opacity .2s, transform .2s;
+}
+.moon-corner:hover { opacity: 1; transform: scale(1.06); }
+.moon-corner svg   { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 4px rgba(218,168,104,.45)); }
+
+/* Page footer — the discreet "back to cover" link at the bottom edge
+   of each page.  Like the page-number of a real book — barely there.  */
+.page-footer {
+  margin-top: 36px;
+  padding: 18px 0 28px;
+  text-align: center;
+}
+.page-footer .foot-link {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .28em;
+  color: rgba(245,239,227,.32);
+  padding: 6px 12px;
+  transition: color .2s;
+}
+.page-footer .foot-link:hover { color: var(--gold-deep); }
+.page-footer .foot-fleur { color: var(--gold-deep); opacity: .55; margin: 0 6px; }
+
+/* Modal body row — used by the "close the book for now?" confirm */
+.modal-body {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: .04em;
+  color: var(--soft);
+  margin: 8px 0 18px;
+  text-align: center;
+}
+
+/* Oracle option states — the unified rose glow + the pre-verdict beat */
+.oracle-option.is-picking {
+  border-color: var(--pink-deep);
+  color: var(--pink-soft);
+  background: rgba(244,181,200,.16);
+  box-shadow: 0 0 18px rgba(199,122,149,.55), inset 0 0 12px rgba(244,181,200,.35);
+  animation: pink-pulse .28s ease-out;
+}
+@keyframes pink-pulse {
+  0%   { box-shadow: 0 0 6px  rgba(199,122,149,.25), inset 0 0 4px  rgba(244,181,200,.15); }
+  100% { box-shadow: 0 0 18px rgba(199,122,149,.55), inset 0 0 12px rgba(244,181,200,.35); }
+}
+.oracle-option.picked-right {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: rgba(237,184,158,.10);
+  box-shadow: var(--rose-glow);
+}
+.oracle-option.picked-wrong {
+  border-color: rgba(245,239,227,.16);
+  color: rgba(245,239,227,.32);
+  background: rgba(6,3,15,.32);
+  box-shadow: none;
+  opacity: .55;
+}
+.oracle-option.reveal-right {
+  border-color: var(--pink);
+  color: var(--pink-soft);
+  background: rgba(244,181,200,.14);
+  box-shadow: var(--pink-glow);
+}
+
+/* Stage-1 match: correct-pair glow recolored to rose.  Wrong cards
+   keep their 4-tag colour (no rule needed — they just don't gain
+   .correct).  Done in match-card. */
+.match-card.correct {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: rgba(237,184,158,.10);
+  box-shadow: var(--rose-glow);
+}
+
+/* ex-card "is-correct" / "is-wrong" — re-skin the post-game ex-card
+   marker to the unified rose, so result pages share the same warmth. */
+.ex-card.is-correct {
+  border-color: var(--rose);
+  box-shadow: var(--rose-glow), 0 6px 28px rgba(0,0,0,.35);
+}
+.ex-card.is-wrong   {
+  border-color: rgba(244,181,200,.45);
+  box-shadow: 0 0 14px rgba(199,122,149,.18);
+}
+
+/* dict feedback unified */
+.dict-feedback.is-correct { color: var(--rose); text-shadow: var(--rose-glow); }
+
+/* Stage subtitle — chapter/stage name — in rose italic */
+.stage-name { color: var(--rose); text-shadow: 0 0 12px rgba(237,184,158,.32); }
+
+/* The cover-pending body class must NEVER pointer-block stage children
+   once we've removed the gate.  We do the visibility-toggle on the
+   stage's children only, so they reveal at first tap.                  */
+body.cover-pending .cover-stage > * { visibility: hidden; }
+body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cover-rise .9s ease-out both; }
+@keyframes cover-rise {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Stage screens need position:relative so the moon-corner anchors there */
+.screen { position: relative; }
+
+
+/* ============================================================
+   17. FIXED BANNER + PER-SCREEN BACKGROUND ILLUSTRATIONS
+   ============================================================
+   The banner is the lockup that lives at the very top of every
+   screen, never scrolling, never hidden.  Each screen below it
+   uses its own atmospheric illustration as a full-bleed
+   background.  Cover/result/note all have the moon and frame
+   built into the artwork — we don't redraw it in CSS.            */
+
+#banner-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  pointer-events: none;        /* never block taps below */
+  line-height: 0;
+  background: #15102A;
+  box-shadow: 0 6px 22px rgba(0,0,0,.55);
+}
+#banner-top img {
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Push the rest of the app below the banner. The banner's aspect
+   ratio is 1916:821 (≈ 0.428 of width) so we mirror that with a
+   spacer that grows with the viewport. */
+#app {
+  padding-top: calc(100vw * 821 / 1916);
+  position: relative;
+  z-index: 1;
+}
+
+/* Each <section.screen> is a full page background.  We let the
+   background paint extend through the whole viewport, anchored to
+   the bottom-half of the image (where most of the illustration
+   sits) so the upper part can blend behind the banner. */
+.screen.active {
+  min-height: calc(100vh - (100vw * 821 / 1916));
+  background-color: var(--bg-deep);
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+}
+#screen-cover.active        { background-image: url("assets/bg-cover.png"); }
+#screen-stage1.active,
+#screen-stage2.active,
+#screen-stage3.active       { background-image: url("assets/bg-stage.png"); }
+#screen-stage1-result.active,
+#screen-stage2-result.active,
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png"); }
+#screen-note.active,
+#screen-index.active,
+#screen-card.active         { background-image: url("assets/bg-note.png"); }
+
+/* The body fallback colour matches the artwork's deep violet,
+   so any over-scroll just shows the same hue.                  */
+body {
+  background: #1A1530 !important;
+}
+
+/* The moon-corner sits below the banner, not on top of it */
+.moon-corner {
+  top: calc(100vw * 821 / 1916 + 10px);
+  z-index: 80;
+}
+
+
+/* ============================================================
+   18. REAL PNG ICONS — replace the SVG/unicode stand-ins
+   ============================================================ */
+
+/* The slim gold key flanking Tonight's Reading and next-door */
+.main-cta .cta-key .ico-key,
+.next-door .nd-key .ico-key { display: none; }
+.main-cta .cta-key::before {
+  content: "";
+  display: block;
+  width: 22px; height: 64px;
+  background: url("assets/icon-key.png") center/contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(218,168,104,.45));
+}
+.main-cta .cta-key-l::before { transform: rotate(-12deg); }
+.main-cta .cta-key-r::before { transform: rotate( 12deg); }
+
+.next-door .nd-key::before {
+  content: "";
+  display: block;
+  width: 14px; height: 40px;
+  background: url("assets/icon-key.png") center/contain no-repeat;
+}
+.next-door .nd-key:first-child::before { transform: rotate(-12deg); }
+.next-door .nd-key:last-child::before  { transform: rotate( 12deg); }
+
+/* Moon-corner uses the ornate moon PNG */
+.moon-corner { color: transparent; }
+.moon-corner svg { display: none; }
+.moon-corner::before {
+  content: "";
+  display: block;
+  width: 100%; height: 100%;
+  background: url("assets/icon-moon.png") center/contain no-repeat;
+  filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
+}
+
+/* Stage header bow divider — appears below Chapter · Stage title */
+.stage-head { position: relative; padding-bottom: 36px; }
+.stage-head::after {
+  content: "";
+  display: block;
+  width: 64px; height: 40px;
+  margin: 14px auto 0;
+  background: url("assets/icon-bow.png") center/contain no-repeat;
+  filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
+}
+/* Don't double-up — hide the old fleuron-rule divider underneath */
+.stage-head .stage-rule { display: none; }
+
+/* Replace the unicode sparkle decoration with the real PNG ones.
+   sprinkleStars() still scatters absolute-positioned spans; we just
+   re-style every .deco-stars .s with a transparent-text + bg-image. */
+.deco-stars .s {
+  color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  width: 14px; height: 14px;
+  text-shadow: none;
+}
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png"); width: 22px; height: 22px; }
+
+@keyframes star-breathe {
+  0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
+  50%      { opacity: .92; filter: drop-shadow(0 0 8px rgba(237,184,158,.85)); }
+}
+.deco-stars .s { animation: star-breathe 3.6s ease-in-out infinite; }
+
+
+/* ============================================================
+   19. COVER REVEAL — text/buttons stay hidden until first tap
+   ============================================================
+   We keep the gate <div> while cover-pending; this rule must win
+   against the visibility:visible default since we're explicit
+   about the body class.  After the gate is removed (wake), the
+   cover-stage children fade up via cover-rise.                  */
+body.cover-pending .cover-stage > * { visibility: hidden !important; }
+
+/* The "Her Little Lexicon" title in the cover content is now
+   redundant — the banner already shows it.  Hide the duplicate. */
+.cover-top { display: none; }
+
