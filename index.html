@@ -12,31 +12,34 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="cover-pending">
 
 <!-- ===== App shell. Each <section> is one screen. =====
-     One screen visible at a time; everything else is display:none.
-     All content inside each screen is rendered by app.js -->
+     Cover is the hub. Game flow is strictly linear; note + index
+     are cover-side pages, not in the game flow. -->
 <div id="app">
 
-  <section id="screen-cover"          class="screen screen-cover"></section>
-  <section id="screen-index"          class="screen screen-index"></section>
-  <section id="screen-chapter"        class="screen screen-chapter"></section>
+  <!-- Cover hub (the home) -->
+  <section id="screen-cover"   class="screen"></section>
 
-  <section id="screen-match"          class="screen screen-match"></section>
-  <section id="screen-match-result"   class="screen screen-result"></section>
+  <!-- Game flow: stage 1 → stage 2 → stage 3 -->
+  <section id="screen-stage1"        class="screen"></section>
+  <section id="screen-stage1-result" class="screen"></section>
+  <section id="screen-stage2"        class="screen"></section>
+  <section id="screen-stage2-result" class="screen"></section>
+  <section id="screen-stage3"        class="screen"></section>
+  <section id="screen-stage3-result" class="screen"></section>
 
-  <section id="screen-oracle"         class="screen screen-oracle"></section>
-  <section id="screen-oracle-result"  class="screen screen-result"></section>
+  <!-- Cover-side: archive + word index -->
+  <section id="screen-note"  class="screen"></section>
+  <section id="screen-index" class="screen"></section>
 
-  <section id="screen-dict"           class="screen screen-dict"></section>
-  <section id="screen-dict-result"    class="screen screen-result"></section>
-
-  <section id="screen-note"           class="screen screen-note"></section>
+  <!-- Vocab card detail (opened from note / index with the tarot flip) -->
+  <section id="screen-card" class="screen"></section>
 
 </div>
 

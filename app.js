@@ -1,16 +1,27 @@
 /* ============================================================
    Her Little Lexicon — app.js
-   Logic ONLY. No visual styling. Keep the structure tidy so that
-   visual tweaks live in styles.css and never touch this file.
+   Logic ONLY. No visual styling.
+
+   Mental model:
+     • Cover is the hub. Title + Tonight's Reading + counter +
+       (her note) + (the index). nothing else lives on cover.
+     • Game flow is strictly linear, three stages:
+         stage1: the matching   (4 pairs, 8 cards)
+         stage2: the reading    (8 multiple-choice questions)
+         stage3: the inscription (8 dictations)
+       After each stage → result screen → "next" (pink) or
+       "back to cover" (ghost). After stage3 → summary → cover.
+     • Auto-advance: oracle correct + dict correct + dict-after-
+       rewrite all auto-advance without a button.
+     • note / index are cover-side pages, NOT in the game flow.
    ============================================================ */
 
 /* ------------------------------------------------------------
-   0. SMALL UTILITIES
+   0. UTILITIES
    ------------------------------------------------------------ */
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-
-function rand(arr)  { return arr[Math.floor(Math.random() * arr.length)]; }
+const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -19,8 +30,13 @@ function shuffle(arr) {
   }
   return a;
 }
+function escapeHtml(s) {
+  return (s == null ? '' : String(s))
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function escapeAttr(s) { return escapeHtml(s); }
 
-/* Browser TTS (English example sentences / phrases) */
 function speak(text, lang = 'en-US') {
   if (!window.speechSynthesis) return Promise.resolve();
   window.speechSynthesis.cancel();
@@ -29,487 +45,493 @@ function speak(text, lang = 'en-US') {
     u.lang = lang;
     u.rate = 0.92;
     u.pitch = 1.0;
-    u.onend = () => resolve();
+    u.onend   = () => resolve();
     u.onerror = () => resolve();
     window.speechSynthesis.speak(u);
   });
 }
 
-/* one-shot SFX synth — used for the "card flip" / "submit" / "ding" / "wrong" cues.
-   No mp3s, just Web Audio. */
+/* ------------------------------------------------------------
+   1. SFX — one bank, named by ROLE (so re-skinning sound is one place)
+   Roles:
+     bling   — entering a game (Tonight's Reading tap, stage→stage)
+     tap     — generic UI tap (default button, ghost button)
+     pageTurn— opening a vocab card (tarot flip)
+     pop     — modal appears
+     right   — correct answer (oracle / dict)
+     wrong   — wrong answer
+     finish  — chapter finished
+   ------------------------------------------------------------ */
 const SFX = (() => {
   let ctx = null;
   const ensure = () => { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; };
-  function tone(freqs, dur = 0.22, type = 'sine', gain = 0.18) {
+
+  function tone(freqs, gap = 0.06, dur = 0.18, type = 'sine', peak = 0.16) {
     const c = ensure();
     const t0 = c.currentTime;
     freqs.forEach((f, i) => {
       const o = c.createOscillator();
       const g = c.createGain();
       o.type = type;
-      o.frequency.setValueAtTime(f, t0 + i * 0.04);
-      g.gain.setValueAtTime(0.0001, t0 + i * 0.04);
-      g.gain.exponentialRampToValueAtTime(gain, t0 + i * 0.04 + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.04 + dur);
+      o.frequency.setValueAtTime(f, t0 + i * gap);
+      g.gain.setValueAtTime(0.0001, t0 + i * gap);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + i * gap + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * gap + dur);
       o.connect(g); g.connect(c.destination);
-      o.start(t0 + i * 0.04);
-      o.stop(t0 + i * 0.04 + dur + 0.05);
+      o.start(t0 + i * gap);
+      o.stop(t0 + i * gap + dur + 0.05);
     });
   }
+  function noise(dur = 0.18, peak = 0.08, hp = 1800) {
+    const c = ensure();
+    const bufferSize = Math.floor(c.sampleRate * dur);
+    const buf = c.createBuffer(1, bufferSize, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const filter = c.createBiquadFilter();
+    filter.type = 'highpass'; filter.frequency.value = hp;
+    const g = c.createGain(); g.gain.value = peak;
+    src.connect(filter); filter.connect(g); g.connect(c.destination);
+    src.start(c.currentTime);
+  }
   return {
-    bling:    () => tone([1318, 1760, 2349], 0.32, 'sine',     0.16),  // cover begin / tarot
-    flip:     () => tone([880, 1320],         0.10, 'triangle', 0.10),  // every card-flip
-    confirm:  () => tone([523, 880],          0.18, 'sine',     0.14),  // pink confirm
-    popup:    () => tone([784, 988, 1318],    0.24, 'triangle', 0.14),  // modal pop
-    correct:  () => tone([880, 1175, 1568],   0.26, 'sine',     0.18),  // right answer
-    wrong:    () => tone([311, 207],          0.22, 'square',   0.07),  // wrong answer (soft)
-    finish:   () => tone([523, 659, 784, 988, 1175], 0.28, 'sine', 0.16) // chapter clear
+    bling:   () => tone([1047, 1319, 1568, 1760, 2093], 0.07, 0.32, 'triangle', 0.14),
+    tap:     () => tone([1050],                          0.0, 0.07, 'sine',     0.06),
+    pageTurn:() => { noise(0.18, 0.06, 2200); },
+    pop:     () => tone([784, 1175, 1568],               0.06, 0.22, 'triangle', 0.12),
+    right:   () => tone([880, 1175, 1568],               0.05, 0.22, 'sine',     0.16),
+    wrong:   () => tone([311, 207],                      0.07, 0.20, 'square',   0.06),
+    finish:  () => tone([523, 659, 784, 988, 1175, 1318],0.08, 0.26, 'sine',     0.14)
   };
 })();
 
 /* ------------------------------------------------------------
-   1. CHAPTER SETUP — pick 8 words per chapter
-   Pick words that exist in CARDS + GROUPS + DICT_QUESTIONS so all
-   three stages reference the same 8 words.
+   2. SESSION SET — 8 words per Tonight's Reading run
+   We need a word that exists in CARDS + GROUPS + DICT_QUESTIONS so
+   all three stages can use the same 8 heads.
    ------------------------------------------------------------ */
-const CHAPTERS = (() => {
-  const groupMap = new Map(GROUPS.map(g => [g.head, g.partner]));
-  const dictMap  = new Map(DICT_QUESTIONS.map(d => [d.head, d]));
-  const allHeads = Object.keys(CARDS).filter(h =>
-    groupMap.has(h) && dictMap.has(h)
-  );
+const GROUP_MAP = new Map(GROUPS.map(g => [g.head, g.partner]));
+const DICT_MAP  = new Map(DICT_QUESTIONS.map(d => [d.head, d]));
+const ALL_HEADS = Object.keys(CARDS).filter(h =>
+  GROUP_MAP.has(h) && DICT_MAP.has(h)
+).sort();
+const TOTAL_WORDS = Object.keys(CARDS).length;
 
-  // Sort alphabetically for reproducibility; group into 8s
-  const sorted = allHeads.sort();
-  const out = [];
-  for (let i = 0; i < 3; i++) {                 // we cap at 3 chapters for v1
-    const slice = sorted.slice(i * 8, i * 8 + 8);
-    if (slice.length < 8) break;
-    out.push({
-      number: i + 1,
-      words:  slice,
-      pairs:  slice.map(h => ({ head: h, partner: groupMap.get(h) })),
-      dict:   slice.map(h => dictMap.get(h))
-    });
-  }
-  return out;
-})();
+function buildSession(startIdx) {
+  const heads = ALL_HEADS.slice(startIdx, startIdx + 8);
+  if (heads.length < 8) return null;
+  return {
+    words: heads,
+    pairs: heads.slice(0, 4).map(h => ({ head: h, partner: GROUP_MAP.get(h) })),
+    dict:  heads.map(h => DICT_MAP.get(h))
+  };
+}
 
 /* ------------------------------------------------------------
-   2. APP STATE
+   3. PERSISTED STATE
+   ------------------------------------------------------------ */
+const Store = {
+  load() {
+    try {
+      return Object.assign(
+        { progress: 0, learned: {}, mistakes: {} },
+        JSON.parse(localStorage.getItem('hll-state') || '{}')
+      );
+    } catch { return { progress: 0, learned: {}, mistakes: {} }; }
+  },
+  save() { try { localStorage.setItem('hll-state', JSON.stringify(saved)); } catch {} }
+};
+const saved = Store.load();
+function recordMistake(word) {
+  saved.mistakes[word] = (saved.mistakes[word] || 0) + 1;
+  Store.save();
+}
+function markLearned(word) {
+  saved.learned[word] = true;
+  Store.save();
+}
+
+/* ------------------------------------------------------------
+   4. EPHEMERAL STATE — only lives for the current Tonight's Reading
    ------------------------------------------------------------ */
 const state = {
   screen: 'cover',
-  chapterIdx: 0,
-  // each chapter accumulates word-level results across the 3 stages
-  results: {},   // results[chapterIdx][word] = { match: bool, oracle: bool, dict: bool }
-  mistakes: loadMistakes()  // global archive: { word: timesWrong }
+  session: null,                     // buildSession()
+  results: {},                       // results[word] = { match, oracle, dict }
+  oracleQs: [],
+  oracleIdx: 0,
+  dictIdx: 0
 };
-
-function ensureChapterRecord(idx) {
-  if (!state.results[idx]) {
-    state.results[idx] = {};
-    CHAPTERS[idx].words.forEach(w => {
-      state.results[idx][w] = { match: null, oracle: null, dict: null };
-    });
-  }
-}
-
-function loadMistakes() {
-  try { return JSON.parse(localStorage.getItem('hll-mistakes') || '{}'); }
-  catch { return {}; }
-}
-function saveMistakes() {
-  try { localStorage.setItem('hll-mistakes', JSON.stringify(state.mistakes)); } catch {}
-}
-function recordMistake(word) {
-  state.mistakes[word] = (state.mistakes[word] || 0) + 1;
-  saveMistakes();
+function freshSession() {
+  state.session = buildSession(saved.progress) || buildSession(0);
+  state.results = {};
+  state.session.words.forEach(w => state.results[w] = { match: null, oracle: null, dict: null });
 }
 
 /* ------------------------------------------------------------
-   3. ROUTER — show/hide screens
+   5. ROUTER
    ------------------------------------------------------------ */
-function go(screenId, options = {}) {
+function go(screenId, opts = {}) {
   state.screen = screenId;
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === `screen-${screenId}`));
   window.scrollTo(0, 0);
-  if (Screens[screenId] && Screens[screenId].onEnter) Screens[screenId].onEnter(options);
+  document.body.classList.remove('cover-pending');  // any screen except the cover gate is "awake"
+  if (Screens[screenId] && Screens[screenId].onEnter) Screens[screenId].onEnter(opts);
 }
 
 /* ------------------------------------------------------------
-   4. DECORATIONS — sprinkle stars / moon into a screen container
+   6. BUTTON / LINK FACTORIES — one place per category
    ------------------------------------------------------------ */
-function sprinkleStars(container, count = 14) {
+function btn(label, onClick, { variant = '', disabled = false } = {}) {
+  const b = document.createElement('button');
+  b.className = 'btn' + (variant ? ' ' + variant : '');
+  b.textContent = label;
+  if (disabled) b.disabled = true;
+  b.addEventListener('click', e => { if (!b.disabled) { SFX.tap(); onClick && onClick(e); } });
+  return b;
+}
+function backToCover(label = '← close the book') {
+  const b = document.createElement('button');
+  b.className = 'back-to-cover';
+  b.textContent = label;
+  b.addEventListener('click', () => { SFX.tap(); LanBGM.stop(); go('cover'); });
+  return b;
+}
+function lilGhost(label, onClick) {
+  const b = document.createElement('button');
+  b.className = 'lil-ghost';
+  b.innerHTML = `<span class="lil-fleur">❦</span><span>${escapeHtml(label)}</span><span class="lil-fleur">❦</span>`;
+  b.addEventListener('click', () => { SFX.tap(); onClick && onClick(); });
+  return b;
+}
+function mainCTA(label, onClick) {
+  const a = document.createElement('button');
+  a.className = 'main-cta';
+  a.innerHTML = `
+    <span class="cta-fleur">❦</span>
+    <span class="cta-text">${escapeHtml(label)}</span>
+    <span class="cta-fleur">❦</span>
+    <span class="cta-rule"></span>
+  `;
+  a.addEventListener('click', () => {
+    a.classList.add('is-engaged');
+    SFX.bling();
+    setTimeout(() => onClick && onClick(), 700);
+  });
+  return a;
+}
+
+/* ------------------------------------------------------------
+   7. SHARED PARTS — title strip, stage header, star sprinkles
+   ------------------------------------------------------------ */
+function titleStrip() {
+  return `
+    <div class="book-header">
+      <h1 class="book-title">Her Little Lexicon</h1>
+      <div class="book-subtitle">✦<span class="sp">words come softly, when she calls them</span>✦</div>
+    </div>
+  `;
+}
+function stageHeader(chapterN, name) {
+  return `
+    <div class="stage-head">
+      <div class="stage-chapter">chapter · ${chapterN}</div>
+      <div class="stage-name"><span class="nm-fleur">❦</span>${escapeHtml(name)}<span class="nm-fleur">❦</span></div>
+      <div class="stage-rule"></div>
+    </div>
+  `;
+}
+function pageTitle(name) {
+  return `<div class="page-title"><span class="pt-fleur">❦</span>${escapeHtml(name)}<span class="pt-fleur">❦</span></div>`;
+}
+
+function sprinkleStars(container, count = 18) {
   if (!container || container.querySelector('.deco-stars')) return;
-  const layer = document.createElement('div');
-  layer.className = 'deco-stars';
+  const wrap = document.createElement('div');
+  wrap.className = 'deco-stars';
+  const glyphs = ['✦','✧','⋆','·'];
   for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
-    s.className = 'star';
-    s.style.top  = (Math.random() * 100) + '%';
-    s.style.left = (Math.random() * 100) + '%';
+    s.className = 's';
+    s.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+    s.style.top  = (Math.random() * 92) + '%';
+    s.style.left = (Math.random() * 96) + '%';
+    s.style.fontSize = (4 + Math.random() * 7) + 'px';
     s.style.animationDelay = (Math.random() * 4) + 's';
-    s.style.transform = `scale(${0.6 + Math.random() * 0.9})`;
-    s.innerHTML = SVG.star;
-    layer.appendChild(s);
+    wrap.appendChild(s);
   }
-  container.prepend(layer);
+  container.prepend(wrap);
 }
 
 /* ------------------------------------------------------------
-   5. SVG asset slots — replace with real PNGs later if desired
+   8. VOCAB CARD ("ex-card") renderer
+   Shared by stage results, note, index detail view.
+   classes here mirror the old aesthetic but are reusable.
    ------------------------------------------------------------ */
-const SVG = {
-  star:
-    `<svg viewBox="0 0 24 24" class="svg-icon" fill="currentColor"><path d="M12 2 L13.6 9 L21 10 L15 14.5 L17 22 L12 17.5 L7 22 L9 14.5 L3 10 L10.4 9 Z"/></svg>`,
-  moon:
-    `<svg viewBox="0 0 64 64" class="svg-icon" fill="currentColor"><path d="M44 8c-9 4-15 13-15 24s6 20 15 24c-2 .7-4 1-6 1-13.8 0-25-11.2-25-25S24.2 7 38 7c2 0 4 .3 6 1z"/></svg>`,
-  key:
-    `<svg viewBox="0 0 32 32" class="svg-icon" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="10" cy="10" r="5"/>
-      <circle cx="10" cy="10" r="2" fill="currentColor"/>
-      <path d="M14 12 L26 22 M21 17 L19 19 M24 20 L22 22"/>
-    </svg>`,
-  bow:
-    `<svg viewBox="0 0 100 40" class="svg-icon" fill="currentColor" opacity="0.85">
-      <path d="M50 20 C 38 8 18 4 12 12 C 6 20 14 28 26 30 C 38 32 46 26 50 20 Z"/>
-      <path d="M50 20 C 62 8 82 4 88 12 C 94 20 86 28 74 30 C 62 32 54 26 50 20 Z"/>
-      <ellipse cx="50" cy="20" rx="5" ry="6"/>
-      <path d="M48 26 L42 38 M52 26 L58 38" stroke="currentColor" stroke-width="2" fill="none"/>
-    </svg>`,
-  speaker:
-    `<svg viewBox="0 0 24 24" class="svg-icon" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4zm12 3a4 4 0 0 0-2-3.5v7A4 4 0 0 0 16 12z"/></svg>`,
-  back:
-    `<svg viewBox="0 0 24 24" class="svg-icon" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6 L9 12 L15 18"/></svg>`,
-  close:
-    `<svg viewBox="0 0 24 24" class="svg-icon" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>`
-};
+function renderExCard(headWord, mark = null, { rewrite = false } = {}) {
+  const c = CARDS[headWord];
+  if (!c) {
+    const x = document.createElement('div');
+    x.className = 'ex-card';
+    x.textContent = headWord;
+    return x;
+  }
+  const box = document.createElement('div');
+  box.className = 'ex-card' + (mark === true ? ' is-correct' : mark === false ? ' is-wrong' : '');
 
-/* ------------------------------------------------------------
-   6. BUTTON HELPERS — tarot-card-style buttons with flip on tap
-   ------------------------------------------------------------ */
-function cardButton({ text, sub, className = '', onClick }) {
-  const btn = document.createElement('button');
-  btn.className = 'btn-card ' + className;
-  btn.innerHTML = sub
-    ? `<span class="ch-num">${sub}</span><span class="ch-title">${text}</span>`
-    : text;
-  btn.addEventListener('click', e => {
-    btn.classList.remove('is-flipping');
-    void btn.offsetWidth;       // restart animation
-    btn.classList.add('is-flipping');
-    SFX.flip();
-    setTimeout(() => onClick && onClick(e), 240);
-  });
-  return btn;
-}
-function confirmButton(label, onClick) {
-  const btn = document.createElement('button');
-  btn.className = 'btn-confirm';
-  btn.textContent = label;
-  btn.addEventListener('click', e => {
-    btn.classList.remove('is-engaged');
-    void btn.offsetWidth;
-    btn.classList.add('is-engaged');
-    SFX.confirm();
-    setTimeout(() => onClick && onClick(e), 200);
-  });
-  return btn;
-}
-
-/* The "Tonight's Reading" / next-stage launcher — keys flank the label */
-function tonightButton(label, onClick) {
+  /* headword row */
   const row = document.createElement('div');
-  row.className = 'tonight-btn-row';
-  const keyL = document.createElement('span');
-  keyL.className = 'tonight-key';
-  keyL.innerHTML = SVG.key;
-  const keyR = document.createElement('span');
-  keyR.className = 'tonight-key right';
-  keyR.innerHTML = SVG.key;
-  const btn = document.createElement('button');
-  btn.className = 'btn-card';
-  btn.textContent = label;
-  btn.addEventListener('click', () => {
-    btn.classList.remove('is-flipping');
-    void btn.offsetWidth;
-    btn.classList.add('is-flipping');
-    SFX.flip();
-    setTimeout(() => onClick && onClick(), 240);
-  });
-  row.appendChild(keyL);
-  row.appendChild(btn);
-  row.appendChild(keyR);
-  return row;
-}
+  row.className = 'ex-headword-row';
+  row.innerHTML = `
+    <button class="ex-speak" data-sp="${escapeAttr(c.example || c.h)}">♪</button>
+    <span class="ex-hw-fleur">❧</span>
+    <span class="ex-headword">${escapeHtml(c.h)}</span>
+    <span class="ex-hw-fleur">❧</span>
+    <span class="ex-pos">${escapeHtml(c.pos || '')}</span>
+    <span class="ex-headword-zh">${escapeHtml(c.zh || '')}</span>
+  `;
+  box.appendChild(row);
 
-/* ------------------------------------------------------------
-   7. SHARED PIECES — banner, title block, top-nav
-   ------------------------------------------------------------ */
-function buildBanner(text) {
-  return `<div class="banner"><div class="banner-title">${text}</div></div>`;
-}
+  /* gold rule */
+  const rule = document.createElement('div'); rule.className = 'ex-hw-rule'; box.appendChild(rule);
 
-function buildTitleBlock(title, sub = '', { small = false } = {}) {
-  return `
-    <div class="title-wrap">
-      <div class="title-line">
-        <span class="title-text${small ? ' small' : ''}">${title}</span>
-      </div>
-      ${sub ? `<div class="title-sub">${sub}</div>` : ''}
-      <div class="title-bow">${SVG.bow}</div>
-    </div>`;
-}
-
-function buildTopNav(onBack) {
-  const wrap = document.createElement('div');
-  wrap.className = 'top-nav';
-  const left = document.createElement('div');
-  if (onBack) {
-    const back = document.createElement('button');
-    back.className = 'btn-ghost';
-    back.innerHTML = `${SVG.back} back`;
-    back.addEventListener('click', onBack);
-    left.appendChild(back);
+  /* family */
+  if (c.family && c.family.length) {
+    const fam = document.createElement('div');
+    fam.className = 'ex-family';
+    fam.innerHTML = `<div class="ex-label">her family</div>` + c.family.map(line => {
+      const [w, pos, ex, ezh] = line.split('|').map(s => s.trim());
+      return `<div class="fam-row">
+        <span class="fam-word">${escapeHtml(w)}</span>
+        <span class="fam-pos">${escapeHtml(pos)}</span>
+        <span class="fam-ex">${escapeHtml(ex)}</span>
+        <span class="fam-ex-zh">${escapeHtml(ezh || '')}</span>
+      </div>`;
+    }).join('');
+    box.appendChild(fam);
   }
-  const right = document.createElement('div');
-  right.className = 'right-cluster';
-  const mute = document.createElement('button');
-  mute.className = 'btn-ghost';
-  mute.textContent = '— hush —';
-  mute.addEventListener('click', () => {
-    LanBGM.stop();
-    mute.textContent = '— silent —';
+
+  /* collocations (her friend) */
+  if (c.colloc && c.colloc.length) {
+    const fr = document.createElement('div');
+    fr.className = 'ex-friend';
+    fr.innerHTML = `<div class="ex-label">her friend</div>` + c.colloc.map(line => {
+      const [phrase, zh] = line.split('|').map(s => s.trim());
+      return `<div class="colloc-row">
+        <span class="colloc-en">${escapeHtml(phrase)}</span>
+        <span class="colloc-zh">${escapeHtml(zh || '')}</span>
+      </div>`;
+    }).join('');
+    box.appendChild(fr);
+  }
+
+  /* example */
+  if (c.example) {
+    const ex = document.createElement('div');
+    ex.className = 'ex-example';
+    ex.innerHTML = `<div class="ex-example-en">${escapeHtml(c.example)}</div>
+                    <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>`;
+    box.appendChild(ex);
+  }
+
+  /* optional rewrite input */
+  if (rewrite) {
+    const rw = document.createElement('div');
+    rw.className = 'ex-rewrite';
+    rw.innerHTML = `<div class="ex-rewrite-label">her hand</div>
+                    <input type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(c.h)}">`;
+    box.appendChild(rw);
+  }
+
+  /* speak buttons */
+  box.querySelectorAll('.ex-speak').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      speak(b.getAttribute('data-sp'));
+    });
   });
-  right.appendChild(mute);
-  wrap.appendChild(left);
-  wrap.appendChild(right);
-  return wrap;
+
+  return box;
 }
 
 /* ------------------------------------------------------------
-   8. SCREENS
-   Each screen exposes onEnter(opts). All DOM goes inside its element.
-   Render fresh each time so the screens stay independent.
+   9. ORACLE QUESTION BUILDER — Chinese options
    ------------------------------------------------------------ */
+function buildOracleQuestion(word) {
+  const c = CARDS[word];
+  const sentence = c.example || c.h;
+  const sentenceHL = sentence.replace(new RegExp(`\\b(${c.h})\\b`, 'i'), '<em>$1</em>');
+  const pool = Object.keys(CARDS).filter(k => k !== word);
+  const wrongs = [];
+  while (wrongs.length < 3) {
+    const cand = CARDS[rand(pool)].zh;
+    if (cand && cand !== c.zh && !wrongs.includes(cand)) wrongs.push(cand);
+  }
+  const options = shuffle([c.zh, ...wrongs]);
+  return { word, sentencePlain: sentence, sentenceHL, options, correctIdx: options.indexOf(c.zh) };
+}
+
+/* ------------------------------------------------------------
+   10. MODAL
+   ------------------------------------------------------------ */
+function showModal({ title, score = null, actions = [] }) {
+  const veil = $('#modal');
+  veil.innerHTML = `
+    <div class="modal-card">
+      <div class="modal-title">${escapeHtml(title)}</div>
+      ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
+      <div class="modal-actions"></div>
+    </div>
+  `;
+  const ar = $('.modal-actions', veil);
+  actions.forEach(a => {
+    ar.appendChild(btn(a.label, () => { hideModal(); a.onClick && a.onClick(); }, { variant: a.variant || '' }));
+  });
+  SFX.pop();
+  veil.classList.add('show');
+}
+function hideModal() { $('#modal').classList.remove('show'); }
+
+/* ============================================================
+   11. SCREENS
+   ============================================================ */
 const Screens = {
 
-  /* ---------- 8.1 COVER ---------- */
+  /* ---------- COVER (the hub) ---------- */
   cover: {
     onEnter() {
       const el = $('#screen-cover');
-      el.innerHTML = `
-        <div class="cover-stage">
-          <div class="cover-content" id="cover-content">
-            ${buildTitleBlock(`Tonight&rsquo;s Reading`, 'words come softly, when she calls them')}
-            <div id="cover-begin"></div>
+      const learnedCount = Object.keys(saved.learned).length;
+      el.innerHTML = '';
+
+      // tap-to-wake gate (hidden after first tap; controlled by body.cover-pending)
+      const gate = document.createElement('div');
+      gate.className = 'cover-gate';
+      gate.innerHTML = `<div class="hint">tap anywhere · she stirs</div>`;
+      el.appendChild(gate);
+
+      // cover stage content
+      const stage = document.createElement('div');
+      stage.className = 'cover-stage';
+      stage.innerHTML = `
+        <div class="cover-top">${titleStrip()}</div>
+        <div class="cover-mid">
+          <div class="moonlit">
+            <span class="moon">☾</span>
+            <span class="star" style="top:14px;left:18%;font-size:9px">✦</span>
+            <span class="star" style="top:30px;right:14%;font-size:7px">✧</span>
+            <span class="star" style="top:62px;left:8%;font-size:5px">⋆</span>
+            <span class="star" style="top:96px;right:6%;font-size:6px">✦</span>
+            <span class="star" style="top:118px;left:30%;font-size:5px">✧</span>
+            <span class="star" style="bottom:8px;right:32%;font-size:6px">⋆</span>
+            <span class="star" style="bottom:30px;left:40%;font-size:5px">·</span>
           </div>
-          <div class="cover-blank-hint" id="cover-hint">tap anywhere to begin</div>
+          <div id="cover-cta-slot"></div>
+          <div class="home-stats">${learnedCount} of ${TOTAL_WORDS} awakened</div>
+        </div>
+        <div class="cover-bottom">
+          <div class="lil-row" id="cover-links"></div>
         </div>
       `;
+      el.appendChild(stage);
       sprinkleStars(el, 22);
-      // floating moon, top-right
-      const moon = document.createElement('div');
-      moon.className = 'deco-moon';
-      moon.innerHTML = SVG.moon;
-      el.appendChild(moon);
 
-      const hint    = $('#cover-hint', el);
-      const content = $('#cover-content', el);
+      // CTA + links
+      $('#cover-cta-slot', el).appendChild(mainCTA(`Tonight's Reading`, () => {
+        const fade = document.createElement('div');
+        fade.className = 'fade-out';
+        document.body.appendChild(fade);
+        requestAnimationFrame(() => fade.classList.add('show'));
+        setTimeout(() => { LanBGM.stop(); }, 800);
+        setTimeout(() => {
+          freshSession();
+          go('stage1');
+          setTimeout(() => fade.remove(), 700);
+          fade.classList.remove('show');
+        }, 1000);
+      }));
+      $('#cover-links', el).appendChild(lilGhost('her note',  () => go('note')));
+      $('#cover-links', el).appendChild(lilGhost('the index', () => go('index')));
 
-      // STEP 1: tap anywhere to wake the page (allows audio per autoplay rules)
+      // wake-on-tap (only when cover-pending)
       const wake = () => {
-        el.removeEventListener('click', wake);
-        hint.style.display = 'none';
-        content.classList.add('visible');
+        if (!document.body.classList.contains('cover-pending')) return;
+        document.body.classList.remove('cover-pending');
         SFX.bling();
         LanBGM.playHomeRandom({ volume: 0.42 });
-        renderBeginButton();
       };
-      el.addEventListener('click', wake);
-
-      function renderBeginButton() {
-        const slot = $('#cover-begin', el);
-        const btn = document.createElement('button');
-        btn.className = 'btn-card';
-        btn.textContent = 'begin';
-        btn.addEventListener('click', () => {
-          btn.classList.add('is-engaged');
-          SFX.bling();
-          // fade music + fade-to-black, then go to index
-          const fade = document.createElement('div');
-          fade.className = 'fade-out';
-          document.body.appendChild(fade);
-          requestAnimationFrame(() => fade.classList.add('show'));
-          setTimeout(() => LanBGM.stop(), 900);
-          setTimeout(() => {
-            go('index');
-            // next screen plays short bgm and breathes on entry
-            LanBGM.playHomeRandom({ volume: 0.38 });
-            setTimeout(() => fade.remove(), 800);
-            fade.classList.remove('show');
-          }, 1100);
-        });
-        slot.appendChild(btn);
-      }
+      gate.addEventListener('click', wake, { once: true });
     }
   },
 
-  /* ---------- 8.2 INDEX ---------- */
-  index: {
+  /* ---------- STAGE 1 — the matching ---------- */
+  stage1: {
     onEnter() {
-      const el = $('#screen-index');
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(null));
-      el.insertAdjacentHTML('beforeend', buildBanner('— her little lexicon —'));
-      el.insertAdjacentHTML('beforeend', buildTitleBlock(`Tonight&rsquo;s Reading`, 'pick a chapter', { small: true }));
-
-      const list = document.createElement('div');
-      list.className = 'chapter-list';
-      CHAPTERS.forEach((ch, i) => {
-        const ready = state.results[i] && Object.values(state.results[i]).some(r => r.match !== null);
-        const btn = cardButton({
-          sub:  `chapter · ${ch.number}`,
-          text: i === 0 ? 'the opening pages' : i === 1 ? 'the silver thread' : 'the candle hour',
-          onClick: () => {
-            state.chapterIdx = i;
-            ensureChapterRecord(i);
-            go('chapter');
-          }
-        });
-        list.appendChild(btn);
-      });
-      el.appendChild(list);
-
-      // bottom: note book
-      const bottom = document.createElement('div');
-      bottom.className = 'center-col';
-      bottom.style.marginTop = '32px';
-      const noteBtn = cardButton({
-        text: 'her little note',
-        sub:  '— archive —',
-        onClick: () => go('note')
-      });
-      noteBtn.style.minWidth = '220px';
-      bottom.appendChild(noteBtn);
-      el.appendChild(bottom);
-
-      sprinkleStars(el, 16);
-    }
-  },
-
-  /* ---------- 8.3 CHAPTER INTRO ---------- */
-  chapter: {
-    onEnter() {
-      const el = $('#screen-chapter');
-      const ch = CHAPTERS[state.chapterIdx];
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('index')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter · ${ch.number} —`));
-
-      const intro = document.createElement('div');
-      intro.className = 'chapter-intro';
-      intro.innerHTML = `
-        <div class="chapter-label">chapter · ${ch.number}</div>
-        <div class="chapter-stage-name">the pairing</div>
-        <div class="chapter-mood">eight little words, four soft pairs.<br/>match what dreams together.</div>
-      `;
-      intro.appendChild(tonightButton(`tonight&rsquo;s reading`, () => {
-        ensureChapterRecord(state.chapterIdx);
-        go('match');
-      }));
-      el.appendChild(intro);
-      sprinkleStars(el, 12);
-    }
-  },
-
-  /* ---------- 8.4 MATCH GAME ---------- */
-  match: {
-    onEnter() {
-      LanBGM.playGameRandom({ volume: 0.40 });   // short, brisk loop
-      const el = $('#screen-match');
-      const ch = CHAPTERS[state.chapterIdx];
-      // 4 pairs, 8 cards, mixed (left=heads / right=partners) — present shuffled
-      const pairs = ch.pairs.slice(0, 4); // first 4 of the chapter's 8
+      LanBGM.playGameRandom({ volume: 0.40 });
+      const el = $('#screen-stage1');
+      const s = state.session;
+      const pairs = s.pairs;
       const cards = [];
       pairs.forEach((p, i) => {
         cards.push({ text: p.head,    pairId: i, side: 'L' });
         cards.push({ text: p.partner, pairId: i, side: 'R' });
       });
       const shuffled = shuffle(cards);
-      const matchState = {
-        cards: shuffled,
-        tagOf: new Array(shuffled.length).fill(null),   // 0..3 or null
-        currentTag: 0
-      };
+      const tagOf = new Array(shuffled.length).fill(null);
+      let currentTag = 0;
 
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('chapter')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter ${ch.number} · the pairing —`));
-      el.insertAdjacentHTML('beforeend', `
+      el.innerHTML = `
+        ${stageHeader(1, 'the matching')}
         <div class="q-progress">tap two cards to dye them the same colour · four pairs</div>
-      `);
+        <div class="match-grid"></div>
+        <div class="match-actions"></div>
+      `;
+      sprinkleStars(el, 12);
 
-      const grid = document.createElement('div');
-      grid.className = 'match-grid';
+      const grid = $('.match-grid', el);
       shuffled.forEach((c, idx) => {
         const card = document.createElement('div');
         card.className = 'match-card';
-        card.setAttribute('data-stage', '1');
         card.textContent = c.text;
         card.addEventListener('click', () => paint(idx, card));
         grid.appendChild(card);
       });
-      el.appendChild(grid);
 
-      const actionRow = document.createElement('div');
-      actionRow.className = 'center-col';
-      actionRow.style.marginTop = '20px';
-      const confirm = confirmButton('confirm', () => submit());
-      actionRow.appendChild(confirm);
-      el.appendChild(actionRow);
+      const actions = $('.match-actions', el);
+      actions.appendChild(backToCover());
+      actions.appendChild(btn('confirm', () => submit()));
 
-      function paint(idx, card) {
-        // remove old tag
-        for (let i = 0; i < 4; i++) card.classList.remove('tag-' + i);
-        // assign next color: continue the current "pair" or start a new one
-        const tagged = matchState.tagOf;
-        const sameTagCount = tagged.filter(t => t === matchState.currentTag).length;
-        if (tagged[idx] !== null) {
-          tagged[idx] = null;
+      function paint(idx) {
+        if (tagOf[idx] !== null) {
+          tagOf[idx] = null;
         } else {
-          if (sameTagCount >= 2) {
-            // current colour is full → advance to next colour
-            matchState.currentTag = (matchState.currentTag + 1) % 4;
-          }
-          tagged[idx] = matchState.currentTag;
+          const sameCount = tagOf.filter(t => t === currentTag).length;
+          if (sameCount >= 2) currentTag = (currentTag + 1) % 4;
+          tagOf[idx] = currentTag;
         }
-        // restyle every card from tagOf
+        // recolor every card from tagOf
         $$('.match-card', grid).forEach((node, i) => {
           for (let k = 0; k < 4; k++) node.classList.remove('tag-' + k);
-          if (tagged[i] !== null) node.classList.add('tag-' + tagged[i]);
+          if (tagOf[i] !== null) node.classList.add('tag-' + tagOf[i]);
         });
-        card.classList.remove('is-flipping'); void card.offsetWidth; card.classList.add('is-flipping');
-        SFX.flip();
-
-        // if current full and another untagged card was tapped, currentTag bumped above
-        // but we need to bump again if it just became full
-        const nowSame = tagged.filter(t => t === matchState.currentTag).length;
-        if (nowSame >= 2) matchState.currentTag = (matchState.currentTag + 1) % 4;
+        SFX.tap();
+        // bump if current colour just got full
+        if (tagOf.filter(t => t === currentTag).length >= 2) {
+          currentTag = (currentTag + 1) % 4;
+        }
       }
 
       function submit() {
-        // score: for each tag (0..3), the two cards that share that tag must be a pair
-        const tags = matchState.tagOf;
-        if (tags.some(t => t === null)) {
-          showModal({ title: 'not yet, dear', body: 'colour every card first.', actions: [{ label: 'okay', primary: true }] });
+        if (tagOf.some(t => t === null)) {
+          showModal({ title: 'colour every card first', actions: [{ label: 'okay' }] });
           return;
         }
         let correct = 0;
         const cardResult = new Array(shuffled.length).fill(false);
         for (let t = 0; t < 4; t++) {
-          const idxs = tags.map((v, i) => v === t ? i : -1).filter(i => i >= 0);
+          const idxs = tagOf.map((v, i) => v === t ? i : -1).filter(i => i >= 0);
           if (idxs.length !== 2) continue;
           const [a, b] = idxs;
           if (shuffled[a].pairId === shuffled[b].pairId) {
@@ -517,89 +539,72 @@ const Screens = {
             cardResult[a] = true; cardResult[b] = true;
           }
         }
-        // record per-word results
         shuffled.forEach((c, i) => {
-          const word = c.side === 'L' ? c.text : pairs[c.pairId].head;
-          if (cardResult[i]) {
-            // only count once per pair (left side cards "own" the word)
-            if (c.side === 'L') state.results[state.chapterIdx][c.text].match = true;
-          } else {
-            if (c.side === 'L') {
-              state.results[state.chapterIdx][c.text].match = false;
-              recordMistake(c.text);
-            }
-          }
+          if (c.side !== 'L') return;
+          if (cardResult[i]) state.results[c.text].match = true;
+          else { state.results[c.text].match = false; recordMistake(c.text); }
         });
-        SFX.popup();
         showModal({
           title: 'pages flipped',
           score: { value: correct, total: 4 },
-          actions: [{ label: 'see results', primary: true, onClick: () => go('match-result') }]
+          actions: [{ label: 'see results', onClick: () => go('stage1-result') }]
         });
       }
     }
   },
 
-  /* ---------- 8.5 MATCH RESULT ---------- */
-  'match-result': {
+  /* ---------- STAGE 1 RESULT ---------- */
+  'stage1-result': {
     onEnter() {
-      LanBGM.playResultRandom({ volume: 0.42 });  // cheerful music-box
-      const el = $('#screen-match-result');
-      const ch = CHAPTERS[state.chapterIdx];
-      const wordsHere = ch.words.slice(0, 4); // the 4 heads used in match stage
-      const results = state.results[state.chapterIdx];
-      const right = wordsHere.filter(w => results[w].match).length;
-
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('chapter')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter ${ch.number} · the pairing —`));
-      el.insertAdjacentHTML('beforeend', `
+      LanBGM.playResultRandom({ volume: 0.42 });
+      const el = $('#screen-stage1-result');
+      const tested = state.session.words.slice(0, 4);
+      const right = tested.filter(w => state.results[w].match).length;
+      el.innerHTML = `
+        ${stageHeader(1, 'the matching')}
         <div class="score-header">
-          <div class="label">the pairing</div>
+          <div class="label">your hand</div>
           <div class="value">${right}<small> / 4</small></div>
         </div>
-      `);
-      const list = document.createElement('div');
-      list.className = 'result-grid';
-      wordsHere.forEach(w => list.appendChild(renderVocabCard(w, results[w].match)));
-      el.appendChild(list);
-
-      const ar = document.createElement('div');
-      ar.className = 'center-col';
-      ar.style.marginTop = '24px';
-      ar.appendChild(confirmButton('next  ·  the reading', () => {
-        go('oracle');
-      }));
-      el.appendChild(ar);
+        <div class="result-grid"></div>
+        <div class="stage-actions"></div>
+      `;
+      sprinkleStars(el, 10);
+      const grid = $('.result-grid', el);
+      tested.forEach(w => grid.appendChild(renderExCard(w, state.results[w].match)));
+      const actions = $('.stage-actions', el);
+      actions.appendChild(backToCover());
+      actions.appendChild(btn('next  ·  the reading', () => go('stage2')));
     }
   },
 
-  /* ---------- 8.6 ORACLE GAME ---------- */
-  oracle: {
+  /* ---------- STAGE 2 — the reading ---------- */
+  stage2: {
     onEnter() {
-      LanBGM.playHomeRandom({ volume: 0.38 });   // quiet music-box for reading
-      const el = $('#screen-oracle');
-      const ch = CHAPTERS[state.chapterIdx];
-      const items = ch.words.map(w => buildOracleQuestion(w));
-      const stateQ = { i: 0, items };
-
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('chapter')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter ${ch.number} · the reading —`));
-      const stage = document.createElement('div');
-      stage.className = 'oracle-stage';
-      el.appendChild(stage);
-
+      LanBGM.playHomeRandom({ volume: 0.38 });
+      const el = $('#screen-stage2');
+      state.oracleQs  = state.session.words.map(w => buildOracleQuestion(w));
+      state.oracleIdx = 0;
+      el.innerHTML = `
+        ${stageHeader(2, 'the reading')}
+        <div class="oracle-stage" id="oracle-stage"></div>
+      `;
+      sprinkleStars(el, 10);
       drawQ();
 
       function drawQ() {
-        const q = stateQ.items[stateQ.i];
+        const stage = $('#oracle-stage', el);
+        const q = state.oracleQs[state.oracleIdx];
         stage.innerHTML = `
-          <div class="q-progress">${String(stateQ.i + 1).padStart(2, '0')} · 08</div>
-          <div class="q-sentence"><em>${escapeHtml(q.sentenceHL)}</em></div>
+          <div class="q-progress">${String(state.oracleIdx + 1).padStart(2, '0')} · 08</div>
+          <div class="q-sentence">${q.sentenceHL}</div>
           <div class="oracle-options"></div>
-          <div class="oracle-tap-hint">tap anywhere to continue</div>
+          <div class="stage-actions">
+            <button class="back-to-cover" id="o-back">← close the book</button>
+            <span class="spacer"></span>
+          </div>
         `;
+        $('#o-back', stage).addEventListener('click', () => { SFX.tap(); LanBGM.stop(); go('cover'); });
         const opts = $('.oracle-options', stage);
         q.options.forEach((opt, oi) => {
           const b = document.createElement('button');
@@ -610,279 +615,228 @@ const Screens = {
         });
       }
 
-      function pick(oi, btn) {
-        const q = stateQ.items[stateQ.i];
-        const allBtns = $$('.oracle-option', stage);
-        allBtns.forEach(b => b.disabled = true);
+      function pick(oi, button) {
+        const q = state.oracleQs[state.oracleIdx];
+        const all = $$('.oracle-option');
+        all.forEach(b => b.disabled = true);
         if (oi === q.correctIdx) {
-          btn.classList.add('picked-right');
-          state.results[state.chapterIdx][q.word].oracle = true;
-          SFX.correct();
+          button.classList.add('picked-right');
+          state.results[q.word].oracle = true;
+          SFX.right();
         } else {
-          btn.classList.add('picked-wrong');
-          allBtns[q.correctIdx].classList.add('reveal-right');
-          state.results[state.chapterIdx][q.word].oracle = false;
+          button.classList.add('picked-wrong');
+          all[q.correctIdx].classList.add('reveal-right');
+          state.results[q.word].oracle = false;
           recordMistake(q.word);
           SFX.wrong();
         }
-        // speak the example sentence
+        // speak example sentence, then auto-advance (forced linear flow)
         speak(q.sentencePlain).then(() => {
-          $('.oracle-tap-hint', stage).classList.add('show');
+          setTimeout(() => {
+            state.oracleIdx++;
+            if (state.oracleIdx >= state.oracleQs.length) go('stage2-result');
+            else drawQ();
+          }, 700);
         });
-        // wait for tap anywhere
-        const advance = (e) => {
-          if (e.target.closest('.btn-ghost')) return;
-          stage.removeEventListener('click', advance);
-          if (stateQ.i + 1 >= stateQ.items.length) {
-            go('oracle-result');
-          } else {
-            stateQ.i++;
-            drawQ();
-          }
-        };
-        // delay so first click doesn't double-trigger
-        setTimeout(() => stage.addEventListener('click', advance), 600);
       }
     }
   },
 
-  /* ---------- 8.7 ORACLE RESULT ---------- */
-  'oracle-result': {
+  /* ---------- STAGE 2 RESULT ---------- */
+  'stage2-result': {
     onEnter() {
       LanBGM.playResultRandom({ volume: 0.42 });
-      const el = $('#screen-oracle-result');
-      const ch = CHAPTERS[state.chapterIdx];
-      const results = state.results[state.chapterIdx];
-      const right = ch.words.filter(w => results[w].oracle).length;
-
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('chapter')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter ${ch.number} · the reading —`));
-      el.insertAdjacentHTML('beforeend', `
+      const el = $('#screen-stage2-result');
+      const right = state.session.words.filter(w => state.results[w].oracle).length;
+      el.innerHTML = `
+        ${stageHeader(2, 'the reading')}
         <div class="score-header">
-          <div class="label">the reading</div>
+          <div class="label">her reading</div>
           <div class="value">${right}<small> / 8</small></div>
         </div>
-      `);
-      const list = document.createElement('div');
-      list.className = 'result-grid';
-      ch.words.forEach(w => list.appendChild(renderVocabCard(w, results[w].oracle, { rewrite: true })));
-      el.appendChild(list);
-
-      const ar = document.createElement('div');
-      ar.className = 'center-col';
-      ar.style.marginTop = '24px';
-      ar.appendChild(confirmButton('next  ·  the inscription', () => {
-        go('dict');
-      }));
-      el.appendChild(ar);
+        <div class="result-grid"></div>
+        <div class="stage-actions"></div>
+      `;
+      sprinkleStars(el, 10);
+      const grid = $('.result-grid', el);
+      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true })));
+      const actions = $('.stage-actions', el);
+      actions.appendChild(backToCover());
+      actions.appendChild(btn('next  ·  the inscription', () => go('stage3')));
     }
   },
 
-  /* ---------- 8.8 DICTATION GAME ---------- */
-  dict: {
+  /* ---------- STAGE 3 — the inscription ---------- */
+  stage3: {
     onEnter() {
       LanBGM.playGameRandom({ volume: 0.40 });
-      const el = $('#screen-dict');
-      const ch = CHAPTERS[state.chapterIdx];
-      const items = ch.dict;
-      const stateD = { i: 0, items, awaitRewrite: false };
-
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('chapter')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter ${ch.number} · the inscription —`));
-      const stage = document.createElement('div');
-      stage.className = 'dict-stage';
-      el.appendChild(stage);
-
+      const el = $('#screen-stage3');
+      state.dictIdx = 0;
+      el.innerHTML = `
+        ${stageHeader(3, 'the inscription')}
+        <div class="dict-stage" id="dict-stage"></div>
+      `;
+      sprinkleStars(el, 10);
       drawQ();
 
       function drawQ() {
-        const q = stateD.items[stateD.i];
-        // Build prompt with the answer blanked out as a long underline
+        const stage = $('#dict-stage', el);
+        const q = state.session.dict[state.dictIdx];
         const masked = q.prompt.replace(new RegExp(q.answer, 'i'), '____');
         stage.innerHTML = `
-          <div class="q-progress">${String(stateD.i + 1).padStart(2, '0')} · 08</div>
+          <div class="q-progress">${String(state.dictIdx + 1).padStart(2, '0')} · 08</div>
           <div class="dict-prompt">${escapeHtml(masked)}</div>
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-hint">${q.hint.toUpperCase()} —</div>
-          <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="…" />
+          <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="…">
           <div class="dict-feedback" id="dict-feedback"></div>
-          <div class="dict-actions" id="dict-actions">
+          <div class="dict-actions" id="dict-actions"></div>
+          <div class="stage-actions" style="margin-top:18px">
+            <button class="back-to-cover" id="d-back">← close the book</button>
+            <span class="spacer"></span>
           </div>
         `;
+        $('#d-back', stage).addEventListener('click', () => { SFX.tap(); LanBGM.stop(); go('cover'); });
         const input = $('#dict-input', stage);
         const actions = $('#dict-actions', stage);
-        const submit = confirmButton('write', () => check());
-        actions.appendChild(submit);
+        actions.appendChild(btn('write', () => check()));
         input.focus();
         input.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
       }
 
+      function advance() {
+        state.dictIdx++;
+        if (state.dictIdx >= state.session.dict.length) go('stage3-result');
+        else $('#dict-stage').querySelector ? drawQ() : drawQ();
+      }
+
       function check() {
-        const q = stateD.items[stateD.i];
+        const stage = $('#dict-stage', el);
+        const q = state.session.dict[state.dictIdx];
         const input = $('#dict-input', stage);
         const feedback = $('#dict-feedback', stage);
-        const guess = input.value.trim().toLowerCase();
+        const guess = (input.value || '').trim().toLowerCase();
         if (!guess) return;
         if (guess === q.answer.toLowerCase()) {
-          // CORRECT — complete the phrase, speak it, advance
-          state.results[state.chapterIdx][q.word === undefined ? q.head : q.head].dict = true;
+          state.results[q.head].dict = true;
           input.disabled = true;
-          input.classList.remove('is-wrong');
-          feedback.textContent = `${q.prompt}`;
+          feedback.textContent = q.prompt;
           feedback.className = 'dict-feedback is-correct';
           $('#dict-actions', stage).innerHTML = '';
-          SFX.correct();
-          speak(q.prompt).then(() => {
-            setTimeout(advance, 700);
-          });
+          SFX.right();
+          speak(q.prompt).then(() => setTimeout(advance, 700));
         } else {
-          // WRONG — show correct answer, require rewrite
+          state.results[q.head].dict = false;
+          recordMistake(q.head);
           input.disabled = true;
           input.classList.add('is-wrong');
-          state.results[state.chapterIdx][q.head].dict = false;
-          recordMistake(q.head);
-          SFX.wrong();
-          feedback.innerHTML = `correct  ·  <em style="color:var(--flesh)">${escapeHtml(q.answer)}</em>  ·  write it once more`;
+          feedback.innerHTML = `correct · <em style="color:var(--gold)">${escapeHtml(q.answer)}</em> · write it once more`;
           feedback.className = 'dict-feedback is-wrong';
           $('#dict-actions', stage).innerHTML = '';
-          // rewrite input
+          SFX.wrong();
           stage.insertAdjacentHTML('beforeend', `
             <div class="dict-rewrite-label">— inscribe it —</div>
-            <input class="dict-input" id="dict-rewrite" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+            <input class="dict-input" id="dict-rewrite" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
           `);
           const rew = $('#dict-rewrite', stage);
           rew.focus();
           rew.addEventListener('input', () => {
             if (rew.value.trim().toLowerCase() === q.answer.toLowerCase()) {
               rew.disabled = true;
-              feedback.textContent = `${q.prompt}`;
+              feedback.textContent = q.prompt;
               feedback.className = 'dict-feedback is-correct';
-              SFX.correct();
+              SFX.right();
               speak(q.prompt).then(() => setTimeout(advance, 700));
             }
           });
         }
       }
-
-      function advance() {
-        if (stateD.i + 1 >= stateD.items.length) {
-          go('dict-result');
-        } else {
-          stateD.i++;
-          drawQ();
-        }
-      }
     }
   },
 
-  /* ---------- 8.9 DICTATION RESULT  /  CHAPTER SUMMARY ---------- */
-  'dict-result': {
+  /* ---------- STAGE 3 RESULT  +  SUMMARY (end of session) ---------- */
+  'stage3-result': {
     onEnter() {
       LanBGM.playResultRandom({ volume: 0.42 });
-      const el = $('#screen-dict-result');
-      const ch = CHAPTERS[state.chapterIdx];
-      const results = state.results[state.chapterIdx];
-      const right = ch.words.filter(w => results[w].dict).length;
+      SFX.finish();
+      // bump progress + mark learned
+      state.session.words.forEach(w => { markLearned(w); });
+      saved.progress = Math.min(saved.progress + 8, ALL_HEADS.length);
+      Store.save();
 
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('chapter')));
-      el.insertAdjacentHTML('beforeend', buildBanner(`— chapter ${ch.number} · summary —`));
-      el.insertAdjacentHTML('beforeend', `
+      const el = $('#screen-stage3-result');
+      const right = state.session.words.filter(w => state.results[w].dict).length;
+      el.innerHTML = `
+        ${stageHeader(3, 'the inscription')}
         <div class="score-header">
-          <div class="label">the inscription</div>
+          <div class="label">tonight's reading</div>
           <div class="value">${right}<small> / 8</small></div>
         </div>
-      `);
+        <div class="summary-list" id="summary"></div>
+        <div class="result-grid"></div>
+        <div class="stage-actions"></div>
+      `;
+      sprinkleStars(el, 12);
 
-      // chapter-wide summary — one row per word, three ticks
-      const list = document.createElement('div');
-      list.className = 'summary-list';
-      const renderTick = (v) =>
+      const tickHtml = v =>
         v === null ? `<div class="tick">—</div>`
                    : `<div class="tick ${v ? 'ok' : 'bad'}">${v ? '✓' : '✗'}</div>`;
-      ch.words.forEach(w => {
-        const r = results[w];
+      const sum = $('#summary', el);
+      state.session.words.forEach(w => {
+        const r = state.results[w];
         const row = document.createElement('div');
         row.className = 'summary-row';
-        row.innerHTML = `
-          <div class="sum-word">${escapeHtml(w)}</div>
-          ${renderTick(r.match)}
-          ${renderTick(r.oracle)}
-          ${renderTick(r.dict)}
-        `;
-        list.appendChild(row);
+        row.innerHTML = `<div class="sum-word">${escapeHtml(w)}</div>${tickHtml(r.match)}${tickHtml(r.oracle)}${tickHtml(r.dict)}`;
+        sum.appendChild(row);
       });
-      el.appendChild(list);
+      const grid = $('.result-grid', el);
+      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].dict)));
 
-      // cards for full review
-      const cards = document.createElement('div');
-      cards.className = 'result-grid';
-      ch.words.forEach(w => cards.appendChild(renderVocabCard(w, results[w].dict)));
-      el.appendChild(cards);
-
-      const ar = document.createElement('div');
-      ar.className = 'center-col';
-      ar.style.marginTop = '24px';
-
-      const isLast = state.chapterIdx + 1 >= CHAPTERS.length;
-      if (isLast) {
-        ar.appendChild(confirmButton('close the book', () => {
-          LanBGM.stop();
-          SFX.finish();
-          go('index');
-        }));
-      } else {
-        ar.appendChild(confirmButton('next chapter', () => {
-          SFX.finish();
-          state.chapterIdx++;
-          ensureChapterRecord(state.chapterIdx);
-          go('chapter');
-        }));
-      }
-      el.appendChild(ar);
+      const actions = $('.stage-actions', el);
+      actions.appendChild(backToCover('← back to her book'));
+      actions.appendChild(btn('close', () => { LanBGM.stop(); go('cover'); }));
     }
   },
 
-  /* ---------- 8.10 NOTE (mistake archive) ---------- */
+  /* ---------- NOTE (cover-side, NOT in game flow) ---------- */
   note: {
     onEnter() {
       const el = $('#screen-note');
-      el.innerHTML = '';
-      el.appendChild(buildTopNav(() => go('index')));
-      el.insertAdjacentHTML('beforeend', buildBanner('— her little note —'));
-      el.insertAdjacentHTML('beforeend', buildTitleBlock('Her Little Note', 'pages she returns to', { small: true }));
-
-      const m = state.mistakes;
-      const all = Object.entries(m);
+      const m = saved.mistakes;
+      const entries = Object.entries(m);
       const buckets = {
-        once:   all.filter(([w, c]) => c === 1).map(([w]) => w),
-        twice:  all.filter(([w, c]) => c === 2).map(([w]) => w),
-        thrice: all.filter(([w, c]) => c === 3).map(([w]) => w),
-        haunt:  all.filter(([w, c]) => c >= 4).map(([w]) => w)
+        once:   entries.filter(([w, c]) => c === 1).map(([w]) => w),
+        twice:  entries.filter(([w, c]) => c === 2).map(([w]) => w),
+        thrice: entries.filter(([w, c]) => c === 3).map(([w]) => w),
+        haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
       };
-
-      const stats = document.createElement('div');
-      stats.className = 'note-stats';
-      stats.innerHTML = `
-        <div class="note-stat-card"><div class="nsc-label">a single slip</div><div class="nsc-value">${buckets.once.length}</div></div>
-        <div class="note-stat-card"><div class="nsc-label">twice astray</div><div class="nsc-value">${buckets.twice.length}</div></div>
-        <div class="note-stat-card"><div class="nsc-label">thrice undone</div><div class="nsc-value">${buckets.thrice.length}</div></div>
-        <div class="note-stat-card is-warn"><div class="nsc-label">haunting words</div><div class="nsc-value">${buckets.haunt.length}</div></div>
+      el.innerHTML = `
+        ${titleStrip()}
+        ${pageTitle('her little note')}
+        <div class="page-subtitle">pages she returns to</div>
+        <div class="note-stats">
+          <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
+          <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
+          <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
+          <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+        </div>
+        <div class="stage-actions"><button class="back-to-cover" id="n-back">← close the page</button><span class="spacer"></span></div>
+        <div id="note-body"></div>
       `;
-      el.appendChild(stats);
+      sprinkleStars(el, 12);
+      $('#n-back', el).addEventListener('click', () => { SFX.tap(); go('cover'); });
 
+      const body = $('#note-body', el);
       const show = (label, words) => {
         if (!words.length) return;
-        el.insertAdjacentHTML('beforeend', `<div class="note-section-title">— ${label} —</div>`);
-        const list = document.createElement('div');
-        list.className = 'note-list';
-        words.forEach(w => { if (CARDS[w]) list.appendChild(renderVocabCard(w, true)); });
-        el.appendChild(list);
+        body.insertAdjacentHTML('beforeend', `<div class="section-label">— ${label} —</div>`);
+        const wrap = document.createElement('div');
+        wrap.className = 'result-grid';
+        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true)); });
+        body.appendChild(wrap);
       };
-      if (!all.length) {
-        el.insertAdjacentHTML('beforeend', '<div class="note-empty">no slips yet · the page is still pristine</div>');
+      if (!entries.length) {
+        body.insertAdjacentHTML('beforeend', '<div class="note-empty">no slips yet · the page is still pristine</div>');
       } else {
         show('haunting words', buckets.haunt);
         show('thrice undone',  buckets.thrice);
@@ -890,151 +844,83 @@ const Screens = {
         show('a single slip',  buckets.once);
       }
     }
+  },
+
+  /* ---------- INDEX (cover-side, A-Z) ---------- */
+  index: {
+    onEnter() {
+      const el = $('#screen-index');
+      const heads = Object.keys(CARDS).sort();
+      // group by first letter
+      const groups = {};
+      heads.forEach(h => {
+        const k = h[0].toUpperCase();
+        (groups[k] = groups[k] || []).push(h);
+      });
+      const letters = Object.keys(groups).sort();
+      el.innerHTML = `
+        ${titleStrip()}
+        ${pageTitle('the index')}
+        <div class="page-subtitle">every word she has named</div>
+        <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
+        <div class="stage-actions"><button class="back-to-cover" id="i-back">← close the page</button><span class="spacer"></span></div>
+        <div id="index-body"></div>
+      `;
+      sprinkleStars(el, 12);
+      $('#i-back', el).addEventListener('click', () => { SFX.tap(); go('cover'); });
+      $$('.alpha-bar a', el).forEach(a => {
+        a.addEventListener('click', () => {
+          const L = a.getAttribute('data-letter');
+          const target = $(`#letter-${L}`, el);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+      const body = $('#index-body', el);
+      letters.forEach(L => {
+        body.insertAdjacentHTML('beforeend', `<div class="alpha-section-title" id="letter-${L}">${L}</div>`);
+        groups[L].forEach(h => {
+          const c = CARDS[h];
+          const row = document.createElement('div');
+          row.className = 'word-row';
+          row.innerHTML = `
+            <span class="wr-word">${escapeHtml(c.h)}</span>
+            <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
+            <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
+          `;
+          row.addEventListener('click', () => {
+            SFX.pageTurn();
+            go('card', { word: h, from: 'index' });
+          });
+          body.appendChild(row);
+        });
+      });
+    }
+  },
+
+  /* ---------- CARD detail (opened from index, with tarot flip) ---------- */
+  card: {
+    onEnter(opts) {
+      const el = $('#screen-card');
+      const word = opts.word;
+      const from = opts.from || 'index';
+      el.innerHTML = `
+        ${titleStrip()}
+        <div class="stage-actions" style="margin-top:8px">
+          <button class="back-to-cover" id="c-back">← close the page</button>
+          <span class="spacer"></span>
+        </div>
+        <div class="result-grid" id="card-host"></div>
+      `;
+      sprinkleStars(el, 10);
+      $('#c-back', el).addEventListener('click', () => { SFX.tap(); go(from); });
+      $('#card-host', el).appendChild(renderExCard(word, null));
+    }
   }
 };
 
-/* ------------------------------------------------------------
-   9. VOCAB CARD RENDERER
-   - speak-button anchored to the leftmost position of the head row.
-   - family terms: pink, colloc terms: flesh-warm. zh values: deep-violet song-italic.
-   - English head/family words italicised; phrases (colloc) not italicised.
-   ------------------------------------------------------------ */
-function renderVocabCard(headWord, isRight, opts = {}) {
-  const c = CARDS[headWord];
-  if (!c) {
-    const x = document.createElement('div');
-    x.className = 'vocab-card';
-    x.textContent = headWord;
-    return x;
-  }
-  const box = document.createElement('div');
-  box.className = 'vocab-card ' + (isRight ? 'is-correct' : 'is-wrong');
-
-  /* Head row — speak | word | pos */
-  const head = document.createElement('div');
-  head.className = 'vc-head';
-  head.innerHTML = `
-    <button class="speak-btn" data-speak="${escapeAttr(c.example || c.h)}">${SVG.speaker}</button>
-    <span class="vc-word">${escapeHtml(c.h)}</span>
-    <span class="vc-pos">${escapeHtml(c.pos || '')}</span>
-    <span class="vc-zh-inline">${escapeHtml(c.zh || '')}</span>
-  `;
-  box.appendChild(head);
-
-  /* Family (single-words; italicised, pink) */
-  if (c.family && c.family.length) {
-    const fam = document.createElement('div');
-    fam.className = 'vc-family';
-    fam.innerHTML = `<div class="vc-family-title">family</div>` + c.family.map(line => {
-      const [w, pos, ex, ezh] = line.split('|').map(s => s.trim());
-      return `<div><span class="term">${escapeHtml(w)}</span> <span class="vc-pos">${escapeHtml(pos)}</span> · ${escapeHtml(ex)}<span class="vc-zh-inline">${escapeHtml(ezh || '')}</span></div>`;
-    }).join('');
-    box.appendChild(fam);
-  }
-
-  /* Collocation (phrases; not italicised, flesh-warm) */
-  if (c.colloc && c.colloc.length) {
-    const co = document.createElement('div');
-    co.className = 'vc-colloc';
-    co.innerHTML = `<div class="vc-colloc-title">collocation</div>` + c.colloc.map(line => {
-      const [phrase, zh] = line.split('|').map(s => s.trim());
-      return `<div><span class="term" style="font-style:normal">${escapeHtml(phrase)}</span><span class="vc-zh-inline">${escapeHtml(zh || '')}</span></div>`;
-    }).join('');
-    box.appendChild(co);
-  }
-
-  /* Example */
-  if (c.example) {
-    const ex = document.createElement('div');
-    ex.className = 'vc-example';
-    ex.innerHTML = `${escapeHtml(c.example)}<div class="vc-example-zh">${escapeHtml(c.example_zh || '')}</div>`;
-    box.appendChild(ex);
-  }
-
-  /* Optional rewrite box (oracle result) */
-  if (opts.rewrite) {
-    const rw = document.createElement('div');
-    rw.className = 'vc-rewrite';
-    rw.innerHTML = `
-      <div class="vc-rewrite-label">— write it once —</div>
-      <input type="text" placeholder="${escapeAttr(c.h)}" autocomplete="off" />
-    `;
-    box.appendChild(rw);
-  }
-
-  /* speak button — clicking plays the saved attribute */
-  box.querySelectorAll('.speak-btn').forEach(b => {
-    b.addEventListener('click', e => {
-      e.stopPropagation();
-      const text = b.getAttribute('data-speak');
-      speak(text);
-    });
-  });
-
-  return box;
-}
-
-/* ------------------------------------------------------------
-   10. ORACLE QUESTION BUILDER
-   Show example sentence, italicised, with the head word emphasised.
-   Right answer = c.zh. Wrong answers = sampled from other CARDS.zh.
-   ------------------------------------------------------------ */
-function buildOracleQuestion(word) {
-  const c = CARDS[word];
-  const sentence = c.example || c.h;
-  const sentenceHL = sentence.replace(new RegExp(`\\b(${c.h})\\b`, 'i'), '<em>$1</em>');
-
-  const pool = Object.keys(CARDS).filter(k => k !== word);
-  const wrongs = [];
-  while (wrongs.length < 3) {
-    const cand = CARDS[rand(pool)].zh;
-    if (cand && cand !== c.zh && !wrongs.includes(cand)) wrongs.push(cand);
-  }
-  const options = shuffle([c.zh, ...wrongs]);
-  const correctIdx = options.indexOf(c.zh);
-
-  return { word, sentencePlain: sentence, sentenceHL, options, correctIdx };
-}
-
-/* ------------------------------------------------------------
-   11. MODAL
-   ------------------------------------------------------------ */
-function showModal({ title, body = '', score = null, actions = [] }) {
-  const veil = $('#modal');
-  veil.innerHTML = `
-    <div class="modal-card">
-      <div class="modal-title">${title}</div>
-      ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
-      ${body  ? `<div class="modal-body">${body}</div>` : ''}
-      <div class="modal-actions"></div>
-    </div>
-  `;
-  const ar = $('.modal-actions', veil);
-  actions.forEach(a => {
-    const btn = a.primary
-      ? confirmButton(a.label, () => { hideModal(); a.onClick && a.onClick(); })
-      : cardButton({ text: a.label, onClick: () => { hideModal(); a.onClick && a.onClick(); } });
-    ar.appendChild(btn);
-  });
-  veil.classList.add('show');
-}
-function hideModal() { $('#modal').classList.remove('show'); }
-
-/* ------------------------------------------------------------
-   12. ESCAPING
-   ------------------------------------------------------------ */
-function escapeHtml(s) {
-  return (s == null ? '' : String(s))
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-function escapeAttr(s) { return escapeHtml(s); }
-
-/* ------------------------------------------------------------
-   13. BOOTSTRAP
-   ------------------------------------------------------------ */
+/* ============================================================
+   12. BOOTSTRAP
+   ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   go('cover');
 });
