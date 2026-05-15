@@ -811,7 +811,7 @@ const Screens = {
       const correctPairs = new Set(result.filter(r => r.correct).map(r => r.pairId)).size;
 
       el.innerHTML = `
-        <div class="page-title"><span class="pt-fleur">❦</span>what she paired<span class="pt-fleur">❦</span></div>
+        ${stageHeader(1, 'the matching')}
         <div class="score-block">
           <div class="score-label">your hand</div>
           <div class="score-value">${correctPairs}<small> / 4</small></div>
@@ -920,7 +920,7 @@ const Screens = {
       const el = $('#screen-stage2-result');
       const right = state.session.words.filter(w => state.results[w].oracle).length;
       el.innerHTML = `
-        <div class="page-title"><span class="pt-fleur">❦</span>what she read<span class="pt-fleur">❦</span></div>
+        ${stageHeader(2, 'the reading')}
         <div class="score-block">
           <div class="score-label">her reading</div>
           <div class="score-value">${right}<small> / 8</small></div>
@@ -1038,7 +1038,7 @@ const Screens = {
         return acc + (r.match ? 1 : 0) + (r.oracle ? 1 : 0) + (r.dict ? 1 : 0);
       }, 0);
       el.innerHTML = `
-        <div class="page-title"><span class="pt-fleur">❦</span>the final reading<span class="pt-fleur">❦</span></div>
+        ${stageHeader(3, 'the inscription')}
         <div class="score-block">
           <div class="score-label">tonight's chapter</div>
           <div class="score-value">${totalCorrect}<small> / 24</small></div>
