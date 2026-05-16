@@ -4136,18 +4136,17 @@ body.bg-result .match-result-grid > .card {
   transform-origin: 50% 50%;
 }
 
-/* --- 47.3  title plaque — position matches the reference image:
-   the dome sits in the upper third of the 0511 frame (NOT pinned
-   to its very top), generous text size, fits cleanly inside. --- */
+/* --- 47.3  title plaque — LOCKED to the dome PNG's natural ratio
+   (1200×675 ≈ 1.78:1).  Width = ALL we set; height follows.
+   Text size matches the reference (much bigger than before). --- */
 .nav-card .title-plaque {
   position: absolute;
-  top: 13%;                       /* drops the dome into its proper place
-                                     so it stops crashing into the
-                                     0511 frame's top floral curve     */
+  top: 5%;
   left: 50%;
   transform: translateX(-50%);
-  width: 56%;
-  height: 26%;
+  width: 70%;
+  aspect-ratio: 1200 / 675;
+  height: auto;
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
     center/100% 100% no-repeat;
@@ -4155,36 +4154,37 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  top: 56%;                       /* lands in the dome's text band */
+  top: 56%;
   transform: translate(-50%, -50%);
   width: 76%;
   text-align: center;
   font-family: var(--f-display), 'Bodoni 72', 'Didot', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(15px, 3.6vw, 19px);
+  font-size: clamp(22px, 5.6vw, 30px);    /* big like the reference */
   line-height: 1.05;
-  letter-spacing: .03em;
+  letter-spacing: .02em;
   color: #f3d99a;
   text-shadow:
     0 0 10px rgba(243,217,154,.6),
-    0 0 20px rgba(218,168,104,.4);
+    0 0 22px rgba(218,168,104,.4);
   text-transform: lowercase;
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — sits below the plaque, above the bow --- */
+/* --- 47.4  body area — pushed down for the bigger title plaque,
+   tight bottom margin so the bow at the very bottom still shows --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 44%;
+  top: 58%;
   left: 13%;
   right: 13%;
-  bottom: 22%;
+  bottom: 11%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4246,35 +4246,38 @@ body.bg-result .match-result-grid > .card {
   margin-top: 2px;
 }
 
-/* --- 47.6  search + A-Z bar inside the nav body — smaller,
-   alphabet letters get individual underlines to read as buttons --- */
+/* --- 47.6  search + A-Z bar — sized to match the reference --- */
 .nav-card .index-search {
   display: block;
-  width: 70%;
+  width: 84%;
   margin: 0 auto;
-  padding: 5px 12px;
-  background: rgba(8,4,18,.5);
-  border: 1px solid rgba(244,181,200,.28);
+  padding: 7px 14px 7px 32px;
+  background:
+    /* tiny magnifying-glass via inline SVG so we don't add an asset */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4B5C8' stroke-width='2'><circle cx='10.5' cy='10.5' r='6.5'/><line x1='15.5' y1='15.5' x2='20' y2='20'/></svg>") 10px center/14px no-repeat,
+    rgba(8,4,18,.5);
+  border: 1px solid rgba(244,181,200,.32);
   border-radius: 999px;
   color: var(--cream);
-  font-family: var(--f-italic);
+  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11px;
-  letter-spacing: .08em;
+  font-size: 13px;
+  letter-spacing: .06em;
   outline: none;
-  text-align: center;
+  text-align: left;
   box-sizing: border-box;
 }
-.nav-card .index-search::placeholder { color: rgba(244,181,200,.5); }
+.nav-card .index-search::placeholder { color: rgba(244,181,200,.55); }
 .nav-card .alpha-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 9px;
-  line-height: 1.6;
+  gap: 0 7px;
+  line-height: 1.4;
+  padding: 0 4px;
 }
 .nav-card .alpha-bar a {
-  font-family: var(--f-italic);
+  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
   font-size: 11px;
   letter-spacing: .04em;
@@ -4282,7 +4285,7 @@ body.bg-result .match-result-grid > .card {
   cursor: pointer;
   opacity: .95;
   text-decoration: underline;
-  text-decoration-color: rgba(218,168,104,.55);
+  text-decoration-color: rgba(218,168,104,.65);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
@@ -4325,25 +4328,35 @@ body.bg-result .match-result-grid > .card {
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(244,181,200,.22);
 }
-/* --- word row — old-vellum TOC layout:
-       EN  v.  · · · · · · · · · · ·  CN
-   the .wr-leader is a flex spacer drawn as a dotted gold line
-   sitting on the baseline, joining the two sides.            --- */
+/* --- word row — vellum TOC layout per the reference:
+       ✦  EN  v.  · · · · · · · ·  CN  ✦
+   one dotted leader (NO row border), a four-point star on each
+   end, sizes tuned to the reference. --- */
 .word-list .word-row {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  padding: 5px 4px 6px;
+  gap: 8px;
+  padding: 6px 6px 7px;
   cursor: pointer;
   transition: background-color .18s;
+  border: 0;
 }
 .word-list .word-row:hover { background: rgba(237,184,158,.05); }
+.word-list .word-row::before,
+.word-list .word-row::after {
+  content: "✦";
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: rgba(218,168,104,.55);
+  align-self: center;
+  line-height: 1;
+}
 .word-list .word-row .wr-word {
   flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 17px;
   color: var(--gold-warm);
   text-shadow: 0 0 6px rgba(243,217,154,.4);
   letter-spacing: .01em;
@@ -4352,10 +4365,10 @@ body.bg-result .match-result-grid > .card {
   flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--pink-deep);
-  letter-spacing: .06em;
-  opacity: .85;
+  letter-spacing: .04em;
+  opacity: .9;
   white-space: nowrap;
 }
 .word-list .word-row .wr-leader {
@@ -4363,15 +4376,15 @@ body.bg-result .match-result-grid > .card {
   min-width: 16px;
   height: 0;
   align-self: end;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   border-bottom: 1px dotted rgba(218,168,104,.55);
 }
 .word-list .word-row .wr-zh {
   flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11.5px;
-  color: #b89edd;
+  font-size: 12px;
+  color: #8d6fb0;             /* darker purple per user request */
   letter-spacing: .04em;
   opacity: .95;
   text-align: right;
