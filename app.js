@@ -628,7 +628,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
   /* The tap hint — visible while the queue still has items. */
   const tapHint = document.createElement('div');
   tapHint.className = 'ex-tap-hint';
-  tapHint.textContent = '— tap to reveal more —';
+  tapHint.textContent = '— tap to reveal more';
   box.appendChild(tapHint);
   if (queue.length === 0) tapHint.style.display = 'none';
 
@@ -655,7 +655,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
         const audio = exNode.querySelector('.ex-example-en')?.textContent || '';
         queue.push({ el: exNode, audio });
       }
-      tapHint.textContent = '— tap to reveal more —';
+      tapHint.textContent = '— tap to reveal more';
       tapHint.style.display = '';
       tapHint.style.opacity = '';
     });
@@ -696,13 +696,14 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
 function buildOracleQuestion(word) {
   const c = CARDS[word];
   const sentence = c.example || c.h;
-  // Cloze: keep the first letter, blank the rest.  "abrupt" → "a______"
-  const first  = c.h[0];
-  const blanks = '_'.repeat(Math.max(5, c.h.length - 1));
-  const blanked = `${first}${blanks}`;
+  // Cloze: keep the first letter, render the rest as a single
+  // underlined span (not literal "_" characters — those produced a
+  // visible double-underline because the chars themselves draw a
+  // baseline rule under the CSS border-bottom).
+  const first = c.h[0];
   const sentenceHL = sentence.replace(
     new RegExp(`\\b${c.h}\\b`, 'i'),
-    `<em class="q-blank">${blanked}</em>`
+    `<em class="q-blank">${first}<span class="q-blank-fill"></span></em>`
   );
   // 3 distractors that ALSO start with the same letter — the lesson
   // is "tell apart the words that share the first letter".
@@ -1012,7 +1013,12 @@ const Screens = {
       function pick(oi, button) {
         const q = state.oracleQs[state.oracleIdx];
         const all = $$('.card--option');
-        all.forEach(b => b.disabled = true);
+        // `disabled` would have swallowed subsequent clicks on the
+        // option buttons themselves, which is precisely where the
+        // user's finger lands when they try to advance.  Use a class
+        // + pointer-events: none instead, so the click bubbles up to
+        // the document-level advance listener below.
+        all.forEach(b => b.classList.add('is-resolved'));
 
         // tiny "thinking" beat — the deep-pink inner glow on the chosen
         // option before the verdict.  Without this beat the click feels
@@ -1040,12 +1046,16 @@ const Screens = {
         }, 280);
 
         function armAdvance() {
-          // a hint that the page is waiting for them
+          // a hint that the page is waiting for them.  `stage` lived
+          // in drawQ's scope; re-resolve it from the el so we don't
+          // throw a ReferenceError (which was silently killing the
+          // entire advance flow — the listener never got attached).
+          const stage = $('#oracle-stage', el);
           let hint = $('.q-tap-hint', stage);
           if (!hint) {
             hint = document.createElement('div');
             hint.className = 'q-tap-hint';
-            hint.textContent = '— tap anywhere to turn the page —';
+            hint.textContent = '— tap anywhere to turn the page';
             stage.appendChild(hint);
           }
           const advance = (ev) => {

@@ -4082,37 +4082,39 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
   max-height: 78vh;
   overflow-y: auto;
   overflow-x: hidden;
-  /* fallback bg so the card has body if the parchment image fails  */
-  background-color: #1a1235 !important;
-  background-image: none !important;
-  border: 1px solid rgba(232, 200, 130, .22) !important;
-  border-radius: 14px !important;
-  box-shadow:
-    0 0 28px rgba(0, 0, 0, .55),
-    inset 0 0 60px rgba(244, 226, 200, 0.08) !important;
-  padding: 44px 26px 56px !important;
-  color: #f4e6c8 !important;
-  -webkit-text-fill-color: #f4e6c8 !important;
+  /* Parchment is the card's body — no fallback colour, no border;
+     the asset itself is the shape and the texture.                    */
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  /* Padding pulls the content in from the scroll's decorative edges. */
+  padding: 72px 56px 86px !important;
+  /* Dark ink on cream parchment */
+  color: #3A2E22 !important;
+  -webkit-text-fill-color: #3A2E22 !important;
 }
-/* Restore cream-on-dark text inside the card (the §50.6 rule had set
-   everything to dark ink-brown, which only suited the parchment-only
-   bg.  Now the bg is dark + parchment overlay, so we want cream).      */
 #screen-card .ex-card * {
-  color: inherit !important;
-  -webkit-text-fill-color: inherit !important;
+  color: #3A2E22 !important;
+  -webkit-text-fill-color: #3A2E22 !important;
 }
-/* Paper-warmth overlay — the ui-parchment.png asset has a decorative
-   scroll shape baked into it, so stretching it as a full-card texture
-   produced a tilted-scroll silhouette.  Instead, render a subtle
-   radial warm-cream glow that suggests paper without any silhouette.  */
+/* Special inks for accents that read as ink-colour variants */
+#screen-card .ex-card .ex-headword     { color: #2A1F18 !important; -webkit-text-fill-color: #2A1F18 !important; }
+#screen-card .ex-card .ex-headword-zh,
+#screen-card .ex-card .fam-ex-zh,
+#screen-card .ex-card .colloc-zh,
+#screen-card .ex-card .ex-example-zh   { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; }
+#screen-card .ex-card .ex-label        { color: #8C6A4D !important; -webkit-text-fill-color: #8C6A4D !important; letter-spacing: .18em; }
+#screen-card .ex-card .ex-tap-hint     { color: #8C6A4D !important; -webkit-text-fill-color: #8C6A4D !important; opacity: .72; }
+/* The scroll IS the card.  User clarified: 羊皮卷放在单独的卡片页面 —
+   parchment scroll belongs on the dedicated detail screen.  Embrace the
+   asset's scroll silhouette as the card's outline, not a flat texture.  */
 #screen-card .ex-card::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(244, 226, 200, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 85%, rgba(244, 226, 200, 0.04) 0%, transparent 55%);
+  background: url("assets/ui-parchment.png?v=27") center/100% 100% no-repeat;
   pointer-events: none;
   z-index: 0;
 }
@@ -4194,3 +4196,192 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
 @keyframes hint-fade-out {
   to { opacity: 0; transform: translate(-50%, 8px); }
 }
+
+
+/* ============================================================
+   53. Viewport lockdown — the page itself does not scroll
+   ============================================================
+   Spec: background layer is fixed, only the inner content of three
+   specific screens (index, stage2-result, stage3-result) is allowed
+   to scroll.  Everything else fits inside the viewport without
+   producing a body-level scroll bar.
+
+   How this works:
+     - html/body are pinned to 100vh with overflow hidden
+     - #app fills the viewport, padding-top reserves banner space
+     - .screen.active fills the area below the banner
+     - Three named screens get overflow-y: auto on their .active
+       state.  Everything else stays overflow: hidden.
+   ============================================================ */
+html, body {
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+}
+#app {
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  /* the banner takes up calc(100vw * 821/1916) at the top */
+  padding-top: calc(100vw * 821 / 1916) !important;
+}
+.screen {
+  height: calc(100vh - (100vw * 821 / 1916)) !important;
+  height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - (100vw * 821 / 1916)) !important;
+  max-height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  overflow: hidden !important;
+  padding: 14px 18px 22px !important;
+}
+.screen.active {
+  height: calc(100vh - (100vw * 821 / 1916)) !important;
+  height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - (100vw * 821 / 1916)) !important;
+  max-height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  overflow: hidden !important;
+}
+/* The three screens whose content layer is allowed to scroll.        */
+#screen-index.active,
+#screen-stage2-result.active,
+#screen-stage3-result.active {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+/* hide their scrollbars for a quiet feel */
+#screen-index.active::-webkit-scrollbar,
+#screen-stage2-result.active::-webkit-scrollbar,
+#screen-stage3-result.active::-webkit-scrollbar { width: 4px; }
+#screen-index.active::-webkit-scrollbar-thumb,
+#screen-stage2-result.active::-webkit-scrollbar-thumb,
+#screen-stage3-result.active::-webkit-scrollbar-thumb {
+  background: rgba(232,200,130,.25);
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   54. Round-2 polish — chapter / modal / key / cloze / hint dashes
+   ============================================================ */
+
+/* ----- 54.1  Chapter strip even smaller -----
+   Reduce to ~240 px to compress vertical real estate.                  */
+.stage-head {
+  max-width: 240px !important;
+  margin: 22px auto 4px !important;
+}
+.stage-head .stage-chapter {
+  font-size: 8px !important;
+  letter-spacing: .26em !important;
+}
+.stage-head .stage-name {
+  font-size: 12px !important;
+}
+
+/* ----- 54.2  Modal text vertically centred in the frame ----- */
+.modal-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 48px 46px !important;
+  text-align: center !important;
+}
+.modal-card .modal-title {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+}
+.modal-card .modal-body {
+  margin-bottom: 18px !important;
+}
+
+/* ----- 54.3  Tonight's Reading key — upright + larger ----- */
+.main-cta .cta-key {
+  width: 26px !important;
+  height: 64px !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 8px rgba(232,200,130,.55)) !important;
+}
+.main-cta .cta-key-l,
+.main-cta .cta-key-r {
+  transform: none !important;
+}
+
+/* ----- 54.4  Cloze blank — kill the double-underline -----
+   The blank was rendered as actual underscore characters "______"
+   which draw a line as text, while CSS also added a border-bottom.
+   The fix is two-pronged:
+     - JS now emits a <span class="q-blank-fill"> instead of "_"s.
+       (See app.js change.)
+     - CSS removes border-bottom from .q-blank itself; the inner span
+       carries the underline.                                          */
+.q-sentence .q-blank,
+.q-blank {
+  border-bottom: none !important;
+}
+.q-blank-fill {
+  display: inline-block;
+  width: 4.6em;
+  height: 1em;
+  margin: 0 4px;
+  border-bottom: 1px solid rgba(237,184,158,.7);
+  vertical-align: -0.05em;
+}
+
+/* ----- 54.5  Tap-hint em-dash consistency -----
+   Some hint text shipped with "— text —" (two flanking dashes); some
+   buttons used a single ::before fade-line.  Unify by hiding the
+   trailing em-dash text via JS-side change (we strip the right "—"
+   in app.js).  Visual rule: every quiet line shows a single 22 px
+   gold fade-rule on the left.                                        */
+.q-tap-hint,
+.ex-tap-hint {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: rgba(244,226,200,.7);
+  text-align: center;
+  margin-top: 14px;
+}
+
+/* ----- 54.6  Cover layout fits viewport -----
+   With the new height clamp, the cover must lay out its rows so all
+   are visible.  Use a column flex with space-between and a tighter
+   gap so the (her note · the index) row lands at the bottom.        */
+#screen-cover.active {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 14px 18px 28px !important;
+}
+#screen-cover .main-cta {
+  margin-top: 16vh !important;
+}
+#screen-cover .lil-row {
+  margin-top: auto !important;
+  padding-bottom: 4px !important;
+}
+
+/* ----- 54.7  Stage2 options: let post-pick clicks pass through -----
+   Replacing `button.disabled = true` (which swallowed clicks) with a
+   class lets the same click still bubble to the document-level
+   "tap anywhere to advance" listener.                                 */
+.card--option.is-resolved {
+  pointer-events: none;
+}
+/* Restore visual states on the resolved buttons */
+.card--option.is-resolved.picked-right { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
+.card--option.is-resolved.picked-wrong { opacity: .5; }
+.card--option.is-resolved.reveal-right { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
