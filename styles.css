@@ -3378,3 +3378,112 @@ body { background: transparent !important; }
 .main-cta .cta-key,
 .dict-quill,
 .modal-card .m-spark { filter: none !important; }
+
+/* ============================================================
+   43. design system v1.2 — linear-reveal card + result widen + glow
+   ============================================================ */
+
+/* Linear-reveal display rules — each row hides itself with .is-veiled
+   so we can drop one veil at a time on each card-wide tap.            */
+.fam-reveal.is-veiled,
+.colloc-row.is-veiled,
+.ex-example.is-veiled { display: none !important; }
+.fam-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0 2px;
+}
+.fam-word {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--gold-warm);
+}
+.fam-pos {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--soft);
+}
+.fam-reveal {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 2px 0 8px 14px;
+}
+.colloc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+}
+.ex-example {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+}
+.ex-tap-hint {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .26em;
+  color: var(--pink-soft);
+  opacity: .55;
+  padding: 16px 0 6px;
+  animation: tap-hint-breathe 2.4s ease-in-out infinite;
+}
+
+/* Result-page cards were getting squashed into a ~160px tall pill.
+   Widen the grid + open the cell breathing room so they read as
+   real cards instead of compressed labels.                          */
+.match-result-grid,
+.match-grid {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+  padding: 8px 6px !important;
+  max-width: 560px !important;
+  margin: 0 auto !important;
+}
+.match-grid > .card,
+.match-result-grid > .card {
+  width: 100% !important;
+  min-height: 64px;
+  font-size: 18px !important;
+  padding: 18px 12px !important;
+  display: flex !important;
+}
+
+/* Tonight's Reading + every .h-plaque — refined glow.  Was a single
+   wide blur that looked muddy; now it's a layered glow:
+     – tight gold core (8px)
+     – medium pink halo (24px)
+     – soft rose drift (40px).                                       */
+.h-plaque .h-text,
+.main-cta .cta-text,
+.stage-head .stage-name,
+.page-title {
+  text-shadow:
+    0 0 8px  rgba(237,184,158,.85),
+    0 0 22px rgba(244,181,200,.42),
+    0 0 38px rgba(199,122,149,.28) !important;
+}
+.h-plaque:hover .h-text,
+.main-cta:hover .cta-text {
+  text-shadow:
+    0 0 10px rgba(255,220,180,.95),
+    0 0 26px rgba(244,181,200,.55),
+    0 0 44px rgba(199,122,149,.42) !important;
+}
+.h-plaque.is-engaged .h-text,
+.main-cta.is-engaged .cta-text {
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  text-shadow:
+    0 0 6px  rgba(255,235,205,1),
+    0 0 18px rgba(237,184,158,.9),
+    0 0 38px rgba(244,181,200,.6) !important;
+}
+
