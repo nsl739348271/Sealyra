@@ -2255,7 +2255,8 @@ body { background: transparent !important; }
   pointer-events: none;
 }
 .main-cta:hover .cta-text  { text-shadow: 0 0 22px rgba(237,184,158,.85) !important; }
-.main-cta .cta-key,
+/* .cta-fleur and .cta-rule are retired markup; .cta-key is back as an
+   <img> element and must stay visible.                                */
 .main-cta .cta-fleur,
 .main-cta .cta-rule        { display: none !important; }
 
