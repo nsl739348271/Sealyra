@@ -1269,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=30"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=31"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=30"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=31"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=30"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=31"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=30"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=31"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1387,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=30"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=30"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=30"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=31"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=31"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=31"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=31"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3614,14 +3614,14 @@ body { background: transparent !important; }
 }
 
 /* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=30") !important; }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=30") !important; }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=30") !important; }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !important; }
-#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=30") !important; }
-#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=30") !important; }
-#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=30") !important; }
-#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=30") !important; }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=31") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=31") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=31") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=31") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=31") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=31") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=31") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=31") !important; }
 
 /* ============================================================
    50. v=27 — UI art binding (the 7 new container frames)
@@ -3697,7 +3697,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
 #screen-stage1 .card.card--match,
 #screen-stage1-result .card.card--match,
 .card.card--option {
-  background: url("assets/ui-word.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-word.png?v=31") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   color: var(--cream) !important;
@@ -3896,7 +3896,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
    Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
 #screen-note .page-title,
 #screen-index .page-title {
-  background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-score.png?v=31") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 360px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3931,7 +3931,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
 
 /* ----- 50.7  Modal panel ----- */
 .modal-card {
-  background: url("assets/ui-modal.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-modal.png?v=31") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   padding: 64px 46px !important;
@@ -3955,7 +3955,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
    ui-score is a wide horizontal frame (1448x1086) with pink bow.
    Trim to ~240px wide so it doesn't dominate the result page.          */
 .score-block {
-  background: url("assets/ui-page-title.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-page-title.png?v=31") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 260px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3991,7 +3991,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
 }
 
 /* ----- 50.9  Cache-bust new UI assets ----- */
-/* (already inlined above as ?v=30 — keep older asset refs at v=26)    */
+/* (already inlined above as ?v=31 — keep older asset refs at v=26)    */
 
 
 /* ============================================================
@@ -4175,7 +4175,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   height: 84px;
   padding: 0;
   border: none;
-  background: url("assets/ui-medallion.png?v=30") center/contain no-repeat;
+  background: url("assets/ui-medallion.png?v=31") center/contain no-repeat;
   cursor: pointer;
   z-index: 30;
   /* a stamp is slightly off-axis, like a hand pressed it */
@@ -4237,7 +4237,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
      to 130%.  Right edge of image sticks at right edge of card → the
      quill stays in view.  Excess width pours off the LEFT (torn edge)
      which is acceptable per 屁股不重要 被遮就被遮.                       */
-  background-image: url("assets/ui-parchment.png?v=30") !important;
+  background-image: url("assets/ui-parchment.png?v=31") !important;
   background-repeat: no-repeat !important;
   background-position: top right !important;
   background-size: 130% auto !important;
@@ -4589,7 +4589,7 @@ html, body {
   z-index: auto !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-score.png?v=31") center/100% 100% no-repeat !important;
   /* ui-score frame anatomy (from sampling the asset):
      - top:    small moon + stars decoration extends ~22% down
      - sides:  ornate flourish ~16% wide each side
@@ -4954,7 +4954,7 @@ html, body {
 #screen-note .page-head,
 #screen-index .page-head,
 #screen-card .page-head {
-  background: url("assets/ui-chapter.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-chapter.png?v=31") center/100% 100% no-repeat !important;
   /* Absolute-position the band on the corner-pin row so ≡, frame, ×
      are STRICTLY on the same horizontal line (user: 严格的同一行).      */
   position: absolute !important;
@@ -5108,4 +5108,152 @@ html, body {
 .ex-card-open-detail:hover {
   background: rgba(232,200,130,.18);
   transform: scale(1.08);
+}
+
+
+/* ============================================================
+   56. note + index purring-pinwheel pass
+   ============================================================
+   - Corner-pins now wear icon-bow (left) + icon-key (right).
+   - All three top-row elements (bow / 顶头框 / key) share top:12px
+     and height:36px → strict vertical-midline alignment.
+   - Note's 4 mistake-bucket stats live in a vertical ui-modal frame
+     with bare glowing numbers (no transparent boxes).
+   - Favourites collection (wax-seal-stamped words) appears below the
+     stats frame as v=21 semi-transparent .ex-card glow cards.
+   - Index's old 188px padding-top hack is killed so the A-Z list
+     starts immediately under the search/alpha frame.
+   ============================================================ */
+
+/* ----- 56.1  Corner pins: icon backgrounds + strict alignment ----- */
+.moon-corner,
+.close-corner {
+  position: absolute !important;
+  top: 12px !important;
+  height: 36px !important;
+  width:  36px !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  background-size: 24px 24px !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  border: none !important;
+  border-radius: 50% !important;
+  z-index: 50 !important;
+  opacity: .85 !important;
+  filter: drop-shadow(0 0 4px rgba(232,200,130,.4)) !important;
+}
+.moon-corner {
+  left: 14px !important;
+  right: auto !important;
+  background-image: url("assets/icon-bow.png?v=31") !important;
+}
+.close-corner {
+  right: 14px !important;
+  left: auto !important;
+  background-image: url("assets/icon-key.png?v=31") !important;
+}
+.moon-corner:hover,
+.close-corner:hover {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 8px rgba(232,200,130,.7)) !important;
+}
+/* hide the CSS-drawn glyphs from the older rules */
+.moon-corner .mc-bar,
+.moon-corner .mc-bar::before,
+.moon-corner .mc-bar::after,
+.close-corner .cp-x,
+.close-corner .cp-x::before,
+.close-corner .cp-x::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ----- 56.2  Index gap kill + new index-frame ----- */
+#screen-index.active #index-body,
+#screen-index #index-body {
+  padding-top: 0 !important;
+}
+#screen-index .index-frame {
+  margin: 0 auto 14px !important;
+  max-width: 460px !important;
+  padding: 10px 18px !important;
+  background: rgba(8, 4, 18, .42) !important;
+  border: 1px solid rgba(232, 200, 130, .22) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 14px rgba(232, 200, 130, .12);
+}
+
+/* ----- 56.3  Note stats — vertical inside ui-modal frame ----- */
+#screen-note .note-stats-frame {
+  background: url("assets/ui-modal.png?v=31") center/100% 100% no-repeat;
+  width: 100%;
+  max-width: 320px;
+  margin: 18px auto 24px;
+  padding: 70px 50px 80px;
+}
+#screen-note .note-stats-frame .page-subtitle {
+  text-align: center !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .14em !important;
+  color: rgba(244, 226, 200, .72) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .72) !important;
+  margin: 0 0 16px !important;
+}
+#screen-note .note-stats {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  gap: 12px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+#screen-note .note-stat,
+#screen-note .note-stat.warn {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+#screen-note .note-stat .val {
+  font-family: var(--f-display) !important;
+  font-style: normal !important;
+  font-size: 28px !important;
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  text-shadow: 0 0 12px rgba(232, 200, 130, .55) !important;
+  line-height: 1 !important;
+  min-width: 28px !important;
+  text-align: right !important;
+}
+#screen-note .note-stat .lbl {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .08em !important;
+  color: rgba(244, 226, 200, .78) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .78) !important;
+}
+
+/* ----- 56.4  Favourite cards area ----- */
+#screen-note #note-body {
+  padding: 0 14px 80px !important;
+}
+#screen-note .note-empty {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  color: rgba(244, 226, 200, .45);
+  margin: 18px 0;
 }

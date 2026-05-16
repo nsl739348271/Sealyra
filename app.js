@@ -172,10 +172,10 @@ const Store = {
   load() {
     try {
       return Object.assign(
-        { progress: 0, learned: {}, mistakes: {} },
+        { progress: 0, learned: {}, mistakes: {}, favorites: {} },
         JSON.parse(localStorage.getItem('hll-state') || '{}')
       );
-    } catch { return { progress: 0, learned: {}, mistakes: {} }; }
+    } catch { return { progress: 0, learned: {}, mistakes: {}, favorites: {} }; }
   },
   save() { try { localStorage.setItem('hll-state', JSON.stringify(saved)); } catch {} }
 };
@@ -188,6 +188,13 @@ function markLearned(word) {
   saved.learned[word] = true;
   Store.save();
 }
+function toggleFavorite(word) {
+  if (saved.favorites[word]) delete saved.favorites[word];
+  else saved.favorites[word] = true;
+  Store.save();
+  return !!saved.favorites[word];
+}
+function isFavorited(word) { return !!saved.favorites[word]; }
 
 /* ------------------------------------------------------------
    4. EPHEMERAL STATE — only lives for the current Tonight's Reading
@@ -263,7 +270,7 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-tonight" src="assets/cta-tonight.png?v=30" alt="${escapeAttr(label)}">
+      <img class="cta-tonight" src="assets/cta-tonight.png?v=31" alt="${escapeAttr(label)}">
     </span>
   `;
   a.addEventListener('click', () => {
@@ -312,7 +319,9 @@ function closeCorner({ confirm = false, to = 'cover', label = 'close the page' }
   const b = document.createElement('button');
   b.className = 'close-corner corner-pin';
   b.setAttribute('aria-label', label);
-  b.innerHTML = '<span class="cp-x"></span>';
+  // The visual is a key icon (icon-key.png) painted as the button's
+  // background — see §56 in styles.css.  No inner glyph needed.
+  b.innerHTML = '';
   b.addEventListener('click', () => {
     SFX.tap();
     const exit = () => { LanBGM.stop(); go(to); };
@@ -321,16 +330,14 @@ function closeCorner({ confirm = false, to = 'cover', label = 'close the page' }
   });
   return b;
 }
-// Top-left moon button — opens the side-drawer of "her words".
-// The drawer is an OVERLAY (not navigation), so no leave-confirm
-// is needed — picking a word from it is the user's explicit action.
+// Top-left button — opens the side-drawer of "her words".  Visual is
+// a bow icon (icon-bow.png) painted as the button's background; the
+// drawer is an OVERLAY (not navigation), so no leave-confirm is needed.
 function moonCorner() {
   const b = document.createElement('button');
   b.className = 'moon-corner corner-pin';
   b.setAttribute('aria-label', 'open her words');
-  // Three-bar menu drawn in CSS via .mc-bar + two box-shadows — no
-  // PNG, no unicode glyph that might tofu on iOS.
-  b.innerHTML = '<span class="mc-bar"></span>';
+  b.innerHTML = '';
   b.addEventListener('click', () => { SFX.tap(); openSidebar(); });
   return b;
 }
@@ -1139,7 +1146,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=30" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=31" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
@@ -1251,27 +1258,27 @@ const Screens = {
     }
   },
 
-  /* ---------- NOTE (cover-side, NOT in game flow) ---------- */
+  /* ---------- NOTE (cover-side, NOT in game flow) ----------
+     Layout: 顶头框 + ui-modal-framed stats (4 vertical mistake-buckets)
+             + favourites collection (semi-transparent glow cards). */
   note: {
     onEnter() {
       const el = $('#screen-note');
       const m = saved.mistakes;
       const entries = Object.entries(m);
-      const buckets = {
-        once:   entries.filter(([w, c]) => c === 1).map(([w]) => w),
-        twice:  entries.filter(([w, c]) => c === 2).map(([w]) => w),
-        thrice: entries.filter(([w, c]) => c === 3).map(([w]) => w),
-        haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
-      };
+      const once   = entries.filter(([w, c]) => c === 1).length;
+      const twice  = entries.filter(([w, c]) => c === 2).length;
+      const thrice = entries.filter(([w, c]) => c === 3).length;
+      const haunt  = entries.filter(([w, c]) => c >= 4).length;
       el.innerHTML = `
         ${pageTitle('her little note')}
-        <div class="screen-stickyhead">
+        <div class="note-stats-frame">
           <div class="page-subtitle">pages she returns to</div>
           <div class="note-stats">
-            <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
-            <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
-            <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
-            <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+            <div class="note-stat"><div class="val">${once}</div><div class="lbl">a single slip</div></div>
+            <div class="note-stat"><div class="val">${twice}</div><div class="lbl">twice astray</div></div>
+            <div class="note-stat"><div class="val">${thrice}</div><div class="lbl">thrice undone</div></div>
+            <div class="note-stat"><div class="val">${haunt}</div><div class="lbl">haunting words</div></div>
           </div>
         </div>
         <div id="note-body"></div>
@@ -1279,23 +1286,18 @@ const Screens = {
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
 
-
+      // Favourites collection — every word the user stamped with the
+      // wax seal on its study card.  Rendered as the original v=21
+      // semi-transparent .ex-card with pink-glow border.
       const body = $('#note-body', el);
-      const show = (label, words) => {
-        if (!words.length) return;
-        body.insertAdjacentHTML('beforeend', `<div class="section-label">— ${label} —</div>`);
+      const favs = Object.keys(saved.favorites || {}).filter(w => CARDS[w]);
+      if (!favs.length) {
+        body.innerHTML = '<div class="note-empty">no slips yet · the page is still pristine</div>';
+      } else {
         const wrap = document.createElement('div');
         wrap.className = 'result-grid';
-        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true, { withControls: false })); });
+        favs.forEach(w => wrap.appendChild(renderExCard(w, true, { withControls: false })));
         body.appendChild(wrap);
-      };
-      if (!entries.length) {
-        body.insertAdjacentHTML('beforeend', '<div class="note-empty">no slips yet · the page is still pristine</div>');
-      } else {
-        show('haunting words', buckets.haunt);
-        show('thrice undone',  buckets.thrice);
-        show('twice astray',   buckets.twice);
-        show('a single slip',  buckets.once);
       }
     }
   },
@@ -1314,7 +1316,7 @@ const Screens = {
       const letters = Object.keys(groups).sort();
       el.innerHTML = `
         ${pageTitle('the index')}
-        <div class="screen-stickyhead">
+        <div class="index-frame">
           <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
           <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
         </div>
@@ -1405,18 +1407,20 @@ const Screens = {
 
       // --- The wax seal stamp: pinned to the bottom-left of the screen
       // so it sits over the parchment even when the user scrolls the
-      // card content.  Tap = add this word to her note.                */
+      // card content.  Tap = TOGGLE this word's presence in saved.favorites
+      // (the "her note" collection).  Stamp reflects current state on
+      // entry and on every toggle.                                        */
       const stamp = document.createElement('button');
       stamp.className = 'wax-seal-stamp';
-      stamp.setAttribute('aria-label', 'add to her note');
+      stamp.setAttribute('aria-label', 'toggle favourite');
       stamp.title = 'add to her note';
       el.appendChild(stamp);
+      if (isFavorited(word)) stamp.classList.add('is-stamped');
       stamp.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (stamp.classList.contains('is-stamped')) return;
         SFX.seal();
-        stamp.classList.add('is-stamped');
-        recordMistake(word);     // mark this word as one she returns to
+        const nowFav = toggleFavorite(word);
+        stamp.classList.toggle('is-stamped', nowFav);
       });
 
       // --- Beat 2: line-by-line write reveal --------------------------
