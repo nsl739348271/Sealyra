@@ -4109,26 +4109,37 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Nav-card is dropped DOWN just enough so the half of the title
-     plaque that sits above it lands exactly at the banner edge.
-       plaque_half_height = nav-card-width × 0.70 / 1.78 / 2
-                          = nav-card-width × 0.197
-     With nav-card-width = min(92vw, 540 px) the offset becomes
-     min(18.1 vw, 106 px) — that's the gap. */
+  /* Nav-card sits exactly half-a-plaque below the banner so the
+     plaque (top:-25 %) straddles the nav-card outer edge while
+     its upper half lands right under the banner.
+     plaque_half ≈ nav-card-width × 0.197 = 17.3 vw (mobile),
+     capped 95 px on wider screens.                              */
   position: fixed;
-  top: calc(100vw * 821 / 1916 + min(18.1vw, 106px));
+  top: calc(100vw * 821 / 1916 + 17.3vw);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
-  width: min(92vw, 540px);
+  width: min(88vw, 520px);                  /* smaller per user */
   aspect-ratio: 1000 / 750;
+  /* DARK SOLID FILL + frame image on top.  Without the fill the
+     PNG's transparent rounded corners would let scrolling word
+     rows show through behind the nav-card.                       */
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
-    center/100% 100% no-repeat;
+    center/100% 100% no-repeat,
+    radial-gradient(ellipse 70% 60% at center,
+                    rgba(20,12,38,.96) 0%,
+                    rgba(20,12,38,.88) 70%,
+                    rgba(20,12,38,0)   100%);
 }
-/* Word list starts after BOTH the offset AND the nav-card height. */
+/* Word list starts after the nav-card (offset + height). */
 .word-list {
-  margin-top: calc(min(69vw, 405px) + min(18.1vw, 106px)) !important;
+  margin-top: calc(min(66vw, 390px) + 17.3vw) !important;
+}
+/* Cap the offset on wider screens. */
+@media (min-width: 600px) {
+  .nav-card { top: calc(100vw * 821 / 1916 + 95px); }
+  .word-list { margin-top: calc(min(66vw, 390px) + 95px) !important; }
 }
 
 /* --- 47.2  corner buttons "hanging" on the top of the nav-card.
@@ -4162,10 +4173,10 @@ body.bg-result .match-result-grid > .card {
    Aspect locked to the dome PNG's natural 1200/675. --- */
 .nav-card .title-plaque {
   position: absolute;
-  /* Plaque MIDDLE LINE = nav-card outer top edge.
-     plaque height (with width 70 % + aspect 1.78) ≈ 52 % of
-     nav-card height, so top:-26 % puts the midpoint at 0 %.    */
-  top: -26%;
+  /* Plaque middle = nav-card outer top edge.
+     width 70 % × aspect 1.78 → height ≈ 52 % of nav-card height
+     so top:-25 % puts midpoint at 0 %.                          */
+  top: -25%;
   left: 50%;
   transform: translateX(-50%);
   width: 70%;
@@ -4180,17 +4191,18 @@ body.bg-result .match-result-grid > .card {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 78%;
+  width: 80%;
   text-align: center;
-  /* Vintage calligraphic face — Snell Roundhand is built into
-     iOS/macOS Safari; Pinyon Script is the web fallback. */
-  font-family: 'Snell Roundhand', 'Pinyon Script', 'Apple Chancery',
-               'Edwardian Script ITC', 'Lucida Calligraphy', cursive;
-  font-weight: 400;
-  font-size: clamp(26px, 6.8vw, 38px);
+  /* Display serif with gothic refinement — matches the banner's
+     "Her Little Lexicon" aesthetic.  Cinzel is roman caps; we
+     mix in italic Cormorant Garamond for the soft fallback look. */
+  font-family: 'Cinzel', 'Cormorant Garamond', 'EB Garamond',
+               'Bodoni 72', 'Didot', Georgia, serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: clamp(18px, 4.8vw, 26px);
   line-height: 1.0;
-  letter-spacing: .01em;
-  /* Warm banner-matched gold (sampled from banner.png) + halo. */
+  letter-spacing: .06em;
   color: #d6a464;
   text-shadow:
     0 0 8px  rgba(232,196,138,.7),
