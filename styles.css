@@ -3663,16 +3663,23 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
   animation: cta-breathe 3.2s ease-in-out infinite !important;
 }
 .main-cta::after {
-  width: 110px !important;
-  margin-top: 2px !important;
-  background: linear-gradient(90deg, transparent 0%, rgba(232,200,130,.95) 50%, transparent 100%) !important;
+  /* User spec: underline should extend wide past the text so it feels
+     like a long horizontal flourish, not a tight pill underline.       */
+  width: 300px !important;
+  height: 1.5px !important;
+  margin-top: 6px !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(232,200,130,1) 22%, rgba(232,200,130,1) 78%, transparent 100%) !important;
+  box-shadow: 0 0 6px rgba(232,200,130,.45);
 }
 
 /* ----- 50.2  Cover-bottom buttons (her note / the index) -----
    No frame asset for these — user clarified ② was actually score.
    Keep the existing rose-pink outline pill from §41.D.                */
 
-/* ----- 50.3  Game word tiles ----- */
+/* ----- 50.3  Game word tiles — stage1 matching + stage2 options -----
+   Per user feedback: 选择题和连连看的卡牌长宽一模一样.  Both use the
+   ui-word ornate horizontal frame at the same dimensions so the visual
+   rhythm carries from stage1 → stage2.                                   */
 #screen-stage1 .card.card--match,
 #screen-stage1-result .card.card--match,
 .card.card--option {
@@ -3682,14 +3689,14 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
   color: var(--cream) !important;
   font-family: var(--f-italic) !important;
   font-style: italic !important;
-}
-#screen-stage1 .card.card--match,
-#screen-stage1-result .card.card--match {
-  padding: 8px 18px !important;
-  /* the ui-word frame has decorative margin — pull text slightly inside */
+  padding: 14px 22px !important;
+  min-height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 .card.card--option {
-  padding: 16px 22px !important;
+  margin: 6px 0 !important;
 }
 /* keep the tag-colour cues but as gentle glow on the frame, not a recolour */
 .card.card--match.tag-0 { filter: drop-shadow(0 0 10px rgba(244,181,200,.55)); }
@@ -3701,6 +3708,69 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
 .card.card--option.picked-right  { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
 .card.card--option.picked-wrong  { opacity: .55; }
 .card.card--option.reveal-right  { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
+.card.card--option.is-picking    { filter: drop-shadow(0 0 12px rgba(244,181,200,.55)); }
+
+/* Stage 2 option grid: 2x2 to match stage 1's 2-column rhythm.
+   This makes the option tile dimensions identical to a matching tile. */
+.oracle-options {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  max-width: 100% !important;
+  margin: 12px auto 0 !important;
+}
+.oracle-options .card.card--option {
+  margin: 0 !important;
+}
+
+/* Push stage1 / stage2 / stage3 game content UP so the bottom 20% of
+   the viewport stays clear for the bg illustration (the rabbit etc.).
+   Make the .match-grid + .oracle-options tighter, and leave a buffer
+   at the bottom.                                                       */
+#screen-stage1, #screen-stage2, #screen-stage3 {
+  padding-bottom: 88px !important;       /* room for the rabbit */
+}
+#screen-stage1 .match-grid {
+  gap: 8px !important;
+  margin-top: 6px !important;
+}
+#screen-stage1-result {
+  padding-bottom: 76px !important;
+}
+#screen-stage1-result .match-result-grid {
+  gap: 8px !important;
+  margin: 8px 0 !important;
+}
+#screen-stage1-result .match-result-hint {
+  margin-top: 6px !important;
+  font-size: 11px !important;
+  color: rgba(244,226,200,.6) !important;
+  -webkit-text-fill-color: rgba(244,226,200,.6) !important;
+}
+/* Shrink the score badge on stage1-result to free space for the
+   8-tile grid below.  stage2/3-result keep the larger 260 px size. */
+#screen-stage1-result .score-block {
+  max-width: 180px !important;
+  margin: 8px auto !important;
+}
+#screen-stage1-result .score-block .score-value,
+#screen-stage1-result .score-block .score-num,
+#screen-stage1-result .score-block .score-big {
+  font-size: 34px !important;
+}
+#screen-stage1-result .score-block .score-label,
+#screen-stage1-result .score-block .score-stage {
+  font-size: 9px !important;
+}
+/* Compress the next-door button on stage1-result so the tile grid
+   has room without overlapping the bottom hint.                       */
+#screen-stage1-result .stage-actions {
+  margin: 2px 0 6px !important;
+}
+#screen-stage1-result .stage-actions .next-door {
+  padding: 6px 22px !important;
+  font-size: 13px !important;
+}
 
 /* ----- 50.4  Chapter strip -----
    Lock the box to the asset's native 1916:821 ratio so the
@@ -3998,99 +4068,70 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
    the page never reflows mid-ceremony.
    ============================================================ */
 
-/* ----- 52.1  Wax seal (CSS-drawn, no asset) ----- */
+/* ----- 52.1  Wax seal — uses the purple ui-medallion.png asset -----
+   Earlier this was a CSS-drawn red disc.  User-supplied art is the
+   purple-gold crescent-moon medallion that lives in /assets, so we
+   render it as an <img> background, scaled bigger than the disc was.  */
 .wax-seal {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 148px;
-  height: 148px;
+  width: 220px;
+  height: 220px;
   padding: 0;
   border: none;
-  border-radius: 50%;
+  background: url("assets/ui-medallion.png?v=28") center/contain no-repeat;
   cursor: pointer;
   z-index: 50;
-  background:
-    radial-gradient(circle at 32% 28%, #d8442e 0%, #b32820 42%, #7e1612 74%, #4a0a08 100%);
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, .55),
-    0 0 38px rgba(216, 68, 46, .35),
-    inset 0 0 30px rgba(0, 0, 0, .4),
-    inset 4px 6px 14px rgba(255, 220, 200, .22),
-    inset -4px -6px 14px rgba(0, 0, 0, .35);
-  opacity: 0.95;
+  filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(180,140,220,.35));
   animation: seal-breathe 3.2s ease-in-out infinite;
 }
-.wax-seal::before {
-  /* inner gold ring */
-  content: '';
-  position: absolute;
-  inset: 14px;
-  border: 1.5px solid rgba(232, 200, 130, .42);
-  border-radius: 50%;
-  pointer-events: none;
-}
-.wax-seal::after {
-  /* outer drip-shadow ring for waxy depth */
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  background: radial-gradient(circle, transparent 62%, rgba(0, 0, 0, .4) 100%);
-  pointer-events: none;
-  z-index: -1;
-}
-.wax-seal .wax-emblem {
-  display: block;
-  font-family: var(--f-display, serif);
-  font-size: 56px;
-  color: rgba(232, 200, 130, .92);
-  text-shadow:
-    0 0 8px rgba(232, 200, 130, .6),
-    0 1px 2px rgba(0, 0, 0, .6);
-  line-height: 148px;
-  text-align: center;
-}
+.wax-seal::before,
+.wax-seal::after,
+.wax-seal .wax-emblem { display: none !important; }
 @keyframes seal-breathe {
-  0%, 100% { box-shadow: 0 10px 24px rgba(0,0,0,.55), 0 0 38px rgba(216,68,46,.35), inset 0 0 30px rgba(0,0,0,.4), inset 4px 6px 14px rgba(255,220,200,.22), inset -4px -6px 14px rgba(0,0,0,.35); }
-  50%      { box-shadow: 0 10px 24px rgba(0,0,0,.55), 0 0 48px rgba(216,68,46,.55), inset 0 0 30px rgba(0,0,0,.4), inset 4px 6px 14px rgba(255,220,200,.28), inset -4px -6px 14px rgba(0,0,0,.35); }
+  0%, 100% { filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(180,140,220,.35)); }
+  50%      { filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 36px rgba(232,200,130,.55)); }
 }
 .wax-seal.is-breaking {
-  animation: seal-break 300ms ease-out forwards;
+  animation: seal-break 320ms ease-out forwards;
   pointer-events: none;
 }
 @keyframes seal-break {
-  0%   { transform: translate(-50%, -50%) scale(1)   rotate(0deg);  opacity: .95; }
-  60%  { transform: translate(-50%, -50%) scale(1.32) rotate(10deg); opacity: .7;  }
-  100% { transform: translate(-50%, -50%) scale(1.45) rotate(15deg); opacity: 0;   }
+  0%   { transform: translate(-50%, -50%) scale(1)    rotate(0deg);  opacity: 1; }
+  60%  { transform: translate(-50%, -50%) scale(1.18) rotate( 8deg); opacity: .8; }
+  100% { transform: translate(-50%, -50%) scale(1.35) rotate(15deg); opacity: 0;  }
 }
 
-/* ----- 52.2  Card container — fixed height, scroll inside ----- */
+/* ----- 52.2  Card container — parchment fills the viewport -----
+   User spec: 扩大纸 占满屏幕 下端可以超出画面.  The scroll grows wider
+   and taller; the bottom can extend below the viewport (with the
+   internal scroll on .ex-card keeping content reachable).             */
 #screen-card .card-host {
   width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 12px;
-  display: flex;
-  justify-content: center;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 #screen-card .ex-card {
   position: relative;
   width: 100%;
-  max-width: 480px;
-  max-height: 78vh;
+  max-width: none;
+  /* Match the screen's available height; if the parchment art's
+     aspect makes it overflow, that's fine — bottom extends past view. */
+  min-height: calc(100vh - (100vw * 821 / 1916) - 8px);
+  min-height: calc(100dvh - (100vw * 821 / 1916) - 8px);
   overflow-y: auto;
   overflow-x: hidden;
-  /* Parchment is the card's body — no fallback colour, no border;
-     the asset itself is the shape and the texture.                    */
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* Padding pulls the content in from the scroll's decorative edges. */
-  padding: 72px 56px 86px !important;
-  /* Dark ink on cream parchment */
+  /* Top padding clears the scroll's crown ribbon; bottom can be
+     small because the drape sits below the visible area.              */
+  padding: 90px 38px 60px !important;
   color: #3A2E22 !important;
   -webkit-text-fill-color: #3A2E22 !important;
 }
@@ -4424,10 +4465,168 @@ html, body {
 #screen-card .ex-card-fold {
   display: none !important;
 }
-/* Push content past the scroll's crown + drape decorations */
-#screen-card .ex-card {
-  padding: 92px 56px 82px !important;
+/* ----- 55.8  Study card content: 2-column layout + boxed sections -----
+   User spec from her marked-up sketch: 左边一列英文 右边中文 分区块.
+   Each section (her family, her friend, example) sits in a bordered
+   box; rows inside split English on the left, Chinese on the right.   */
+#screen-card .ex-card .ex-head {
+  display: grid !important;
+  grid-template-columns: auto auto 1fr !important;
+  grid-template-rows: auto !important;
+  align-items: baseline !important;
+  gap: 6px 10px !important;
+  padding: 4px 0 18px !important;
+  border-bottom: 1px solid rgba(140, 100, 60, .25) !important;
+  margin-bottom: 12px !important;
 }
+#screen-card .ex-card .ex-head .ex-speak-head {
+  grid-row: 1;
+  align-self: center;
+}
+#screen-card .ex-card .ex-headword {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 26px !important;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+}
+#screen-card .ex-card .ex-pos {
+  font-style: italic;
+  color: #8C6A4D !important;
+  -webkit-text-fill-color: #8C6A4D !important;
+  font-size: 13px !important;
+}
+#screen-card .ex-card .ex-headword-zh {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  padding-left: 32px;
+}
+
+/* Section as a bordered box */
+#screen-card .ex-card .ex-section {
+  border: 1px solid rgba(140, 100, 60, .22) !important;
+  border-radius: 6px !important;
+  background: rgba(244, 226, 200, .06) !important;
+  padding: 14px 16px !important;
+  margin: 12px 0 !important;
+}
+#screen-card .ex-card .ex-section.ex-neighbor {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
+}
+#screen-card .ex-card .ex-label {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .22em !important;
+  text-transform: uppercase !important;
+  color: #8C6A4D !important;
+  -webkit-text-fill-color: #8C6A4D !important;
+  display: block !important;
+  margin-bottom: 8px !important;
+}
+#screen-card .ex-card .ex-divider { display: none !important; }
+
+/* Family rows: word + pos on the left line, Chinese reveal on right
+   when un-veiled.                                                       */
+#screen-card .ex-card .fam-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  column-gap: 14px !important;
+  align-items: baseline !important;
+  padding: 6px 0 !important;
+  border-bottom: 1px dashed rgba(140, 100, 60, .15) !important;
+}
+#screen-card .ex-card .fam-row:last-child { border-bottom: none !important; }
+#screen-card .ex-card .fam-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+#screen-card .ex-card .fam-word {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 15px !important;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+}
+#screen-card .ex-card .fam-pos {
+  font-size: 11px;
+  color: #8C6A4D !important;
+  -webkit-text-fill-color: #8C6A4D !important;
+}
+#screen-card .ex-card .fam-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+#screen-card .ex-card .fam-reveal .ex-speak { display: none !important; }
+#screen-card .ex-card .fam-ex     { color: #4A3A2A !important; -webkit-text-fill-color: #4A3A2A !important; }
+#screen-card .ex-card .fam-ex-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 11px; }
+
+/* Friend (colloc) rows: same 2-col grid */
+#screen-card .ex-card .colloc-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  column-gap: 14px !important;
+  align-items: baseline !important;
+  padding: 8px 0 !important;
+  border-bottom: 1px dashed rgba(140, 100, 60, .15) !important;
+}
+#screen-card .ex-card .colloc-row:last-child { border-bottom: none !important; }
+#screen-card .ex-card .colloc-row .ex-speak { display: none !important; }
+#screen-card .ex-card .colloc-en  { color: #2A1F18 !important; -webkit-text-fill-color: #2A1F18 !important; font-style: italic; font-size: 14px; }
+#screen-card .ex-card .colloc-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 12px; }
+
+/* Example sentence: full-width English on top, Chinese below */
+#screen-card .ex-card .ex-example {
+  display: block !important;
+}
+#screen-card .ex-card .ex-example .ex-speak { display: none !important; }
+#screen-card .ex-card .ex-example-en {
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.5;
+}
+#screen-card .ex-card .ex-example-zh {
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Neighbor pill */
+#screen-card .ex-card .ex-neighbor-link {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 15px;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+  background: rgba(244, 226, 200, .25);
+  border: 1px solid rgba(140, 100, 60, .3);
+  border-radius: 12px;
+  padding: 4px 12px;
+}
+
+/* Veiled reveals stay hidden as before — the parchment shows the
+   English headword always, and the 'tap to reveal' interaction
+   unveils each row's example or full colloc.                            */
+#screen-card .ex-card .fam-reveal.is-veiled,
+#screen-card .ex-card .colloc-row.is-veiled .colloc-zh,
+#screen-card .ex-card .ex-example.is-veiled .ex-example-en,
+#screen-card .ex-card .ex-example.is-veiled .ex-example-zh {
+  opacity: .15;
+  filter: blur(2px);
+}
+#screen-card .ex-card .colloc-row.is-veiled .colloc-en { opacity: .55; }
 
 /* ----- 55.4  Stage 1 instruction — brighter -----
    The "tap one on the left, one on the right · four pairs" copy is
