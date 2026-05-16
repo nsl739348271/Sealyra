@@ -1280,13 +1280,15 @@ const Screens = {
         haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
       };
       el.innerHTML = `
-        ${pageTitle('her little note')}
-        <div class="page-subtitle">pages she returns to</div>
-        <div class="note-stats">
-          <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
-          <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
-          <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
-          <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+        <div class="screen-stickyhead">
+          ${pageTitle('her little note')}
+          <div class="page-subtitle">pages she returns to</div>
+          <div class="note-stats">
+            <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
+            <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
+            <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
+            <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+          </div>
         </div>
         <div id="note-body"></div>
       `;
