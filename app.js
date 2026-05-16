@@ -276,7 +276,14 @@ function nextDoor(label, onClick, { confirm = false } = {}) {
       // After the modal closes, allow another tap if the user picks "stay".
       setTimeout(() => a.classList.remove('is-engaged'), 900);
     } else {
-      setTimeout(() => onClick && onClick(), 320);
+      // ALWAYS un-engage after the action runs.  If onClick navigates
+      // away the element is gone anyway; if onClick just popped a
+      // validation modal (e.g. "colour every card first") the user
+      // needs to be able to tap the button again afterwards.
+      setTimeout(() => {
+        onClick && onClick();
+        a.classList.remove('is-engaged');
+      }, 320);
     }
   });
   return a;
@@ -783,25 +790,35 @@ const Screens = {
     }
   },
 
-  /* ---------- STAGE 1 — the matching ---------- */
+  /* ---------- STAGE 1 — the matching ----------
+     Layout is 4 rows × 2 columns.  The left column holds the four
+     heads (in random order within the column) and the right column
+     holds the four partners (also shuffled within their column).
+     A "pair" can only be ONE left + ONE right of the same tag.
+     If the user dyes a left card while the current tag already has
+     a left card, the previous left is cleared — same with right.
+     This rule is what the user asked for: 左+右 only.            */
   stage1: {
     onEnter() {
       LanBGM.playGameRandom({ volume: 0.40 });
       const el = $('#screen-stage1');
       const s = state.session;
       const pairs = s.pairs;
-      const cards = [];
-      pairs.forEach((p, i) => {
-        cards.push({ text: p.head,    pairId: i, side: 'L' });
-        cards.push({ text: p.partner, pairId: i, side: 'R' });
-      });
-      const shuffled = shuffle(cards);
+      // Build two shuffled columns, then interleave into row-major order:
+      // shuffled[0] = row0-LEFT, [1] = row0-RIGHT, [2] = row1-LEFT, ...
+      const leftCol  = shuffle(pairs.map((p, i) => ({ text: p.head,    pairId: i, side: 'L' })));
+      const rightCol = shuffle(pairs.map((p, i) => ({ text: p.partner, pairId: i, side: 'R' })));
+      const shuffled = [];
+      for (let r = 0; r < pairs.length; r++) {
+        shuffled.push(leftCol[r]);
+        shuffled.push(rightCol[r]);
+      }
       const tagOf = new Array(shuffled.length).fill(null);
       let currentTag = 0;
 
       el.innerHTML = `
         ${stageHeader(1, 'the matching')}
-        <div class="q-progress">tap two cards to dye them the same colour · four pairs</div>
+        <div class="q-progress">tap one on the left, one on the right · four pairs</div>
         <div class="match-grid"></div>
         <div class="match-actions"></div>
       `;
@@ -811,33 +828,49 @@ const Screens = {
       const grid = $('.match-grid', el);
       shuffled.forEach((c, idx) => {
         const card = document.createElement('div');
-        card.className = 'card card--match';
+        card.className = 'card card--match' + (c.side === 'L' ? ' is-left' : ' is-right');
         card.textContent = c.text;
-        card.addEventListener('click', () => paint(idx, card));
+        card.addEventListener('click', () => paint(idx));
         grid.appendChild(card);
       });
 
       const actions = $('.match-actions', el);
       actions.appendChild(nextDoor('confirm', () => submit()));
 
-      function paint(idx) {
-        if (tagOf[idx] !== null) {
-          tagOf[idx] = null;
-        } else {
-          const sameCount = tagOf.filter(t => t === currentTag).length;
-          if (sameCount >= 2) currentTag = (currentTag + 1) % 4;
-          tagOf[idx] = currentTag;
-        }
-        // recolor every card from tagOf
+      function repaint() {
         $$('.card--match', grid).forEach((node, i) => {
           for (let k = 0; k < 4; k++) node.classList.remove('tag-' + k);
           if (tagOf[i] !== null) node.classList.add('tag-' + tagOf[i]);
         });
-        SFX.tap();
-        // bump if current colour just got full
-        if (tagOf.filter(t => t === currentTag).length >= 2) {
-          currentTag = (currentTag + 1) % 4;
+      }
+
+      function paint(idx) {
+        const side = shuffled[idx].side;
+
+        // tapping an already-tagged card clears it
+        if (tagOf[idx] !== null) {
+          tagOf[idx] = null;
+          repaint();
+          SFX.tap();
+          return;
         }
+
+        // the current pair already has a card on this same side?
+        // clear it — only one left + one right may share a colour.
+        const sameSideIdx = tagOf.findIndex((t, i) => t === currentTag && shuffled[i].side === side);
+        if (sameSideIdx >= 0) tagOf[sameSideIdx] = null;
+
+        // tag this card and bump the current colour when the pair is full
+        tagOf[idx] = currentTag;
+        if (tagOf.filter(t => t === currentTag).length >= 2) {
+          // pick the next colour that still has room
+          for (let inc = 1; inc <= 4; inc++) {
+            const cand = (currentTag + inc) % 4;
+            if (tagOf.filter(t => t === cand).length < 2) { currentTag = cand; break; }
+          }
+        }
+        repaint();
+        SFX.tap();
       }
 
       function submit() {
