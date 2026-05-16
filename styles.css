@@ -3284,3 +3284,97 @@ body { background: transparent !important; }
 .dict-feedback.is-correct { color: var(--rose); text-shadow: 0 0 12px rgba(237,184,158,.55); }
 .dict-feedback.is-wrong   { color: var(--pink-soft); }
 .dict-feedback em         { font-style: italic; color: var(--gold-warm); }
+
+/* ============================================================
+   42. design system v1.1 — sparkle png + modal warmth + no halo
+   ============================================================
+   - the css "+" sparkles in modal corners are gone; real sparkle
+     pngs sit in the four corners now (iOS renders <img> alpha
+     cleanly, where it tofu-ed our gradient pseudos).
+   - drop-shadow filters removed from .cta-key and .dict-quill —
+     iOS was rendering a 1px halo of opaque white at the png's
+     translucent edges when a filter was layered on top.
+   - .modal-card title scaled up to a proper "page-of-a-book"
+     plaque, no thin pill outline; score is the headline, the
+     "see results" pill sits below with real weight.
+   ============================================================ */
+
+/* Disable the old gradient-cross sparkles */
+.modal-card::before,
+.modal-card::after { content: none !important; }
+
+/* Real PNG sparkles at the corners */
+.modal-card .m-spark {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  opacity: .9;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.modal-card .m-spark-tl { top: 8px;    left: 8px;    }
+.modal-card .m-spark-tr { top: 8px;    right: 8px;   }
+.modal-card .m-spark-bl { bottom: 8px; left: 8px;    }
+.modal-card .m-spark-br { bottom: 8px; right: 8px;   }
+@keyframes m-spark-breathe {
+  0%, 100% { opacity: .55; transform: scale(.92); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+.modal-card .m-spark { animation: m-spark-breathe 2.6s ease-in-out infinite; }
+.modal-card .m-spark-tr { animation-delay: .65s; }
+.modal-card .m-spark-bl { animation-delay: 1.3s; }
+.modal-card .m-spark-br { animation-delay: 1.9s; }
+
+/* Modal warmth — gradient bg + an inner rose glow rim */
+.modal-card {
+  background:
+    radial-gradient(ellipse at top, rgba(244,181,200,.10), transparent 55%),
+    linear-gradient(180deg, #14102A 0%, #0A0617 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(244,181,200,.20),
+    inset 0 0 36px rgba(199,122,149,.10),
+    0 16px 44px rgba(0,0,0,.6) !important;
+  padding: 36px 26px 24px !important;
+}
+
+/* Modal title — drop the pill outline, become a real plaque */
+.modal-title {
+  display: block !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  margin: 0 0 6px !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  letter-spacing: .02em !important;
+  color: var(--rose) !important;
+  text-shadow: 0 0 16px rgba(237,184,158,.55) !important;
+}
+.modal-card.is-ready .modal-title { font-size: 24px !important; }
+.modal-title + .modal-body { margin-top: 4px !important; }
+
+/* score in match-popup */
+.modal-score {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 48px;
+  text-align: center;
+  color: var(--rose);
+  text-shadow: 0 0 18px rgba(237,184,158,.5);
+  line-height: 1.05;
+  margin: 12px 0 18px;
+}
+.modal-score small {
+  font-size: 18px;
+  color: var(--soft);
+  margin-left: 6px;
+}
+
+/* No more drop-shadow filter on the asset imgs — it was painting
+   a 1px ring of opaque white at the alpha edges on iOS Safari.   */
+.main-cta .cta-key,
+.dict-quill,
+.modal-card .m-spark { filter: none !important; }

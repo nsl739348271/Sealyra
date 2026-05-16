@@ -690,8 +690,15 @@ function buildOracleQuestion(word) {
 function showModal({ title, body = '', score = null, actions = [], variant = '' }) {
   const veil = $('#modal');
   const cls = 'modal-card' + (variant ? ` is-${variant}` : '');
+  // Real sparkle PNGs live in the corners — iOS renders <img> alpha
+  // natively, unlike CSS gradient pseudo-elements which kept tofu-ing
+  // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
+      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png" alt="">
+      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png" alt="">
+      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png" alt="">
+      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
