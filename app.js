@@ -642,15 +642,20 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
 function buildOracleQuestion(word) {
   const c = CARDS[word];
   const sentence = c.example || c.h;
-  const sentenceHL = sentence.replace(new RegExp(`\\b(${c.h})\\b`, 'i'), '<em>$1</em>');
+  // Cloze: blank out the target word inside the english example.
+  const sentenceHL = sentence.replace(
+    new RegExp(`\\b${c.h}\\b`, 'i'),
+    '<em class="q-blank">_____</em>'
+  );
+  // 4 english options: the right head + 3 random other heads.
   const pool = Object.keys(CARDS).filter(k => k !== word);
   const wrongs = [];
   while (wrongs.length < 3) {
-    const cand = CARDS[rand(pool)].zh;
-    if (cand && cand !== c.zh && !wrongs.includes(cand)) wrongs.push(cand);
+    const cand = rand(pool);
+    if (!wrongs.includes(cand)) wrongs.push(cand);
   }
-  const options = shuffle([c.zh, ...wrongs]);
-  return { word, sentencePlain: sentence, sentenceHL, options, correctIdx: options.indexOf(c.zh) };
+  const options = shuffle([word, ...wrongs]);
+  return { word, sentencePlain: sentence, sentenceHL, options, correctIdx: options.indexOf(word) };
 }
 
 /* ------------------------------------------------------------
@@ -908,32 +913,51 @@ const Screens = {
         const all = $$('.card--option');
         all.forEach(b => b.disabled = true);
 
-        // tiny "thinking" beat — the deep-pink inner glow on the chosen option
-        // before the verdict.  Without this beat the click feels too brusque.
+        // tiny "thinking" beat — the deep-pink inner glow on the chosen
+        // option before the verdict.  Without this beat the click feels
+        // too brusque.
         button.classList.add('is-picking');
 
         setTimeout(() => {
           button.classList.remove('is-picking');
           if (oi === q.correctIdx) {
-            button.classList.add('picked-right');     // rose / 肉色 glow
+            button.classList.add('picked-right');
             state.results[q.word].oracle = true;
             SFX.right();
           } else {
-            button.classList.add('picked-wrong');     // dim
-            all[q.correctIdx].classList.add('reveal-right');  // pink glow
+            button.classList.add('picked-wrong');
+            all[q.correctIdx].classList.add('reveal-right');
             state.results[q.word].oracle = false;
             recordMistake(q.word);
             SFX.wrong();
           }
-          // speak example sentence, then auto-advance (forced linear flow)
-          speak(q.sentencePlain).then(() => {
-            setTimeout(() => {
-              state.oracleIdx++;
-              if (state.oracleIdx >= state.oracleQs.length) go('stage2-result');
-              else drawQ();
-            }, 700);
-          });
+          // Speak the full example sentence so the user hears the word
+          // in context.  Then arm a one-shot tap-anywhere listener: the
+          // user controls when to move on.
+          speak(q.sentencePlain);
+          armAdvance();
         }, 280);
+
+        function armAdvance() {
+          // a hint that the page is waiting for them
+          let hint = $('.q-tap-hint', stage);
+          if (!hint) {
+            hint = document.createElement('div');
+            hint.className = 'q-tap-hint';
+            hint.textContent = '— tap anywhere to turn the page —';
+            stage.appendChild(hint);
+          }
+          const advance = (ev) => {
+            // ignore taps on the moon / close pills
+            if (ev && ev.target && ev.target.closest('.moon-corner, .close-corner')) return;
+            document.removeEventListener('click', advance, true);
+            state.oracleIdx++;
+            if (state.oracleIdx >= state.oracleQs.length) go('stage2-result');
+            else drawQ();
+          };
+          // brief delay so the same click that picked doesn't immediately advance
+          setTimeout(() => document.addEventListener('click', advance, true), 480);
+        }
       }
     }
   },
