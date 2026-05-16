@@ -186,7 +186,7 @@ const BG_BY_SCREEN = {
   'stage1-result': 'bg-result',
   'stage2-result': 'bg-result',
   'stage3-result': 'bg-result',
-  note: 'bg-note', index: 'bg-note', card: 'bg-note'
+  note: 'bg-note', 'note-bucket': 'bg-note', index: 'bg-note', card: 'bg-note'
 };
 function go(screenId, opts = {}) {
   state.screen = screenId;
@@ -431,16 +431,44 @@ function titleStrip() {
   `;
 }
 function stageHeader(chapterN, name) {
+  // v=26: chapter title sits inside the long-frame PNG (6794E86E) so the
+  // matching/reading/inscription pages all share the same purple-gold band.
   return `
-    <div class="stage-head">
-      <div class="stage-chapter">chapter · ${chapterN}</div>
-      <div class="stage-name">${escapeHtml(name)}</div>
-      <div class="stage-rule"></div>
+    <div class="frame-chapter">
+      <div class="frame-chapter-text">
+        <span class="fc-num">chapter · ${chapterN}</span>
+        <span class="fc-name">${escapeHtml(name)}</span>
+      </div>
     </div>
   `;
 }
 function pageTitle(name) {
-  return `<div class="page-title">${escapeHtml(name)}</div>`;
+  // v=26: short page titles (note / index) sit inside the dome-shield PNG
+  // (3C68C8E6) — the "顶头框".  One unified UI for every cover-side hub.
+  return `
+    <div class="frame-top">
+      <div class="frame-top-text">${escapeHtml(name)}</div>
+    </div>
+  `;
+}
+// Visual writing-line at the bottom of the single-word parchment.
+// NOT an input — pure cue that says "copy this word once".
+function copyLine() {
+  return `
+    <div class="copy-line">
+      <span class="cl-label">copy this word softly</span>
+      <span class="cl-rule"></span>
+      <span class="cl-mark">✦</span>
+    </div>
+  `;
+}
+// Tap-handler for collection-page tiles: nudge the tile (~8° wobble) +
+// page-turn SFX, then navigate to the single-page parchment.
+function flipToCard(tile, word, from) {
+  if (tile.classList.contains('is-flipping')) return;
+  tile.classList.add('is-flipping');
+  SFX.pageTurn();
+  setTimeout(() => go('card', { word, from }), 340);
 }
 
 function sprinkleStars(container, count = 18) {
@@ -949,10 +977,7 @@ const Screens = {
           <span class="tile-mark">${r.correct ? '✓' : '✗'}</span>
           <span class="tile-text">${escapeHtml(r.text)}</span>
         `;
-        tile.addEventListener('click', () => {
-          SFX.pageTurn();
-          go('card', { word: r.text, from: 'stage1-result' });
-        });
+        tile.addEventListener('click', () => flipToCard(tile, r.text, 'stage1-result'));
         grid.appendChild(tile);
       });
     }
@@ -1205,50 +1230,79 @@ const Screens = {
     }
   },
 
-  /* ---------- NOTE (cover-side, NOT in game flow) ---------- */
+  /* ---------- NOTE hub (cover-side, NOT in game flow) ----------
+     v=26 — collapsed to 2 horizontal bucket buttons, framed by the
+     score frame.  Tapping a bucket → 'note-bucket' screen which
+     shows the actual word tiles. */
   note: {
     onEnter() {
       const el = $('#screen-note');
       const m = saved.mistakes;
       const entries = Object.entries(m);
-      const buckets = {
-        once:   entries.filter(([w, c]) => c === 1).map(([w]) => w),
-        twice:  entries.filter(([w, c]) => c === 2).map(([w]) => w),
-        thrice: entries.filter(([w, c]) => c === 3).map(([w]) => w),
-        haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
-      };
+      const soft  = entries.filter(([_, c]) => c >= 1 && c <= 2).map(([w]) => w);
+      const haunt = entries.filter(([_, c]) => c >= 3).map(([w]) => w);
       el.innerHTML = `
         ${pageTitle('her little note')}
-        <div class="page-subtitle">pages she returns to</div>
-        <div class="note-stats">
-          <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
-          <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
-          <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
-          <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+        <div class="bucket-row">
+          <button class="bucket-card" data-bucket="soft" ${soft.length  ? '' : 'disabled'}>
+            <div class="bk-hint">words that slipped once</div>
+            <div class="bk-value">${soft.length}</div>
+            <div class="bk-label">soft slips</div>
+          </button>
+          <button class="bucket-card" data-bucket="haunt" ${haunt.length ? '' : 'disabled'}>
+            <div class="bk-hint">words that return</div>
+            <div class="bk-value">${haunt.length}</div>
+            <div class="bk-label">haunting words</div>
+          </button>
         </div>
-        <div id="note-body"></div>
+        ${entries.length ? '' : `<div class="note-empty">no slips yet · the page is still pristine</div>`}
       `;
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
 
+      $$('.bucket-card', el).forEach(b => b.addEventListener('click', () => {
+        if (b.disabled) return;
+        SFX.tap();
+        go('note-bucket', { bucket: b.dataset.bucket });
+      }));
+    }
+  },
 
-      const body = $('#note-body', el);
-      const show = (label, words) => {
-        if (!words.length) return;
-        body.insertAdjacentHTML('beforeend', `<div class="section-label">— ${label} —</div>`);
-        const wrap = document.createElement('div');
-        wrap.className = 'result-grid';
-        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true, { withControls: false })); });
-        body.appendChild(wrap);
-      };
-      if (!entries.length) {
-        body.insertAdjacentHTML('beforeend', '<div class="note-empty">no slips yet · the page is still pristine</div>');
-      } else {
-        show('haunting words', buckets.haunt);
-        show('thrice undone',  buckets.thrice);
-        show('twice astray',   buckets.twice);
-        show('a single slip',  buckets.once);
-      }
+  /* ---------- NOTE BUCKET (collection grid for a chosen bucket) ----
+     New in v=26. Shows the bucket's words as small click-tile
+     thumbnails (the v19 transparent style).  Tap → flip + page-turn
+     SFX → single-page parchment study (screen-card). */
+  'note-bucket': {
+    onEnter({ bucket } = {}) {
+      const el = $('#screen-note-bucket');
+      const m = saved.mistakes;
+      const words = Object.entries(m)
+        .filter(([_, c]) => bucket === 'haunt' ? c >= 3 : (c >= 1 && c <= 2))
+        .map(([w]) => w)
+        .filter(w => CARDS[w])
+        .sort();
+      const title = bucket === 'haunt' ? 'haunting words' : 'soft slips';
+      el.innerHTML = `
+        ${pageTitle(title)}
+        <div class="bucket-grid"></div>
+        ${words.length ? '' : `<div class="note-empty">nothing here · turn back to the note</div>`}
+      `;
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner({ to: 'note' }));
+
+      const grid = $('.bucket-grid', el);
+      words.forEach(w => {
+        const c = CARDS[w];
+        const tile = document.createElement('button');
+        tile.className = 'card card--bucket';
+        tile.innerHTML = `
+          <span class="bt-word">${escapeHtml(c.h)}</span>
+          <span class="bt-pos">${escapeHtml(c.pos || '')}</span>
+          <span class="bt-zh">${escapeHtml(c.zh || '')}</span>
+        `;
+        tile.addEventListener('click', () => flipToCard(tile, w, 'note-bucket'));
+        grid.appendChild(tile);
+      });
     }
   },
 
@@ -1266,7 +1320,7 @@ const Screens = {
       const letters = Object.keys(groups).sort();
       el.innerHTML = `
         <div class="screen-stickyhead">
-          <div class="page-title">the index</div>
+          ${pageTitle('the index')}
           <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
           <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
         </div>
@@ -1297,10 +1351,7 @@ const Screens = {
             <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
             <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
           `;
-          row.addEventListener('click', () => {
-            SFX.pageTurn();
-            go('card', { word: h, from: 'index' });
-          });
+          row.addEventListener('click', () => flipToCard(row, h, 'index'));
           body.appendChild(row);
         });
       });
@@ -1327,21 +1378,26 @@ const Screens = {
     }
   },
 
-  /* ---------- CARD detail (opened from sidebar, index, tiles) ---------- */
+  /* ---------- CARD detail — the single-page parchment ----------
+     v=26 — full-screen study page, .ex-card gets the .is-parchment
+     skin (cream E993B660 scroll background, dark-sepia text) plus
+     a copy-line at the bottom.  Reveal mechanic (tap-to-show next
+     audio phrase) stays exactly as before. */
   card: {
     onEnter(opts) {
       const el = $('#screen-card');
       const word = opts.word;
-      // default to 'cover' when no caller passed an explicit from —
-      // never to 'index', which created the dead-end where pressing
-      // close on the card jumped to the word list instead of home.
       const from = opts.from || 'cover';
       state._cardFrom = from;
-      el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
-
+      el.innerHTML = `<div class="card-host"></div>`;
       el.prepend(moonCorner());
       el.appendChild(closeCorner({ to: from }));
-      $('#card-host', el).appendChild(renderExCard(word, null, { withControls: true }));
+      const card = renderExCard(word, null, { withControls: true });
+      card.classList.add('is-parchment', 'is-entering');
+      card.insertAdjacentHTML('beforeend', copyLine());
+      $('.card-host', el).appendChild(card);
+      // strip the entrance class once the fade+scale animation finishes
+      setTimeout(() => card.classList.remove('is-entering'), 620);
     }
   }
 };

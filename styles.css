@@ -3706,3 +3706,385 @@ body.bg-result .match-result-grid > .card {
   justify-content: center !important;
   flex-shrink: 0 !important;
 }
+
+/* ============================================================
+   46. v=26 — UNIFIED FRAMES + PARCHMENT STUDY PAGE
+   ============================================================
+   The whole hub/header system gets one shared visual vocabulary:
+     - .frame-top      uses 3C68C8E6 dome shield  (note, index, bucket pages)
+     - .frame-chapter  uses 6794E86E long band    (stage + stage-result pages)
+     - corner buttons swap out the grey hamburger/X pills for the real
+       moon-medallion (left) and key icon (right)
+     - .ex-card.is-parchment skins the single-word study page with
+       the E993B660 cream scroll + dark sepia text variants
+     - .copy-line gives the parchment its writing-cue at the bottom
+   ============================================================ */
+
+/* ---------- 46.1 .frame-top — short page titles ----------
+   Holds a single string ("her little note", "the index", ...).
+   The PNG is the picture; we DO NOT stretch it — width is fixed,
+   the height comes from aspect-ratio so the dome stays in shape.
+   Text is centered inside the inner purple field.              */
+.frame-top {
+  position: relative;
+  width: min(86vw, 460px);
+  aspect-ratio: 1200 / 675;
+  margin: 14px auto 6px;
+  background:
+    url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
+    center/contain no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frame-top .frame-top-text {
+  /* The dome's text strip sits roughly centred vertically and ~70 %
+     of the image's width — keep the label inside that band. */
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: clamp(18px, 4.4vw, 26px);
+  letter-spacing: .04em;
+  color: var(--cream);
+  text-shadow: 0 0 12px rgba(237,184,158,.45);
+  padding: 0 22% 4%;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ---------- 46.2 .frame-chapter — chapter title for stages ----
+   Long thin frame (6794E86E). Two-line content: "chapter · N"
+   on top, the stage name below.                                */
+.frame-chapter {
+  position: relative;
+  width: min(92vw, 540px);
+  aspect-ratio: 1500 / 500;
+  margin: 12px auto 4px;
+  background:
+    url("assets/6794E86E-172C-4BB8-ACCB-A167D352E97B.png?v=26")
+    center/contain no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frame-chapter .frame-chapter-text {
+  padding: 0 16% 6%;
+  text-align: center;
+  line-height: 1.05;
+}
+.frame-chapter .fc-num {
+  display: block;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: clamp(11px, 2.6vw, 13px);
+  letter-spacing: .22em;
+  color: var(--gold-warm);
+  text-transform: lowercase;
+  opacity: .85;
+}
+.frame-chapter .fc-name {
+  display: block;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: clamp(18px, 4.6vw, 24px);
+  color: var(--cream);
+  text-shadow: 0 0 12px rgba(237,184,158,.45);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* The legacy .stage-head wrappers / pseudo-decorations are no longer
+   produced by stageHeader(); silence any leftover overrides so they
+   don't render an empty bow under the new frame. */
+.stage-head { display: none !important; }
+
+/* ---------- 46.3 note hub — 2 bucket cards, side by side ------ */
+.bucket-row {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 14px;
+  margin: 22px auto 18px;
+  padding: 0 16px;
+  max-width: 520px;
+}
+.bucket-card {
+  flex: 1 1 0;
+  min-width: 0;
+  background: rgba(10,5,20,.55);
+  border: 1px solid rgba(244,181,200,.32);
+  border-radius: 14px;
+  padding: 14px 10px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, transform .12s;
+  color: var(--cream);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+.bucket-card:hover:not([disabled]) {
+  border-color: var(--rose);
+  box-shadow: 0 0 18px rgba(237,184,158,.32);
+}
+.bucket-card:active:not([disabled]) { transform: translateY(1px); }
+.bucket-card[disabled] { opacity: .35; cursor: default; }
+.bucket-card .bk-hint {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--soft);
+  text-transform: lowercase;
+  opacity: .8;
+  margin-bottom: 4px;
+}
+.bucket-card .bk-value {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  margin: 2px 0 4px;
+}
+.bucket-card .bk-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .12em;
+  color: var(--gold-warm);
+  text-transform: lowercase;
+}
+.note-empty {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .12em;
+  color: var(--soft);
+  opacity: .8;
+  margin: 36px 0;
+}
+
+/* ---------- 46.4 note-bucket — small clickable thumbnails ----- */
+.bucket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  max-width: 540px;
+  margin: 16px auto 28px;
+  padding: 0 16px;
+}
+.card--bucket {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px 14px;
+  background: rgba(10,5,20,.55);
+  border: 1px solid rgba(244,181,200,.32);
+  border-radius: 12px;
+  color: var(--cream);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: border-color .2s, box-shadow .2s, transform .18s, opacity .25s;
+  text-align: left;
+}
+.card--bucket:hover {
+  border-color: var(--rose);
+  box-shadow: 0 0 16px rgba(237,184,158,.3);
+}
+.card--bucket .bt-word {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  word-break: break-word;
+}
+.card--bucket .bt-pos {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gold-warm);
+  letter-spacing: .08em;
+  opacity: .85;
+}
+.card--bucket .bt-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--pink-soft);
+  opacity: .8;
+  word-break: break-word;
+}
+
+/* ---------- 46.5 tile-flip — small wobble before nav --------- */
+.card--bucket.is-flipping,
+.card--match.is-flipping,
+.word-row.is-flipping {
+  animation: tile-wobble .34s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes tile-wobble {
+  0%   { transform: rotateY(0deg)    scale(1); }
+  45%  { transform: rotateY(8deg)    scale(1.02); }
+  100% { transform: rotateY(0deg)    scale(.96); opacity: .35; }
+}
+
+/* ---------- 46.6 corner buttons get real PNG icons ----------- */
+.moon-corner,
+.close-corner {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  width: 52px !important;
+  height: 52px !important;
+  box-shadow: none !important;
+  color: transparent !important;       /* hide any leftover icon text */
+}
+.moon-corner {
+  background:
+    url("assets/175C4C61-15DE-4FFE-BE35-FB6C06D1E7BB.png?v=26")
+    center/contain no-repeat !important;
+  filter: drop-shadow(0 4px 12px rgba(8,4,18,.55));
+}
+.close-corner {
+  background:
+    url("assets/icon-key.png?v=26")
+    center/contain no-repeat !important;
+  filter: drop-shadow(0 4px 12px rgba(8,4,18,.55));
+}
+/* Kill the CSS-drawn hamburger bars and X — we have real art now */
+.moon-corner .mc-bar,
+.moon-corner::before,
+.moon-corner svg,
+.close-corner .cp-x,
+.close-corner::before,
+.close-corner::after {
+  display: none !important;
+}
+.moon-corner:hover,
+.close-corner:hover {
+  filter: drop-shadow(0 4px 16px rgba(237,184,158,.7));
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.moon-corner:active,
+.close-corner:active { transform: translateY(1px); }
+
+/* ---------- 46.7 .ex-card.is-parchment — the single-word page -
+   Cream scroll background + dark sepia text overrides.  Only the
+   ex-card on screen-card gets this class; collection-page ex-cards
+   keep their dark v19 skin.                                       */
+#screen-card .card-host {
+  display: block;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 6px 12px 28px;
+  box-sizing: border-box;
+}
+.ex-card.is-parchment {
+  background:
+    url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
+    center top / 100% auto no-repeat,
+    #ead5b3;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(20,8,30,.55);
+  padding: 80px 38px 56px;
+  color: #3e2812;
+  max-width: 560px;
+  width: 100%;
+  margin: 14px auto 24px;
+  cursor: pointer;
+}
+.ex-card.is-parchment.is-entering {
+  animation: parchment-in 520ms cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes parchment-in {
+  0%   { opacity: 0; transform: scale(.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* Text colour cascade for parchment — keep specificity moderate
+   and use !important so we win over older dark-themed rules.    */
+.ex-card.is-parchment .ex-headword       { color: #6a3d12 !important; text-shadow: 0 1px 0 rgba(255,238,210,.6) !important; }
+.ex-card.is-parchment .ex-pos            { color: #876239 !important; }
+.ex-card.is-parchment .ex-headword-zh    { color: #5b3a1a !important; opacity: 1 !important; }
+.ex-card.is-parchment .ex-hw-fleur       { color: #8a5a18 !important; }
+.ex-card.is-parchment .ex-speak,
+.ex-card.is-parchment .ex-speak-head     { color: #6a3d12 !important; }
+.ex-card.is-parchment .ex-label          { color: #6e3f12 !important; }
+.ex-card.is-parchment .ex-divider        { border-top-color: rgba(110,63,18,.32) !important; }
+.ex-card.is-parchment .fam-word          { color: #3e2812 !important; }
+.ex-card.is-parchment .fam-pos           { color: #876239 !important; }
+.ex-card.is-parchment .fam-ex            { color: #3e2812 !important; }
+.ex-card.is-parchment .fam-ex-zh         { color: #6a4626 !important; }
+.ex-card.is-parchment .colloc-en         { color: #3e2812 !important; }
+.ex-card.is-parchment .colloc-zh         { color: #6a4626 !important; }
+.ex-card.is-parchment .ex-example        { color: #3e2812 !important; }
+.ex-card.is-parchment .ex-example-zh     { color: #6a4626 !important; }
+.ex-card.is-parchment .ex-neighbor       { color: #6e3f12 !important; }
+.ex-card.is-parchment .ex-neighbor-link  {
+  color: #6a3d12 !important;
+  border-bottom-color: rgba(110,63,18,.45) !important;
+}
+.ex-card.is-parchment .ex-tap-hint       { color: #876239 !important; opacity: .7 !important; }
+/* The close + fold pills sit in the parchment's top/bottom margins —
+   give them a warm tan tint so they look like wax seals.            */
+.ex-card.is-parchment .ex-card-close,
+.ex-card.is-parchment .ex-card-fold {
+  background: rgba(248,228,188,.85) !important;
+  color: #5a3818 !important;
+  border-color: rgba(110,63,18,.45) !important;
+}
+.ex-card.is-parchment .ex-card-close:hover,
+.ex-card.is-parchment .ex-card-fold:hover {
+  border-color: #8a5a18 !important;
+  box-shadow: 0 0 12px rgba(110,63,18,.35) !important;
+}
+
+/* ---------- 46.8 .copy-line — the writing cue ---------------- */
+.copy-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 6px 6px;
+  padding-top: 18px;
+}
+.copy-line .cl-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: #876239;
+  text-transform: lowercase;
+  white-space: nowrap;
+  opacity: .85;
+}
+.copy-line .cl-rule {
+  flex: 1;
+  height: 0;
+  border-bottom: 1.5px dashed rgba(110,63,18,.45);
+}
+.copy-line .cl-mark {
+  color: #8a5a18;
+  font-size: 14px;
+  opacity: .85;
+}
+
+/* ---------- 46.9 index hub — title in frame, search below ----
+   The .screen-stickyhead container already wraps title + search
+   + alpha-bar; we just need to make sure the frame is the first
+   visible row.  pageTitle() already returns the .frame-top div. */
+#screen-index .screen-stickyhead { padding-top: 0; }
+#screen-index .frame-top { margin-top: 8px; }
+#screen-index .alpha-bar { margin-top: 8px; }
+
+/* ---------- 46.10 #screen-card scaffolding ------------------- */
+#screen-card { min-height: calc(100vh - 80px); }
+#screen-card.active { padding-bottom: 40px; }
