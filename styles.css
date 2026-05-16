@@ -1269,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=29"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=30"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=29"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=30"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=29"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=30"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=29"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=30"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1307,7 +1307,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=29") center/contain no-repeat;
+  background: none;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1318,7 +1318,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=29") center/contain no-repeat;
+  background: none;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1335,10 +1335,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=29"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=29"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=29"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=29"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: none; }
+.deco-stars .s:nth-child(3n+1) { background-image: none; }
+.deco-stars .s:nth-child(3n+2) { background-image: none; }
+.deco-stars .s:nth-child(7n)   { background-image: none; width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1387,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=29"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=29"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=29"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=30"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=30"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=30"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3614,14 +3614,14 @@ body { background: transparent !important; }
 }
 
 /* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=29") !important; }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=29") !important; }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=29") !important; }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !important; }
-#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=29") !important; }
-#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=29") !important; }
-#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=29") !important; }
-#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=29") !important; }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=30") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=30") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=30") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=30") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=30") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=30") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=30") !important; }
 
 /* ============================================================
    50. v=27 — UI art binding (the 7 new container frames)
@@ -3697,7 +3697,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
 #screen-stage1 .card.card--match,
 #screen-stage1-result .card.card--match,
 .card.card--option {
-  background: url("assets/ui-word.png?v=29") center/100% 100% no-repeat !important;
+  background: url("assets/ui-word.png?v=30") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   color: var(--cream) !important;
@@ -3884,7 +3884,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
    Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
 #screen-note .page-title,
 #screen-index .page-title {
-  background: url("assets/ui-page-title.png?v=29") center/100% 100% no-repeat !important;
+  background: url("assets/ui-page-title.png?v=30") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 360px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3919,7 +3919,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
 
 /* ----- 50.7  Modal panel ----- */
 .modal-card {
-  background: url("assets/ui-modal.png?v=29") center/100% 100% no-repeat !important;
+  background: url("assets/ui-modal.png?v=30") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   padding: 64px 46px !important;
@@ -3943,7 +3943,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
    ui-score is a wide horizontal frame (1448x1086) with pink bow.
    Trim to ~240px wide so it doesn't dominate the result page.          */
 .score-block {
-  background: url("assets/ui-score.png?v=29") center/100% 100% no-repeat !important;
+  background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 260px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3979,7 +3979,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
 }
 
 /* ----- 50.9  Cache-bust new UI assets ----- */
-/* (already inlined above as ?v=29 — keep older asset refs at v=26)    */
+/* (already inlined above as ?v=30 — keep older asset refs at v=26)    */
 
 
 /* ============================================================
@@ -4163,7 +4163,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
   height: 84px;
   padding: 0;
   border: none;
-  background: url("assets/ui-medallion.png?v=29") center/contain no-repeat;
+  background: url("assets/ui-medallion.png?v=30") center/contain no-repeat;
   cursor: pointer;
   z-index: 30;
   /* a stamp is slightly off-axis, like a hand pressed it */
@@ -4219,14 +4219,22 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
   min-height: calc(100dvh - (100vw * 821 / 1916) - 8px);
   overflow-y: auto;
   overflow-x: hidden;
-  background: transparent !important;
+  /* New parchment art (1FFF1701) — portrait scroll with curls top and
+     bottom + a quill at the lower right.  Anchor to top so the curl
+     and the quill stay in the visible upper half; the body's lower
+     extension is intentional per user spec.                             */
+  background-image: url("assets/ui-parchment.png?v=30") !important;
+  background-repeat: no-repeat !important;
+  background-position: top center !important;
+  background-size: 100% auto !important;
+  background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* At full viewport width the purple ribbon is taller, so top padding
-     scales up accordingly.  Side padding (~12% of width) keeps content
-     inside the visible paper area.                                      */
-  padding: 32vw 13vw 10vw !important;
+  /* Top padding clears the scroll's top curl.  Side padding keeps the
+     content inside the visible parchment area (the art's edges have
+     ~10% torn-paper margin each side).                                  */
+  padding: 22vw 12vw 10vw !important;
   color: #3A2E22 !important;
   -webkit-text-fill-color: #3A2E22 !important;
 }
@@ -4550,14 +4558,14 @@ html, body {
    ============================================================ */
 
 /* ----- 55.1  Force the freshly chroma-keyed icons to reload ----- */
-.main-cta .cta-key { content: url("assets/icon-key.png?v=29") !important; }
+.main-cta .cta-key { content: none !important; }
 
 /* ----- 55.2  Page header frame — wraps ALL top content in ui-page-title -----
    User spec: the decorative frame should contain title + (search +
    alphabet) for index, title + (subtitle + stats) for note.            */
 #screen-note .screen-stickyhead,
 #screen-index .screen-stickyhead {
-  background: url("assets/ui-page-title.png?v=29") center/100% 100% no-repeat !important;
+  background: url("assets/ui-page-title.png?v=30") center/100% 100% no-repeat !important;
   padding: 56px 30px 36px !important;
   margin: 8px auto 12px !important;
   width: 100% !important;
@@ -4864,7 +4872,7 @@ html, body {
 #screen-stage2-result .stage-head,
 #screen-stage3 .stage-head,
 #screen-stage3-result .stage-head {
-  background: url("assets/ui-chapter.png?v=29") center/100% 100% no-repeat !important;
+  background: url("assets/ui-chapter.png?v=30") center/100% 100% no-repeat !important;
   position: static !important;
   width: 200px !important;
   aspect-ratio: 1916 / 821 !important;

@@ -263,7 +263,7 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-tonight" src="assets/cta-tonight.png?v=29" alt="${escapeAttr(label)}">
+      <img class="cta-tonight" src="assets/cta-tonight.png?v=30" alt="${escapeAttr(label)}">
     </span>
   `;
   a.addEventListener('click', () => {
@@ -460,25 +460,7 @@ function pageTitle(name) {
   return `<div class="page-title">${escapeHtml(name)}</div>`;
 }
 
-function sprinkleStars(container, count = 18) {
-  if (!container || container.querySelector('.deco-stars')) return;
-  const wrap = document.createElement('div');
-  wrap.className = 'deco-stars';
-  for (let i = 0; i < count; i++) {
-    const s = document.createElement('span');
-    s.className = 's';
-    // No text content — the sparkle is the PNG background.  Sizing the
-    // box (not the font) is what actually makes the image visible.
-    const sz = 8 + Math.floor(Math.random() * 12);    // 8–19 px
-    s.style.top    = (Math.random() * 92) + '%';
-    s.style.left   = (Math.random() * 96) + '%';
-    s.style.width  = sz + 'px';
-    s.style.height = sz + 'px';
-    s.style.animationDelay = (Math.random() * 4) + 's';
-    wrap.appendChild(s);
-  }
-  container.prepend(wrap);
-}
+function sprinkleStars() { /* removed — never called; PNGs were deleted */ }
 
 /* ------------------------------------------------------------
    8. VOCAB CARD ("ex-card") renderer
@@ -764,10 +746,6 @@ function showModal({ title, body = '', score = null, actions = [], variant = '' 
   // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
-      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=29" alt="">
-      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=29" alt="">
-      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=29" alt="">
-      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=29" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -1155,7 +1133,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=29" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=30" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
