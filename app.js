@@ -484,7 +484,7 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
     <div class="nav-card">
       ${pageTitle(title)}
       <div class="nav-card-body">
-        <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input class="index-search" type="text" placeholder="" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
       </div>
     </div>
@@ -1317,7 +1317,7 @@ const Screens = {
       const haunt = entries.filter(([_, c]) => c >= 3).map(([w]) => w);
       el.innerHTML = `
         <div class="nav-card">
-          ${pageTitle('her little note')}
+          ${pageTitle('Her Little Note')}
           <div class="nav-card-body">
             <div class="counter-row">
               <button class="bucket-card" data-bucket="soft"  ${soft.length  ? '' : 'disabled'}>
@@ -1359,7 +1359,7 @@ const Screens = {
         .map(([w]) => w)
         .filter(w => CARDS[w])
         .sort();
-      const title = bucket === 'haunt' ? 'haunting words' : 'soft slips';
+      const title = bucket === 'haunt' ? 'Haunting Words' : 'Soft Slips';
       renderIndexLikePage($('#screen-note-bucket'),
         { title, words, backTo: 'note', fromKey: 'note-bucket' });
     }
@@ -1371,7 +1371,7 @@ const Screens = {
     onEnter() {
       const heads = Object.keys(CARDS).sort();
       renderIndexLikePage($('#screen-index'),
-        { title: 'the index', words: heads, backTo: 'cover', fromKey: 'index' });
+        { title: 'The Index', words: heads, backTo: 'cover', fromKey: 'index' });
     }
   },
 

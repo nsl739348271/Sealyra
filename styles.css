@@ -4109,24 +4109,22 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Fixed below the banner; only the word list scrolls under it.
-     This restores the original "sticky header" behaviour. */
+  /* Fixed below the banner; only the word list scrolls under it. */
   position: fixed;
   top: calc(100vw * 821 / 1916);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
-  width: min(98vw, 600px);
+  width: min(92vw, 540px);          /* smaller frame per user */
   aspect-ratio: 1000 / 750;
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
 }
-/* Word list must start BELOW the fixed nav-card.  Slightly
-   smaller offset so the list hugs the nav-card instead of
-   leaving a gap between the bow and the big "A".              */
+/* Word list starts BELOW the (smaller) fixed nav-card.
+   nav-card height ≈ 92vw × 0.75 = 69vw, capped 405. */
 .word-list {
-  margin-top: min(64vw, 400px) !important;
+  margin-top: min(60vw, 380px) !important;
 }
 
 /* --- 47.2  corner buttons "hanging" on the top of the nav-card.
@@ -4160,13 +4158,13 @@ body.bg-result .match-result-grid > .card {
    Aspect locked to the dome PNG's natural 1200/675. --- */
 .nav-card .title-plaque {
   position: absolute;
-  /* width 76 % × aspect 1.78 → plaque height ≈ 32 % of nav-card.
-     top -16 % puts the plaque's vertical centre on the nav-card's
-     outer top edge (half above, half below).                       */
-  top: -16%;
+  /* Plaque entirely INSIDE the nav-card (can't go above the
+     fixed banner).  Top:2% leaves a sliver above so the dome's
+     spire kisses the gold arc.                                  */
+  top: 2%;
   left: 50%;
   transform: translateX(-50%);
-  width: 76%;
+  width: 74%;
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4176,40 +4174,39 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* true vertical centre — the dome's purple text band is at
-     the geometric centre of the PNG. */
   top: 50%;
   transform: translate(-50%, -50%);
   width: 74%;
   text-align: center;
-  font-family: var(--f-display), 'Bodoni 72', 'Didot', Georgia, serif;
+  /* Refined Garamond italic — softer than Bodoni, more vintage. */
+  font-family: 'EB Garamond', 'Cormorant Garamond', 'Garamond', 'Times New Roman', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(24px, 6vw, 32px);
+  font-size: clamp(22px, 5.6vw, 30px);
   line-height: 1.05;
-  letter-spacing: .02em;
-  color: #f3d99a;
+  letter-spacing: .04em;
+  /* Retro antique-brass gold instead of the pale bright gold. */
+  color: #b88a3a;
   text-shadow:
-    0 0 10px rgba(243,217,154,.6),
-    0 0 22px rgba(218,168,104,.4);
-  text-transform: lowercase;
+    0 0 6px rgba(184,138,58,.45),
+    0 1px 0 rgba(80,40,10,.4);
+  text-transform: none;             /* respect the JS-supplied Title Case */
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — pushed up again per user feedback
-   (search + alpha-bar still drifting low).  Now sits in the
-   upper-middle band of the nav-card. --- */
+/* --- 47.4  body area — directly under the plaque, tight gap --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 32%;
-  left: 13%;
-  right: 13%;
+  top: 45%;                    /* plaque ends ~44 % when top:2 % */
+  left: 14%;
+  right: 14%;
   bottom: 16%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
+  padding-top: 2px;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4271,47 +4268,46 @@ body.bg-result .match-result-grid > .card {
   margin-top: 2px;
 }
 
-/* --- 47.6  search + A-Z bar — sized to match the reference --- */
+/* --- 47.6  search box — square hairline box, no magnifier,
+   no placeholder text.  Just a thin gold-edge field. --- */
 .nav-card .index-search {
   display: block;
-  width: 84%;
+  width: 76%;
   margin: 0 auto;
-  padding: 7px 14px 7px 32px;
-  background:
-    /* tiny magnifying-glass via inline SVG so we don't add an asset */
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4B5C8' stroke-width='2'><circle cx='10.5' cy='10.5' r='6.5'/><line x1='15.5' y1='15.5' x2='20' y2='20'/></svg>") 10px center/14px no-repeat,
-    rgba(8,4,18,.5);
-  border: 1px solid rgba(244,181,200,.32);
-  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(8,4,18,.35);
+  border: 1px solid rgba(184,138,58,.45);
+  border-radius: 0;                       /* SQUARE, not pill */
   color: var(--cream);
-  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 13px;
-  letter-spacing: .06em;
+  font-size: 12px;
+  letter-spacing: .04em;
   outline: none;
-  text-align: left;
+  text-align: center;
   box-sizing: border-box;
+  height: 22px;
 }
-.nav-card .index-search::placeholder { color: rgba(244,181,200,.55); }
+.nav-card .index-search:focus { border-color: rgba(218,168,104,.7); }
 .nav-card .alpha-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 7px;
-  line-height: 1.4;
-  padding: 0 4px;
+  gap: 0 6px;
+  line-height: 1.5;
+  padding: 0 2px;
 }
 .nav-card .alpha-bar a {
-  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11px;
-  letter-spacing: .04em;
-  color: var(--gold-warm);
+  font-size: 10.5px;
+  letter-spacing: .03em;
+  color: #b88a3a;                          /* matches title gold */
   cursor: pointer;
   opacity: .95;
   text-decoration: underline;
-  text-decoration-color: rgba(218,168,104,.65);
-  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(184,138,58,.55);
+  text-decoration-thickness: 0.5px;
   text-underline-offset: 2px;
 }
 .nav-card .alpha-bar a:hover {
@@ -4322,22 +4318,12 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.7  the word list now lives BELOW the nav card --- */
 .word-list {
-  width: min(94vw, 540px);
+  width: min(92vw, 520px);
   margin: 0 auto 32px;
-  padding: 10px 16px 14px;
+  padding: 6px 12px 14px;
   box-sizing: border-box;
-  /* light, soft-edged frosted-glass section.  blur kept gentle
-     so the bg-note scene still feels present underneath.         */
-  background: rgba(20,12,40,.30);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  border-radius: 18px;
-  /* Soft fade-out edges via mask, so the panel doesn't have a
-     hard border line cutting it off. */
-  -webkit-mask-image: linear-gradient(180deg,
-    transparent 0%, #000 18px, #000 calc(100% - 18px), transparent 100%);
-          mask-image: linear-gradient(180deg,
-    transparent 0%, #000 18px, #000 calc(100% - 18px), transparent 100%);
+  /* NO background — frosted glass killed per user ("好现代 不行").
+     Bg-note scenery shows through unhindered.                     */
 }
 .word-list .alpha-section-title {
   font-family: var(--f-display), 'Bodoni 72', 'Didot', Georgia, serif;
@@ -4360,8 +4346,8 @@ body.bg-result .match-result-grid > .card {
 .word-list .word-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 6px 6px 7px;
+  gap: 6px;
+  padding: 3px 4px 4px;                    /* tighter line spacing */
   cursor: pointer;
   transition: background-color .18s;
   border: 0;
@@ -4371,50 +4357,44 @@ body.bg-result .match-result-grid > .card {
 .word-list .word-row::after {
   content: "✦";
   flex: 0 0 auto;
-  font-size: 10px;
-  color: rgba(218,168,104,.55);
+  font-size: 8px;
+  color: rgba(212,184,144,.5);
   align-self: center;
   line-height: 1;
 }
 .word-list .word-row .wr-word {
   flex: 0 0 auto;
-  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--gold-warm);
-  text-shadow: 0 0 6px rgba(243,217,154,.4);
+  text-shadow: 0 0 4px rgba(243,217,154,.3);
   letter-spacing: .01em;
 }
-/* POS uses the same warm-grey tone as the leader dots so the
-   middle of the row reads as one quiet band. */
 .word-list .word-row .wr-pos {
   flex: 0 0 auto;
-  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 9px;
-  color: rgba(212,184,144,.65);          /* warm grey */
+  font-size: 8px;
+  color: rgba(212,184,144,.65);            /* warm grey */
   letter-spacing: .04em;
   white-space: nowrap;
 }
 .word-list .word-row .wr-leader {
   flex: 1 1 auto;
-  min-width: 16px;
+  min-width: 14px;
   height: 0;
-  /* MID-LINE position — leader sits at vertical centre, not on
-     the baseline.  border-top on a zero-height span gives a
-     1 px line that lands exactly at the span's top edge, which
-     align-self:center then centres vertically.                 */
   align-self: center;
-  border-top: 1px dotted rgba(212,184,144,.6);   /* warm grey */
+  border-top: 1px dotted rgba(212,184,144,.55);
   margin: 0;
 }
 .word-list .word-row .wr-zh {
   flex: 0 0 auto;
-  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 9px;                         /* smaller per user */
-  color: #6a5388;                         /* deeper purple per user */
+  font-size: 8.5px;
+  color: #6a5388;
   letter-spacing: .04em;
   text-align: right;
   word-break: keep-all;
