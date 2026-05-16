@@ -110,7 +110,36 @@ const SFX = (() => {
     pop:     () => tone([784, 1175, 1568],               0.06, 0.22, 'triangle', 0.12),
     right:   () => tone([880, 1175, 1568],               0.05, 0.22, 'sine',     0.16),
     wrong:   () => tone([311, 207],                      0.07, 0.20, 'square',   0.06),
-    finish:  () => tone([523, 659, 784, 988, 1175, 1318],0.08, 0.26, 'sine',     0.14)
+    finish:  () => tone([523, 659, 784, 988, 1175, 1318],0.08, 0.26, 'sine',     0.14),
+    // The wax-seal cracks open: a low square thump for the snap,
+    // then a high noise-pop for the shards.
+    seal: () => {
+      tone([200], 0.0, 0.10, 'square', 0.18);
+      setTimeout(() => noise(0.08, 0.07, 1200), 60);
+    },
+    // The quill scratching paper: low-passed white noise for ~600ms,
+    // gain kept very low so it whispers under whatever is on top.
+    write: (dur = 0.6) => {
+      const c = ensure();
+      const t0 = c.currentTime;
+      const bufferSize = Math.floor(c.sampleRate * dur);
+      const buf = c.createBuffer(1, bufferSize, c.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // light amplitude wobble so it feels like a moving nib
+        const env = 1 - Math.pow(i / bufferSize, 1.4);
+        data[i] = (Math.random() * 2 - 1) * env;
+      }
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 800;
+      const g = c.createGain();
+      g.gain.value = 0.04;
+      src.connect(lp); lp.connect(g); g.connect(c.destination);
+      src.start(t0);
+    }
   };
 })();
 
@@ -143,10 +172,10 @@ const Store = {
   load() {
     try {
       return Object.assign(
-        { progress: 0, learned: {}, mistakes: {} },
+        { progress: 0, learned: {}, mistakes: {}, favorites: {} },
         JSON.parse(localStorage.getItem('hll-state') || '{}')
       );
-    } catch { return { progress: 0, learned: {}, mistakes: {} }; }
+    } catch { return { progress: 0, learned: {}, mistakes: {}, favorites: {} }; }
   },
   save() { try { localStorage.setItem('hll-state', JSON.stringify(saved)); } catch {} }
 };
@@ -159,6 +188,13 @@ function markLearned(word) {
   saved.learned[word] = true;
   Store.save();
 }
+function toggleFavorite(word) {
+  if (saved.favorites[word]) delete saved.favorites[word];
+  else saved.favorites[word] = true;
+  Store.save();
+  return !!saved.favorites[word];
+}
+function isFavorited(word) { return !!saved.favorites[word]; }
 
 /* ------------------------------------------------------------
    4. EPHEMERAL STATE — only lives for the current Tonight's Reading
@@ -223,19 +259,9 @@ function lilGhost(label, onClick) {
   b.addEventListener('click', () => { SFX.tap(); onClick && onClick(); });
   return b;
 }
-// 🗝 key icon (gold-stroke SVG) — used to flank "Tonight's Reading" and
-// "next chapter / next stage" buttons.  Always opens the next door.
-function keyIconHtml() {
-  return `<svg class="ico-key" viewBox="0 0 28 80" aria-hidden="true">
-    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="14" cy="14" r="7"/>
-      <circle cx="14" cy="14" r="3" fill="currentColor" opacity=".55"/>
-      <path d="M14 21 L14 64"/>
-      <path d="M14 58 L20 58 M14 64 L18 64"/>
-      <path d="M14 70 L14 74"/>
-    </g>
-  </svg>`;
-}
+// 🗝 key icon for "Tonight's Reading" + "next" buttons now lives as a
+// PNG <img> inside mainCTA() / nextDoor() — the inline SVG helper that
+// used to live here is gone.
 function mainCTA(label, onClick) {
   const a = document.createElement('button');
   a.className = 'main-cta';
@@ -244,9 +270,7 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=25" alt="">
-      <span class="cta-text">${escapeHtml(label)}</span>
-      <img class="cta-key cta-key-r" src="assets/icon-key.png?v=25" alt="">
+      <img class="cta-tonight" src="assets/cta-tonight.png?v=31" alt="${escapeAttr(label)}">
     </span>
   `;
   a.addEventListener('click', () => {
@@ -295,7 +319,9 @@ function closeCorner({ confirm = false, to = 'cover', label = 'close the page' }
   const b = document.createElement('button');
   b.className = 'close-corner corner-pin';
   b.setAttribute('aria-label', label);
-  b.innerHTML = '<span class="cp-x"></span>';
+  // The visual is a key icon (icon-key.png) painted as the button's
+  // background — see §56 in styles.css.  No inner glyph needed.
+  b.innerHTML = '';
   b.addEventListener('click', () => {
     SFX.tap();
     const exit = () => { LanBGM.stop(); go(to); };
@@ -304,16 +330,14 @@ function closeCorner({ confirm = false, to = 'cover', label = 'close the page' }
   });
   return b;
 }
-// Top-left moon button — opens the side-drawer of "her words".
-// The drawer is an OVERLAY (not navigation), so no leave-confirm
-// is needed — picking a word from it is the user's explicit action.
+// Top-left button — opens the side-drawer of "her words".  Visual is
+// a bow icon (icon-bow.png) painted as the button's background; the
+// drawer is an OVERLAY (not navigation), so no leave-confirm is needed.
 function moonCorner() {
   const b = document.createElement('button');
   b.className = 'moon-corner corner-pin';
   b.setAttribute('aria-label', 'open her words');
-  // Three-bar menu drawn in CSS via .mc-bar + two box-shadows — no
-  // PNG, no unicode glyph that might tofu on iOS.
-  b.innerHTML = '<span class="mc-bar"></span>';
+  b.innerHTML = '';
   b.addEventListener('click', () => { SFX.tap(); openSidebar(); });
   return b;
 }
@@ -440,34 +464,49 @@ function stageHeader(chapterN, name) {
   `;
 }
 function pageTitle(name) {
-  return `<div class="page-title">${escapeHtml(name)}</div>`;
+  /* Use the same "top-header frame" structure as chapter pages so
+     every screen has the same ui-chapter band at the top.              */
+  return `
+    <div class="stage-head page-head">
+      <div class="stage-name">${escapeHtml(name)}</div>
+    </div>
+  `;
 }
 
-function sprinkleStars(container, count = 18) {
-  if (!container || container.querySelector('.deco-stars')) return;
-  const wrap = document.createElement('div');
-  wrap.className = 'deco-stars';
-  for (let i = 0; i < count; i++) {
-    const s = document.createElement('span');
-    s.className = 's';
-    // No text content — the sparkle is the PNG background.  Sizing the
-    // box (not the font) is what actually makes the image visible.
-    const sz = 8 + Math.floor(Math.random() * 12);    // 8–19 px
-    s.style.top    = (Math.random() * 92) + '%';
-    s.style.left   = (Math.random() * 96) + '%';
-    s.style.width  = sz + 'px';
-    s.style.height = sz + 'px';
-    s.style.animationDelay = (Math.random() * 4) + 's';
-    wrap.appendChild(s);
-  }
-  container.prepend(wrap);
-}
+function sprinkleStars() { /* removed — never called; PNGs were deleted */ }
 
 /* ------------------------------------------------------------
    8. VOCAB CARD ("ex-card") renderer
    Shared by stage results, note, index detail view.
    classes here mirror the old aesthetic but are reusable.
    ------------------------------------------------------------ */
+/* Attach a small "open detail" pill to a card so it routes to
+   #screen-card.  Used on result pages and the note's saved-card list
+   where the inline card is a preview — the user can drill into the
+   full parchment-scroll detail view by tapping the pill OR anywhere
+   on the card outside of an interactive element.                       */
+function attachOpenDetail(cardEl, word, fromScreen) {
+  cardEl.style.position = cardEl.style.position || 'relative';
+  const pill = document.createElement('button');
+  pill.className = 'ex-card-open-detail';
+  pill.setAttribute('aria-label', 'open the page');
+  pill.textContent = '→';
+  cardEl.appendChild(pill);
+  const openDetail = (e) => {
+    if (e) e.stopPropagation();
+    SFX.pageTurn();
+    go('card', { word, from: fromScreen });
+  };
+  pill.addEventListener('click', openDetail);
+  cardEl.addEventListener('click', (e) => {
+    // Tapping anywhere on the card opens the detail UNLESS the user
+    // hit a sub-control (♪, neighbour link, rewrite input, etc.).
+    if (e.target.closest('.ex-speak, .ex-neighbor-link, .ex-card-close, .ex-card-fold, .ex-rewrite, input, button')) return;
+    openDetail();
+  }, true);   // capture phase so we beat the queue-reveal handler
+}
+
+
 /* renderExCard — the study card, with the v21 progressive-reveal
    mechanic.  Initial view shows only what doesn't spoil the lesson:
    the headword, the family heads (with their pos+chinese), and the
@@ -610,7 +649,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
   /* The tap hint — visible while the queue still has items. */
   const tapHint = document.createElement('div');
   tapHint.className = 'ex-tap-hint';
-  tapHint.textContent = '— tap to reveal more —';
+  tapHint.textContent = '— tap to reveal more';
   box.appendChild(tapHint);
   if (queue.length === 0) tapHint.style.display = 'none';
 
@@ -637,7 +676,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
         const audio = exNode.querySelector('.ex-example-en')?.textContent || '';
         queue.push({ el: exNode, audio });
       }
-      tapHint.textContent = '— tap to reveal more —';
+      tapHint.textContent = '— tap to reveal more';
       tapHint.style.display = '';
       tapHint.style.opacity = '';
     });
@@ -678,13 +717,14 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
 function buildOracleQuestion(word) {
   const c = CARDS[word];
   const sentence = c.example || c.h;
-  // Cloze: keep the first letter, blank the rest.  "abrupt" → "a______"
-  const first  = c.h[0];
-  const blanks = '_'.repeat(Math.max(5, c.h.length - 1));
-  const blanked = `${first}${blanks}`;
+  // Cloze: keep the first letter, render the rest as a single
+  // underlined span (not literal "_" characters — those produced a
+  // visible double-underline because the chars themselves draw a
+  // baseline rule under the CSS border-bottom).
+  const first = c.h[0];
   const sentenceHL = sentence.replace(
     new RegExp(`\\b${c.h}\\b`, 'i'),
-    `<em class="q-blank">${blanked}</em>`
+    `<em class="q-blank">${first}<span class="q-blank-fill"></span></em>`
   );
   // 3 distractors that ALSO start with the same letter — the lesson
   // is "tell apart the words that share the first letter".
@@ -719,10 +759,6 @@ function showModal({ title, body = '', score = null, actions = [], variant = '' 
   // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
-      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=25" alt="">
-      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=25" alt="">
-      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=25" alt="">
-      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=25" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -994,7 +1030,12 @@ const Screens = {
       function pick(oi, button) {
         const q = state.oracleQs[state.oracleIdx];
         const all = $$('.card--option');
-        all.forEach(b => b.disabled = true);
+        // `disabled` would have swallowed subsequent clicks on the
+        // option buttons themselves, which is precisely where the
+        // user's finger lands when they try to advance.  Use a class
+        // + pointer-events: none instead, so the click bubbles up to
+        // the document-level advance listener below.
+        all.forEach(b => b.classList.add('is-resolved'));
 
         // tiny "thinking" beat — the deep-pink inner glow on the chosen
         // option before the verdict.  Without this beat the click feels
@@ -1022,12 +1063,16 @@ const Screens = {
         }, 280);
 
         function armAdvance() {
-          // a hint that the page is waiting for them
+          // a hint that the page is waiting for them.  `stage` lived
+          // in drawQ's scope; re-resolve it from the el so we don't
+          // throw a ReferenceError (which was silently killing the
+          // entire advance flow — the listener never got attached).
+          const stage = $('#oracle-stage', el);
           let hint = $('.q-tap-hint', stage);
           if (!hint) {
             hint = document.createElement('div');
             hint.className = 'q-tap-hint';
-            hint.textContent = '— tap anywhere to turn the page —';
+            hint.textContent = '— tap anywhere to turn the page';
             stage.appendChild(hint);
           }
           const advance = (ev) => {
@@ -1065,7 +1110,11 @@ const Screens = {
       el.appendChild(closeCorner());
       $('.stage-actions', el).appendChild(nextDoor('the writing hand', () => go('stage3'), { confirm: true }));
       const grid = $('.result-grid', el);
-      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true, withControls: false })));
+      state.session.words.forEach(w => {
+        const card = renderExCard(w, state.results[w].oracle, { rewrite: true, withControls: false });
+        attachOpenDetail(card, w, 'stage2-result');
+        grid.appendChild(card);
+      });
     }
   },
 
@@ -1097,7 +1146,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=25" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=31" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
@@ -1201,53 +1250,54 @@ const Screens = {
         sum.appendChild(row);
       });
       const grid = $('.result-grid', el);
-      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].dict, { withControls: false })));
+      state.session.words.forEach(w => {
+        const card = renderExCard(w, state.results[w].dict, { withControls: false });
+        attachOpenDetail(card, w, 'stage3-result');
+        grid.appendChild(card);
+      });
     }
   },
 
-  /* ---------- NOTE (cover-side, NOT in game flow) ---------- */
+  /* ---------- NOTE (cover-side, NOT in game flow) ----------
+     Layout: 顶头框 + ui-modal-framed stats (4 vertical mistake-buckets)
+             + favourites collection (semi-transparent glow cards). */
   note: {
     onEnter() {
       const el = $('#screen-note');
       const m = saved.mistakes;
       const entries = Object.entries(m);
-      const buckets = {
-        once:   entries.filter(([w, c]) => c === 1).map(([w]) => w),
-        twice:  entries.filter(([w, c]) => c === 2).map(([w]) => w),
-        thrice: entries.filter(([w, c]) => c === 3).map(([w]) => w),
-        haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
-      };
+      const once   = entries.filter(([w, c]) => c === 1).length;
+      const twice  = entries.filter(([w, c]) => c === 2).length;
+      const thrice = entries.filter(([w, c]) => c === 3).length;
+      const haunt  = entries.filter(([w, c]) => c >= 4).length;
       el.innerHTML = `
         ${pageTitle('her little note')}
-        <div class="page-subtitle">pages she returns to</div>
-        <div class="note-stats">
-          <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
-          <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
-          <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
-          <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+        <div class="note-stats-frame">
+          <div class="page-subtitle">pages she returns to</div>
+          <div class="note-stats">
+            <div class="note-stat"><div class="val">${once}</div><div class="lbl">a single slip</div></div>
+            <div class="note-stat"><div class="val">${twice}</div><div class="lbl">twice astray</div></div>
+            <div class="note-stat"><div class="val">${thrice}</div><div class="lbl">thrice undone</div></div>
+            <div class="note-stat"><div class="val">${haunt}</div><div class="lbl">haunting words</div></div>
+          </div>
         </div>
         <div id="note-body"></div>
       `;
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
 
-
+      // Favourites collection — every word the user stamped with the
+      // wax seal on its study card.  Rendered as the original v=21
+      // semi-transparent .ex-card with pink-glow border.
       const body = $('#note-body', el);
-      const show = (label, words) => {
-        if (!words.length) return;
-        body.insertAdjacentHTML('beforeend', `<div class="section-label">— ${label} —</div>`);
+      const favs = Object.keys(saved.favorites || {}).filter(w => CARDS[w]);
+      if (!favs.length) {
+        body.innerHTML = '<div class="note-empty">no slips yet · the page is still pristine</div>';
+      } else {
         const wrap = document.createElement('div');
         wrap.className = 'result-grid';
-        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true, { withControls: false })); });
+        favs.forEach(w => wrap.appendChild(renderExCard(w, true, { withControls: false })));
         body.appendChild(wrap);
-      };
-      if (!entries.length) {
-        body.insertAdjacentHTML('beforeend', '<div class="note-empty">no slips yet · the page is still pristine</div>');
-      } else {
-        show('haunting words', buckets.haunt);
-        show('thrice undone',  buckets.thrice);
-        show('twice astray',   buckets.twice);
-        show('a single slip',  buckets.once);
       }
     }
   },
@@ -1265,8 +1315,8 @@ const Screens = {
       });
       const letters = Object.keys(groups).sort();
       el.innerHTML = `
-        <div class="screen-stickyhead">
-          <div class="page-title">the index</div>
+        ${pageTitle('the index')}
+        <div class="index-frame">
           <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
           <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
         </div>
@@ -1327,21 +1377,77 @@ const Screens = {
     }
   },
 
-  /* ---------- CARD detail (opened from sidebar, index, tiles) ---------- */
+  /* ---------- CARD detail (opened from sidebar, index, tiles) ----------
+     The parchment opens directly (no separate seal page).  The wax
+     seal is a stamp in the bottom-left corner of the scroll that means
+     "add this word to her note".  Layout sequence:
+       1. Parchment scale-fades in (500ms).
+       2. Each line — head, family heads, friend label, neighbour —
+          gets written by a mask sweep, staggered 180ms with sfxWrite.
+       3. After the last line + 600ms, the bottom hint appears.        */
   card: {
     onEnter(opts) {
       const el = $('#screen-card');
       const word = opts.word;
-      // default to 'cover' when no caller passed an explicit from —
-      // never to 'index', which created the dead-end where pressing
-      // close on the card jumped to the word list instead of home.
       const from = opts.from || 'cover';
       state._cardFrom = from;
-      el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
 
+      el.innerHTML = '';
       el.prepend(moonCorner());
       el.appendChild(closeCorner({ to: from }));
-      $('#card-host', el).appendChild(renderExCard(word, null, { withControls: true }));
+
+      const host = document.createElement('div');
+      host.className = 'card-host';
+      host.id = 'card-host';
+      el.appendChild(host);
+
+      const card = renderExCard(word, null, { withControls: true });
+      card.classList.add('is-entering');
+      host.appendChild(card);
+
+      // --- The wax seal stamp: pinned to the bottom-left of the screen
+      // so it sits over the parchment even when the user scrolls the
+      // card content.  Tap = TOGGLE this word's presence in saved.favorites
+      // (the "her note" collection).  Stamp reflects current state on
+      // entry and on every toggle.                                        */
+      const stamp = document.createElement('button');
+      stamp.className = 'wax-seal-stamp';
+      stamp.setAttribute('aria-label', 'toggle favourite');
+      stamp.title = 'add to her note';
+      el.appendChild(stamp);
+      if (isFavorited(word)) stamp.classList.add('is-stamped');
+      stamp.addEventListener('click', (e) => {
+        e.stopPropagation();
+        SFX.seal();
+        const nowFav = toggleFavorite(word);
+        stamp.classList.toggle('is-stamped', nowFav);
+      });
+
+      // --- Beat 2: line-by-line write reveal --------------------------
+      const lines = Array.from(card.querySelectorAll(
+        '.ex-head, .ex-family > .ex-label, .ex-family > .fam-row > .fam-head, ' +
+        '.ex-friend > .ex-label, .ex-neighbor, .ex-rewrite'
+      ));
+      lines.forEach((line, i) => {
+        line.classList.add('write-line');
+        line.style.animationDelay = (200 + i * 160) + 'ms';
+        setTimeout(() => SFX.write(0.45), 200 + i * 160);
+      });
+
+      // --- Beat 3: bottom breathing hint ------------------------------
+      const lastLineEnd = 200 + (lines.length - 1) * 160 + 700;
+      setTimeout(() => {
+        const hint = document.createElement('div');
+        hint.className = 'card-tap-hint';
+        hint.innerHTML = `<span>tap anywhere · 任意处继续</span>`;
+        el.appendChild(hint);
+        const dismiss = () => {
+          hint.classList.add('is-fading');
+          setTimeout(() => hint.remove(), 320);
+          el.removeEventListener('click', dismiss, true);
+        };
+        setTimeout(() => el.addEventListener('click', dismiss, true), 50);
+      }, lastLineEnd + 600);
     }
   }
 };

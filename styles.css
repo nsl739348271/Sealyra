@@ -411,40 +411,13 @@ body.cover-pending .cover-gate     { visibility: visible; }
   width: 100%;
   z-index: 1;
 }
-.match-card {
-  position: relative;
-  padding: 16px 14px;
-  min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-family: var(--f-card);
-  font-style: italic;
-  font-size: 16px;
-  letter-spacing: .045em;
-  color: var(--cream);
-  background: rgba(6,3,15,.44);
-  border: 1px solid rgba(245,239,227,.10);
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-  transition: border-color .25s, background .25s, color .25s, transform .15s;
-}
-.match-card:active { transform: translateY(1px); }
-.match-card.tag-0 { border-color: var(--p0); color: var(--p0); background: rgba(244,181,200,.10); box-shadow: 0 0 18px rgba(244,181,200,.16); }
-.match-card.tag-1 { border-color: var(--p1); color: var(--p1); background: rgba(238,192,180,.10); box-shadow: 0 0 18px rgba(238,192,180,.16); }
-.match-card.tag-2 { border-color: var(--p2); color: var(--p2); background: rgba(176,180,228,.10); box-shadow: 0 0 18px rgba(176,180,228,.16); }
-.match-card.tag-3 { border-color: var(--p3); color: var(--p3); background: rgba(196,200,196,.10); box-shadow: 0 0 18px rgba(196,200,196,.16); }
-.match-card.flipping { animation: tarotFlip .42s ease-out forwards; }
+/* .match-card.* rules removed — DOM uses .card.card--match (see §35/§41).
+   tarotFlip @keyframes kept below because .card.flipping still references it. */
 @keyframes tarotFlip {
   0%   { transform: scale(1)    rotateY(0); opacity: 1; box-shadow: 0 0 0 rgba(255,242,210,0); }
   50%  { transform: scale(1.05) rotateY(90deg); opacity: .8; box-shadow: 0 0 24px rgba(255,242,210,.55); }
   100% { transform: scale(1.05) rotateY(90deg); opacity: 0; }
 }
-
-.match-card.correct { border-color: var(--gold); color: var(--gold); background: rgba(240,200,148,.10); box-shadow: 0 0 22px rgba(240,200,148,.30); }
-.match-card.wrong   { opacity: .35; filter: grayscale(.5); }
 
 .match-actions, .stage-actions {
   display: flex;
@@ -1099,13 +1072,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
   align-items: center;
   opacity: .85;
 }
-.main-cta .cta-key .ico-key {
-  width: 16px; height: 56px;
-  filter: drop-shadow(0 0 6px rgba(218,168,104,.35));
-}
-.main-cta .cta-key-l .ico-key { transform: rotate(-12deg); }
-.main-cta .cta-key-r .ico-key { transform: rotate( 12deg); }
-.main-cta .cta-rule { display: none; }   /* keys replace the underline */
+/* old .ico-key inline-SVG sizing removed — keys are PNG <img> now (see §41/§49) */
 .main-cta:hover .cta-text { text-shadow: 0 0 24px rgba(237,184,158,.85); }
 .main-cta:active { opacity: .85; transform: translateY(1px); }
 .main-cta.is-engaged .cta-text { color: var(--cream); -webkit-text-fill-color: var(--cream); }
@@ -1132,10 +1099,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
 .next-door:hover { box-shadow: 0 0 20px rgba(244,181,200,.42); }
 .next-door:active { transform: translateY(1px); }
 .next-door.is-engaged { box-shadow: 0 0 26px rgba(237,184,158,.7); color: var(--cream); }
-.next-door .nd-key { color: var(--gold-deep); display: inline-flex; }
-.next-door .nd-key .ico-key { width: 10px; height: 32px; }
-.next-door .nd-key:first-child .ico-key { transform: rotate(-12deg); }
-.next-door .nd-key:last-child  .ico-key { transform: rotate( 12deg); }
+/* .nd-key + .ico-key rules removed — nextDoor() renders plain text now (see §41) */
 
 /* Tiny moon button anchored to the top-left of every game screen.
    "her unfinished pages" — opens the mistakes notebook.            */
@@ -1225,12 +1189,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
 /* Stage-1 match: correct-pair glow recolored to rose.  Wrong cards
    keep their 4-tag colour (no rule needed — they just don't gain
    .correct).  Done in match-card. */
-.match-card.correct {
-  border-color: var(--rose);
-  color: var(--rose);
-  background: rgba(237,184,158,.10);
-  box-shadow: var(--rose-glow);
-}
+/* .match-card.correct dead — DOM uses .card.card--match.is-correct (see §41/B) */
 
 /* ex-card "is-correct" / "is-wrong" — re-skin the post-game ex-card
    marker to the unified rose, so result pages share the same warmth. */
@@ -1310,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=25"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=31"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=25"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=31"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=25"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=31"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=25"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=31"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1338,27 +1297,8 @@ body {
    18. REAL PNG ICONS — replace the SVG/unicode stand-ins
    ============================================================ */
 
-/* The slim gold key flanking Tonight's Reading and next-door */
-.main-cta .cta-key .ico-key,
-.next-door .nd-key .ico-key { display: none; }
-.main-cta .cta-key::before {
-  content: "";
-  display: block;
-  width: 22px; height: 64px;
-  background: url("assets/icon-key.png?v=25") center/contain no-repeat;
-  filter: drop-shadow(0 0 6px rgba(218,168,104,.45));
-}
-.main-cta .cta-key-l::before { transform: rotate(-12deg); }
-.main-cta .cta-key-r::before { transform: rotate( 12deg); }
-
-.next-door .nd-key::before {
-  content: "";
-  display: block;
-  width: 14px; height: 40px;
-  background: url("assets/icon-key.png?v=25") center/contain no-repeat;
-}
-.next-door .nd-key:first-child::before { transform: rotate(-12deg); }
-.next-door .nd-key:last-child::before  { transform: rotate( 12deg); }
+/* old ::before pseudo-key painters removed — they were already neutralized
+   by §48's `content: none` kill-switch, plus keys are real <img> now (§41/§49). */
 
 /* Moon-corner uses the ornate moon PNG */
 .moon-corner { color: transparent; }
@@ -1367,7 +1307,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=25") center/contain no-repeat;
+  background: none;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1378,7 +1318,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=25") center/contain no-repeat;
+  background: none;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1395,10 +1335,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=25"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=25"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=25"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=25"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: none; }
+.deco-stars .s:nth-child(3n+1) { background-image: none; }
+.deco-stars .s:nth-child(3n+2) { background-image: none; }
+.deco-stars .s:nth-child(7n)   { background-image: none; width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1447,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=25"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=25"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=25"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=25"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=31"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=31"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=31"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=31"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3436,25 +3376,8 @@ body { background: transparent !important; }
   animation: tap-hint-breathe 2.4s ease-in-out infinite;
 }
 
-/* Result-page cards were getting squashed into a ~160px tall pill.
-   Widen the grid + open the cell breathing room so they read as
-   real cards instead of compressed labels.                          */
-.match-result-grid,
-.match-grid {
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 8px 6px !important;
-  max-width: 560px !important;
-  margin: 0 auto !important;
-}
-.match-grid > .card,
-.match-result-grid > .card {
-  width: 100% !important;
-  min-height: 64px;
-  font-size: 18px !important;
-  padding: 18px 12px !important;
-  display: flex !important;
-}
+/* (match-grid overrides previously defined here removed — see §49.2
+   below for the single canonical rule that wins.)                    */
 
 /* Tonight's Reading + every .h-plaque — refined glow.  Was a single
    wide blur that looked muddy; now it's a layered glow:
@@ -3488,112 +3411,10 @@ body { background: transparent !important; }
 }
 
 
-/* ============================================================
-   44. design system v1.3 — bigger result tiles + hard veil
-   ============================================================
-   Result-page cards were still squashed.  Force a proper card
-   shape with explicit min-height and tighter aspect.  Also stamp
-   the linear-reveal hide rule one more time with even higher
-   specificity in case an older sheet was winning on cache.       */
-
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid .card.card--match,
-.match-grid .card.card--match {
-  width: 100% !important;
-  min-height: 90px !important;
-  font-size: 19px !important;
-  padding: 24px 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Belt-and-braces — every .is-veiled row stays hidden, with the
-   ex-card selector prefix bumping specificity over anything else. */
-.ex-card .fam-reveal.is-veiled,
-.ex-card .colloc-row.is-veiled,
-.ex-card .ex-example.is-veiled {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* ============================================================
-   45. design system v1.4 — IDENTICAL grids + indestructible veil
-   ============================================================
-   the result page tiles were narrower than the matching grid cards
-   because older sheets pinned .match-result-grid to padding:18px+16
-   and max-width:540, while .match-grid sat at full width.  force
-   both grids to one shape with !important, use aspect-ratio so
-   cells stay proportional regardless of viewport, and brick-wall
-   the .is-veiled hide so no later cascade can revive it.          */
-
-.match-result-grid,
-.match-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 560px !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  width: 100% !important;
-  aspect-ratio: 17 / 8 !important;       /* same shape on both pages */
-  min-height: 96px !important;
-  padding: 0 12px !important;            /* aspect-ratio handles height */
-  font-size: 19px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;             /* never let flex column squash cards */
-}
-
-/* brick-wall hide: 5 properties so absolutely no later override
-   can make a veiled colloc / family reveal / example show up.    */
-.ex-card .fam-reveal.is-veiled,
-.ex-card .colloc-row.is-veiled,
-.ex-card .ex-example.is-veiled,
-.fam-reveal.is-veiled,
-.colloc-row.is-veiled,
-.ex-example.is-veiled {
-  display: none !important;
-  height: 0 !important;
-  max-height: 0 !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  overflow: hidden !important;
-  pointer-events: none !important;
-}
-
-/* ============================================================
-   46. design system v1.5 — middle ground for the match grid
-   ============================================================
-   v1.4 pinned both grids to 560px which made them feel cavernous
-   on the game page.  drop to 480px max + 12px gap + a slightly
-   squatter aspect (9 / 4 instead of 17 / 8).  same numbers on
-   both grids so they stay identical to each other.               */
-
-.match-result-grid,
-.match-grid {
-  max-width: 480px !important;
-  gap: 12px !important;
-  margin: 12px auto !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  font-size: 18px !important;
-  padding: 0 12px !important;
-}
+/* (sections 44/45/46 — successive match-grid + veil overrides —
+   were removed.  Match-grid sizing lives in §49.2 below; the .is-veiled
+   veil is defined animatable-style in §47 below, which is the form
+   we actually want.)                                                  */
 
 /* ============================================================
    47. ink-writing reveal — the parchment unfurl
@@ -3683,26 +3504,1756 @@ body { background: transparent !important; }
   filter: none !important;
 }
 
-body.bg-stage  .match-grid,
-body.bg-result .match-result-grid {
+/* (the body.bg-stage / body.bg-result match-grid override that used
+   to live here is now in §49.2 with viewport-fitting rows.)          */
+
+/* ============================================================
+   49. v=26 — final consolidation
+   ============================================================
+   Three jobs:
+     1) "Tonight's Reading" CTA: single key on the LEFT of the text.
+        (was two keys flanking it)
+     2) Stage 1 / result grids must FIT THE VIEWPORT — no scroll.
+        Cards size from available height, not fixed min-height.
+     3) Every other rule above stays as-is.  This block wins because
+        it comes last in the cascade.
+   ============================================================ */
+
+/* ----- 49.1  Single-key CTA ----- */
+.main-cta .cta-inner {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+/* hide any legacy right-side key if it still gets rendered somewhere */
+.main-cta .cta-key-r { display: none !important; }
+.main-cta .cta-key,
+.main-cta .cta-key-l {
+  display: inline-block !important;
+  width: 22px !important;
+  height: 62px !important;
+  object-fit: contain !important;
+  opacity: .92 !important;
+  transform: rotate(-14deg) !important;
+  filter: drop-shadow(0 0 8px rgba(218,168,104,.55)) !important;
+}
+
+/* ----- 49.2  Stage 1 fits one viewport ----- */
+/* Banner height ≈ 100vw * 821/1916 = ~42.85vw.
+   Use dynamic viewport (dvh) so iOS chrome doesn't break the calc.   */
+:root { --banner-h: calc(100vw * 821 / 1916); }
+
+#screen-stage1.active,
+#screen-stage1-result.active {
+  min-height: calc(100vh - var(--banner-h)) !important;
+  min-height: calc(100dvh - var(--banner-h)) !important;
+  height:     calc(100vh - var(--banner-h)) !important;
+  height:     calc(100dvh - var(--banner-h)) !important;
+  padding: 14px 16px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;     /* never scroll the match screen */
+}
+
+/* Compact the stage header on the matching pages so the grid wins
+   more vertical space.                                                */
+#screen-stage1 .stage-head,
+#screen-stage1-result .stage-head { padding: 8px 0 4px !important; }
+#screen-stage1 .stage-head .stage-name,
+#screen-stage1-result .stage-head .stage-name { font-size: 22px !important; }
+#screen-stage1 .stage-head::after,
+#screen-stage1-result .stage-head::after { margin-top: 6px !important; }
+
+#screen-stage1 .q-progress {
+  margin: 6px 0 6px !important;
+  font-size: 12px !important;
+}
+
+/* The grid takes whatever vertical space is left; rows split evenly. */
+#screen-stage1 .match-grid,
+#screen-stage1-result .match-result-grid,
+#screen-stage1-result .match-grid {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 10px !important;
   padding: 0 !important;
   max-width: 480px !important;
   width: 100% !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
+  margin: 4px auto 8px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;        /* let it shrink inside the flex column */
+  aspect-ratio: auto !important;
 }
-body.bg-stage  .match-grid > .card,
-body.bg-result .match-result-grid > .card {
+
+/* Cards fill their cell — no aspect-ratio, no min-height, height is
+   whatever the grid row gives them.                                    */
+#screen-stage1 .match-grid > .card,
+#screen-stage1-result .match-result-grid > .card,
+#screen-stage1-result .match-grid > .card,
+#screen-stage1 .card.card--match,
+#screen-stage1-result .card.card--match {
   width: 100% !important;
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  padding: 0 12px !important;
-  font-size: 18px !important;
+  height: 100% !important;
+  aspect-ratio: auto !important;
+  min-height: 0 !important;
+  padding: 6px 10px !important;
+  font-size: clamp(14px, 4.2vw, 18px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  flex-shrink: 0 !important;
+  flex-shrink: 1 !important;
+}
+
+/* The confirm button row hugs the bottom — no top margin pushing the
+   grid off-screen.                                                     */
+#screen-stage1 .match-actions {
+  margin: 6px auto 0 !important;
+  max-width: 480px !important;
+}
+
+/* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=31") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=31") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=31") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=31") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=31") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=31") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=31") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=31") !important; }
+
+/* ============================================================
+   50. v=27 — UI art binding (the 7 new container frames)
+   ============================================================
+   Seven container frames + one icon now live in /assets:
+     ui-page-title  — her note / the index page-title frame (with key)
+     ui-word        — every game word tile (.card.card--match / --option)
+     ui-chapter     — stage-head "chapter · N — name" strip
+     ui-parchment   — DELETED (user removed)
+     ui-modal       — confirm-ready / confirm-leave / finish modal
+     ui-score       — score-block result badge (horizontal w/ bow)
+     ui-medallion   — circular badge, role TBD, unbound for now
+     icon-quill     — dictation pen (replaces old icon-quill silhouette)
+   ============================================================ */
+
+/* ----- 50.1  Tonight's Reading — uses uploaded cta-tonight.png ----------
+   The wordmark is a hand-designed gold-on-black PNG, chroma-keyed to
+   transparent.  Wire it in as the cover's main CTA, hide the legacy
+   text + key, add a subtle constant breathing glow and a momentary
+   bloom on click.                                                       */
+@keyframes cta-breathe {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) drop-shadow(0 0 12px rgba(218,168,104,.18)); }
+  50%      { filter: drop-shadow(0 0 8px rgba(255,225,170,.65)) drop-shadow(0 0 22px rgba(232,200,130,.40)); }
+}
+@keyframes cta-bloom {
+  0%   { filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) drop-shadow(0 0 12px rgba(218,168,104,.18)); transform: scale(1); }
+  35%  { filter: drop-shadow(0 0 24px rgba(255,232,180,1))  drop-shadow(0 0 48px rgba(255,210,140,.85)); transform: scale(1.03); }
+  100% { filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) drop-shadow(0 0 12px rgba(218,168,104,.18)); transform: scale(1); }
+}
+/* Hide legacy text + key — cta-tonight.png is self-contained */
+.main-cta .cta-text,
+.main-cta .cta-key {
+  display: none !important;
+}
+.main-cta::after {
+  display: none !important;
+}
+/* The wordmark image itself: constant breathing glow */
+.main-cta .cta-tonight {
+  display: block;
+  width: 88%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: cta-breathe 3.4s ease-in-out infinite;
+}
+/* Click → momentary bloom (the breathing animation pauses during it) */
+.main-cta.is-engaged .cta-tonight {
+  animation: cta-bloom 600ms ease-out !important;
+}
+/* Hover/press feedback for desktop and pre-click feel */
+.main-cta:hover .cta-tonight {
+  filter: drop-shadow(0 0 14px rgba(255,225,170,.85)) drop-shadow(0 0 30px rgba(232,200,130,.45));
+}
+.main-cta {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 0 !important;
+  cursor: pointer;
+}
+
+/* ----- 50.2  Cover-bottom buttons (her note / the index) -----
+   No frame asset for these — user clarified ② was actually score.
+   Keep the existing rose-pink outline pill from §41.D.                */
+
+/* ----- 50.3  Game word tiles — stage1 / stage1-result / stage2 share
+   IDENTICAL dimensions.  User spec: 所有按钮卡牌统一长宽! 为你现在
+   matching结算的那个长宽.  Reference tile = stage1-result tile.       */
+#screen-stage1 .card.card--match,
+#screen-stage1-result .card.card--match,
+.card.card--option {
+  background: url("assets/ui-word.png?v=31") center/100% 100% no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--cream) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  padding: 0 14px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 15px !important;
+  letter-spacing: .02em !important;
+  margin: 0 !important;
+}
+/* keep the tag-colour cues but as gentle glow on the frame, not a recolour */
+.card.card--match.tag-0 { filter: drop-shadow(0 0 10px rgba(244,181,200,.55)); }
+.card.card--match.tag-1 { filter: drop-shadow(0 0 10px rgba(238,192,180,.55)); }
+.card.card--match.tag-2 { filter: drop-shadow(0 0 10px rgba(176,180,228,.55)); }
+.card.card--match.tag-3 { filter: drop-shadow(0 0 10px rgba(196,200,196,.55)); }
+.card.card--match.is-correct { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
+.card.card--match.is-wrong   { opacity: .55; filter: none; }
+.card.card--option.picked-right  { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
+.card.card--option.picked-wrong  { opacity: .55; }
+.card.card--option.reveal-right  { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
+.card.card--option.is-picking    { filter: drop-shadow(0 0 12px rgba(244,181,200,.55)); }
+
+/* Stage 2 option grid: 2x2 — same column / gap as stage1 match grid. */
+.oracle-options {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  max-width: 100% !important;
+  margin: 12px auto 0 !important;
+}
+/* Stage 1 + stage 1-result match grids: tight pack at top, not stretched
+   to fill viewport.  grid-auto-rows lets rows take their natural height
+   (52 px tile + 0 padding) instead of being divided across screen.       */
+#screen-stage1 .match-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: none !important;
+  grid-auto-rows: 48px !important;
+  gap: 8px !important;
+  max-width: 320px !important;
+  margin: 10px auto 0 !important;
+  align-content: start !important;
+  flex: 0 0 auto !important;       /* don't grow — confirm sits right below */
+  height: auto !important;
+  min-height: 0 !important;
+}
+#screen-stage1-result .match-result-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: none !important;
+  grid-auto-rows: 48px !important;
+  gap: 8px !important;
+  max-width: 320px !important;
+  margin: 6px auto !important;
+  align-content: start !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+/* Confirm button on stage1: sit right under the grid, not at the
+   viewport floor.                                                       */
+#screen-stage1 .match-actions {
+  margin: 12px auto 0 !important;
+  flex: 0 0 auto !important;
+}
+.oracle-options {
+  max-width: 320px !important;
+}
+
+/* Push stage1 / stage2 / stage3 game content UP so the bottom 20% of
+   the viewport stays clear for the bg illustration (the rabbit etc.).
+   Make the .match-grid + .oracle-options tighter, and leave a buffer
+   at the bottom.                                                       */
+#screen-stage1, #screen-stage2, #screen-stage3 {
+  padding-bottom: 88px !important;       /* room for the rabbit */
+}
+#screen-stage1 .match-grid {
+  gap: 8px !important;
+  margin-top: 6px !important;
+}
+#screen-stage1-result {
+  padding-bottom: 76px !important;
+}
+#screen-stage1-result .match-result-grid {
+  gap: 8px !important;
+  margin: 8px 0 !important;
+}
+#screen-stage1-result .match-result-hint {
+  margin-top: 6px !important;
+  font-size: 11px !important;
+  color: rgba(244,226,200,.6) !important;
+  -webkit-text-fill-color: rgba(244,226,200,.6) !important;
+}
+/* Shrink the score badge on stage1-result to free space for the
+   8-tile grid below.  stage2/3-result keep the larger 260 px size. */
+#screen-stage1-result .score-block {
+  max-width: 180px !important;
+  margin: 8px auto !important;
+}
+#screen-stage1-result .score-block .score-value,
+#screen-stage1-result .score-block .score-num,
+#screen-stage1-result .score-block .score-big {
+  font-size: 34px !important;
+}
+#screen-stage1-result .score-block .score-label,
+#screen-stage1-result .score-block .score-stage {
+  font-size: 9px !important;
+}
+/* Compress the next-door button on stage1-result so the tile grid
+   has room without overlapping the bottom hint.                       */
+#screen-stage1-result .stage-actions {
+  margin: 2px 0 6px !important;
+}
+#screen-stage1-result .stage-actions .next-door {
+  padding: 6px 22px !important;
+  font-size: 13px !important;
+}
+
+/* ----- 50.4  Chapter — small text label aligned with corner pins -----
+   User spec: chapter再小一点再靠上一点和三和x同高度.  At corner-pin
+   height (~32 px) the ornate ui-chapter frame turns to mush.  Drop the
+   frame entirely; render as a thin text band centred between ≡ and ×.  */
+.stage-head {
+  background: none !important;
+  position: absolute !important;
+  top: 18px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  z-index: 60 !important;
+  text-align: center !important;
+}
+.stage-head::before,
+.stage-head::after { display: none !important; }
+.stage-head .stage-chapter {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 10px !important;
+  letter-spacing: .26em !important;
+  text-transform: lowercase !important;
+  color: rgba(244, 226, 200, .55) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .55) !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+.stage-head .stage-name {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .03em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+/* Push stage flow content below the chapter band so the instruction
+   text (.q-progress) and grids don't sit underneath the chapter.       */
+#screen-stage1, #screen-stage2, #screen-stage3,
+#screen-stage1-result, #screen-stage2-result, #screen-stage3-result {
+  padding-top: 48px !important;
+}
+.stage-head::after { display: none !important; }   /* the frame already has art */
+.stage-head .stage-chapter {
+  font-size: 9px !important;
+  letter-spacing: .3em !important;
+  opacity: .82 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+.stage-head .stage-name {
+  font-size: 14px !important;
+  letter-spacing: .04em !important;
+  line-height: 1.1 !important;
+  margin-top: 2px !important;
+}
+
+/* ----- 50.5  Page titles on her-note + the-index -----
+   Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
+#screen-note .page-title,
+#screen-index .page-title {
+  background: url("assets/ui-score.png?v=31") center/100% 100% no-repeat !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  aspect-ratio: 1448 / 1086 !important;
+  padding: 0 !important;
+  margin: 44px auto 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  text-shadow: 0 0 10px rgba(232,200,130,.55) !important;
+}
+#screen-note .page-title::after,
+#screen-index .page-title::after { display: none !important; }
+
+/* ----- 50.6  Study card parchment ----- */
+#screen-card .ex-card {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 80px 56px 110px !important;          /* room for the ribbon top + scroll bottom */
+  color: #3A2E22 !important;                    /* dark ink-brown text on cream parchment */
+  -webkit-text-fill-color: #3A2E22 !important;
+}
+#screen-card .ex-card * {
+  color: #3A2E22 !important;
+  -webkit-text-fill-color: #3A2E22 !important;
+}
+
+/* ----- 50.7  Modal panel ----- */
+.modal-card {
+  background: url("assets/ui-modal.png?v=31") center/100% 100% no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 64px 46px !important;
+  max-width: 360px !important;
+  min-height: 380px !important;
+}
+.modal-card .m-spark { display: none !important; }   /* frame has its own decoration */
+.modal-card .modal-title {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  color: var(--cream) !important;
+  text-shadow: 0 0 10px rgba(232,200,130,.55) !important;
+}
+.modal-card .modal-body {
+  color: rgba(245,239,227,.85) !important;
+  font-style: italic !important;
+}
+
+/* ----- 50.8  Result score badge -----
+   ui-score is a wide horizontal frame (1448x1086) with pink bow.
+   Trim to ~240px wide so it doesn't dominate the result page.          */
+.score-block {
+  background: url("assets/ui-page-title.png?v=31") center/100% 100% no-repeat !important;
+  width: 100% !important;
+  max-width: 260px !important;
+  aspect-ratio: 1448 / 1086 !important;
+  margin: 12px auto !important;
+  padding: 14% 18% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.score-block .score-num,
+.score-block .score-value,
+.score-block .score-big {
+  font-family: var(--f-display) !important;
+  font-size: 48px !important;
+  line-height: 1 !important;
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  text-shadow: 0 0 12px rgba(232,200,130,.7) !important;
+}
+.score-block .score-label,
+.score-block .score-stage {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .16em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  opacity: .9 !important;
+}
+
+/* ----- 50.9  Cache-bust new UI assets ----- */
+/* (already inlined above as ?v=31 — keep older asset refs at v=26)    */
+
+
+/* ============================================================
+   51. Quiet UI — anything not a "hero" gets a single left-rule
+   ============================================================
+   Per user spec: cover side-links, corner close/menu pins, and modal
+   actions all "need lower presence — just a single horizontal line on
+   the left is enough."  Replace the pink-pill / outlined-circle styles
+   with a minimalist accent line + small italic text.
+   ============================================================ */
+
+/* ----- 51.1  Cover bottom buttons (her note / the index) -----
+   Lose the pill outline; show a 24px gold fade-rule before the text.
+   .lil-row sits at the bottom of the cover; both items use the same
+   look, so the user reads them as quiet navigation, not as buttons.    */
+.lil-row .lil-ghost {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 6px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  color: rgba(245,239,227,.78) !important;
+  -webkit-text-fill-color: rgba(245,239,227,.78) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .12em !important;
+  text-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.lil-row .lil-ghost::before,
+.lil-row .lil-ghost::after {
+  content: '' !important;
+  display: inline-block !important;
+  width: 22px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(232,200,130,.72)) !important;
+}
+.lil-row .lil-ghost::after {
+  /* mirror the gradient so it fades out on the right */
+  background: linear-gradient(90deg, rgba(232,200,130,.72), transparent) !important;
+}
+.lil-row .lil-ghost:hover {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+  filter: none !important;
+}
+.lil-row .lil-ghost:hover::before {
+  background: linear-gradient(90deg, transparent, rgba(244,181,200,.9)) !important;
+}
+.lil-row .lil-ghost:hover::after {
+  background: linear-gradient(90deg, rgba(244,181,200,.9), transparent) !important;
+}
+.lil-row {
+  gap: 22px !important;
+}
+
+/* ----- 51.2  Top corner pins (close / moon) -----
+   Were pretty 36px rounded buttons.  Drop the border + bg; let the icon
+   itself sit on the page as a thin glyph.                              */
+.corner-pin,
+.close-corner,
+.moon-corner {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  opacity: .72 !important;
+  filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) !important;
+}
+.corner-pin:hover,
+.close-corner:hover,
+.moon-corner:hover {
+  opacity: 1 !important;
+}
+/* close-corner's × — render as two thin gold strokes, no circle */
+.close-corner .cp-x {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+.close-corner .cp-x::before,
+.close-corner .cp-x::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 1px !important;
+  background: rgba(232,200,130,.78) !important;
+  transform-origin: center !important;
+}
+.close-corner .cp-x::before { transform: rotate( 45deg); }
+.close-corner .cp-x::after  { transform: rotate(-45deg); }
+/* moon-corner's three bars — keep but make hair-thin gold */
+.moon-corner .mc-bar,
+.moon-corner .mc-bar::before,
+.moon-corner .mc-bar::after {
+  background: rgba(232,200,130,.78) !important;
+  height: 1px !important;
+}
+
+/* ----- 51.3  Modal action buttons (yes / stay) -----
+   Were rose-pink outlined pills.  Match the cover-bottom style: small
+   italic text with a fade-rule accent.                                 */
+.modal-card .modal-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+.modal-card .modal-actions .btn,
+.modal-card .modal-actions .whisper-pill {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 10px !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+  color: rgba(245,239,227,.82) !important;
+  -webkit-text-fill-color: rgba(245,239,227,.82) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .14em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.modal-card .modal-actions .btn::before,
+.modal-card .modal-actions .whisper-pill::before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 22px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(232,200,130,.72)) !important;
+}
+.modal-card .modal-actions .btn:hover,
+.modal-card .modal-actions .whisper-pill:hover {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+}
+.modal-card .modal-actions .btn.primary {
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+}
+
+/* ----- 51.4  (chapter strip rules now consolidated in §50.4) ----- */
+
+
+/* ============================================================
+   52. Study-card opening ceremony — wax seal + write reveal
+   ============================================================
+   Spec from neighbour-window design pass.  Sequence:
+     a. Wax seal sits centred.  Tap.
+     b. Seal cracks (300ms), fades out.
+     c. Card scale-fades in (500ms).  Lines are written by a mask
+        sweep, 180ms stagger, sfxWrite per line.
+     d. "tap anywhere · 任意处继续" breathing hint appears.
+   The card itself is fixed-height (78vh, scrolls when needed) so
+   the page never reflows mid-ceremony.
+   ============================================================ */
+
+/* ----- 52.1  Wax-seal stamp — bottom-left of the parchment -----
+   User spec: 火漆是盖在学习羊皮纸左下角的 代表加入note的意思.
+   The medallion (ui-medallion.png) is a small stamp at the bottom-
+   left corner of the parchment card.  Tap = add this word to note.
+   No separate seal screen.                                            */
+.wax-seal-stamp {
+  position: absolute;
+  left: 20px;
+  bottom: 24px;
+  width: 84px;
+  height: 84px;
+  padding: 0;
+  border: none;
+  background: url("assets/ui-medallion.png?v=31") center/contain no-repeat;
+  cursor: pointer;
+  z-index: 30;
+  /* a stamp is slightly off-axis, like a hand pressed it */
+  transform: rotate(-8deg);
+  opacity: 1;
+  /* Bright gold halo so the purple medallion stands out against the
+     dark night-sky bg.                                                  */
+  filter:
+    drop-shadow(0 0 12px rgba(232,200,130,.55))
+    drop-shadow(0 4px 10px rgba(0,0,0,.55));
+  transition: transform 160ms ease-out, filter 160ms ease-out;
+}
+.wax-seal-stamp:hover {
+  filter:
+    drop-shadow(0 0 20px rgba(232,200,130,.85))
+    drop-shadow(0 4px 10px rgba(0,0,0,.55));
+}
+.wax-seal-stamp:hover {
+  transform: rotate(-8deg) scale(1.05);
+  opacity: 1;
+}
+.wax-seal-stamp.is-stamped {
+  /* once stamped — slightly pressed in + locked */
+  transform: rotate(-8deg) scale(0.96);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
+  animation: stamp-down 320ms ease-out;
+}
+@keyframes stamp-down {
+  0%   { transform: rotate(-8deg) scale(1.15); }
+  60%  { transform: rotate(-8deg) scale(0.92); filter: drop-shadow(0 0 14px rgba(232,200,130,.6)); }
+  100% { transform: rotate(-8deg) scale(0.96); }
+}
+
+/* ----- 52.2  Card container — parchment fills the viewport -----
+   User spec: 扩大纸 占满屏幕 下端可以超出画面.  The scroll grows wider
+   and taller; the bottom can extend below the viewport (with the
+   internal scroll on .ex-card keeping content reachable).             */
+#screen-card .card-host {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+#screen-card .ex-card {
+  position: relative;
+  /* User: 羊皮纸拉大一点 屁股不重要 被遮就被遮.  Fill the viewport
+     width; let the scroll's bottom curl extend below the fold.        */
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: calc(100vh - (100vw * 821 / 1916) - 8px);
+  min-height: calc(100dvh - (100vw * 821 / 1916) - 8px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* New parchment art (1FFF1701) — portrait scroll with curls top and
+     bottom + a quill at the lower-RIGHT.  Trick to enlarge the paper
+     without clipping the quill: anchor the bg to top-RIGHT and scale
+     to 130%.  Right edge of image sticks at right edge of card → the
+     quill stays in view.  Excess width pours off the LEFT (torn edge)
+     which is acceptable per 屁股不重要 被遮就被遮.                       */
+  background-image: url("assets/ui-parchment.png?v=31") !important;
+  background-repeat: no-repeat !important;
+  background-position: top right !important;
+  background-size: 130% auto !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  /* With bg-size 130% + position top-right, left edge of image is
+     OFF-screen (acceptable).  Cream paper starts ~5vw in from card
+     left (was 15vw at center 100%) but extends almost to card-right.
+     Asymmetric padding: more on the right where the quill sits.       */
+  padding: 36vw 22vw 14vw 8vw !important;
+  color: #3A2E22 !important;
+  -webkit-text-fill-color: #3A2E22 !important;
+}
+#screen-card .card-host {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#screen-card .ex-card * {
+  color: #3A2E22 !important;
+  -webkit-text-fill-color: #3A2E22 !important;
+}
+/* Special inks for accents that read as ink-colour variants */
+#screen-card .ex-card .ex-headword     { color: #2A1F18 !important; -webkit-text-fill-color: #2A1F18 !important; }
+#screen-card .ex-card .ex-headword-zh,
+#screen-card .ex-card .fam-ex-zh,
+#screen-card .ex-card .colloc-zh,
+#screen-card .ex-card .ex-example-zh   { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; }
+#screen-card .ex-card .ex-label        { color: #8C6A4D !important; -webkit-text-fill-color: #8C6A4D !important; letter-spacing: .18em; }
+#screen-card .ex-card .ex-tap-hint     { color: #8C6A4D !important; -webkit-text-fill-color: #8C6A4D !important; opacity: .72; }
+/* The scroll IS the card.  User clarified: 羊皮卷放在单独的卡片页面 —
+   parchment scroll belongs on the dedicated detail screen.  Embrace the
+   asset's scroll silhouette as the card's outline, not a flat texture.  */
+#screen-card .ex-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: none;
+  pointer-events: none;
+  z-index: 0;
+}
+#screen-card .ex-card > * {
+  position: relative;
+  z-index: 1;
+}
+/* Custom slim scrollbar for when content overflows */
+#screen-card .ex-card::-webkit-scrollbar { width: 4px; }
+#screen-card .ex-card::-webkit-scrollbar-thumb {
+  background: rgba(232, 200, 130, .3);
+  border-radius: 2px;
+}
+
+/* ----- 52.3  Card entrance (scale-fade) ----- */
+.ex-card.is-entering {
+  opacity: 0;
+  transform: scale(.94);
+  animation: card-enter 500ms cubic-bezier(.4, 0, .2, 1) forwards;
+}
+@keyframes card-enter {
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ----- 52.4  Per-line write reveal -----
+   Mask geometry (the previous attempt had the math wrong and clipped
+   the first letters off every word):
+     - mask image: linear-gradient black on the LEFT half, fading to
+       transparent on the right half.  So wherever the mask sits, the
+       LEFT side is opaque (= content visible) and the RIGHT side is
+       transparent (= content hidden).
+     - mask-size 200% × 100%: mask is twice as wide as the line.
+     - start mask-position: right
+         → mask's right edge aligns with the line's right edge.
+         → the line is covered entirely by the mask's TRANSPARENT half
+           (left of the mask is off-screen left).  Line is fully hidden.
+     - end mask-position: left
+         → mask's left edge aligns with the line's left edge.
+         → the line sits under the mask's OPAQUE half.  Line is visible.
+     - In between, the soft transition sweeps left-to-right, mimicking
+       a quill writing across the page.                                 */
+.write-line {
+  -webkit-mask: linear-gradient(90deg, #000 50%, transparent 100%) right / 200% 100% no-repeat;
+          mask: linear-gradient(90deg, #000 50%, transparent 100%) right / 200% 100% no-repeat;
+  animation: write-reveal 700ms cubic-bezier(.5, 0, .25, 1) both;
+}
+@keyframes write-reveal {
+  0%   { -webkit-mask-position: right; mask-position: right; }
+  100% { -webkit-mask-position: left;  mask-position: left;  }
+}
+
+/* ----- 52.5  Bottom breathing tap-hint ----- */
+.card-tap-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 40;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .14em;
+  color: rgba(244, 226, 200, .72);
+  text-shadow: 0 0 8px rgba(0, 0, 0, .6);
+  animation: hint-fade-in 320ms ease-out both, hint-breathe 2.6s ease-in-out 320ms infinite;
+}
+.card-tap-hint.is-fading {
+  animation: hint-fade-out 320ms ease-in forwards;
+}
+@keyframes hint-fade-in {
+  0%   { opacity: 0; transform: translate(-50%, 8px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes hint-breathe {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: .85; }
+}
+@keyframes hint-fade-out {
+  to { opacity: 0; transform: translate(-50%, 8px); }
+}
+
+
+/* ============================================================
+   53. Viewport lockdown — the page itself does not scroll
+   ============================================================
+   Spec: background layer is fixed, only the inner content of three
+   specific screens (index, stage2-result, stage3-result) is allowed
+   to scroll.  Everything else fits inside the viewport without
+   producing a body-level scroll bar.
+
+   How this works:
+     - html/body are pinned to 100vh with overflow hidden
+     - #app fills the viewport, padding-top reserves banner space
+     - .screen.active fills the area below the banner
+     - Three named screens get overflow-y: auto on their .active
+       state.  Everything else stays overflow: hidden.
+   ============================================================ */
+html, body {
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+}
+#app {
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  /* the banner takes up calc(100vw * 821/1916) at the top */
+  padding-top: calc(100vw * 821 / 1916) !important;
+}
+.screen {
+  position: relative !important;     /* anchor for .stage-head absolute */
+  height: calc(100vh - (100vw * 821 / 1916)) !important;
+  height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - (100vw * 821 / 1916)) !important;
+  max-height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  overflow: hidden !important;
+  padding: 14px 18px 22px !important;
+}
+.screen.active {
+  height: calc(100vh - (100vw * 821 / 1916)) !important;
+  height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - (100vw * 821 / 1916)) !important;
+  max-height: calc(100dvh - (100vw * 821 / 1916)) !important;
+  overflow: hidden !important;
+}
+/* The three screens whose content layer is allowed to scroll.        */
+#screen-index.active,
+#screen-stage2-result.active,
+#screen-stage3-result.active {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+/* hide their scrollbars for a quiet feel */
+#screen-index.active::-webkit-scrollbar,
+#screen-stage2-result.active::-webkit-scrollbar,
+#screen-stage3-result.active::-webkit-scrollbar { width: 4px; }
+#screen-index.active::-webkit-scrollbar-thumb,
+#screen-stage2-result.active::-webkit-scrollbar-thumb,
+#screen-stage3-result.active::-webkit-scrollbar-thumb {
+  background: rgba(232,200,130,.25);
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   54. Round-2 polish — chapter / modal / key / cloze / hint dashes
+   ============================================================ */
+
+/* ----- 54.1  Chapter strip even smaller -----
+   Reduce to ~240 px to compress vertical real estate.                  */
+.stage-head {
+  max-width: 240px !important;
+  margin: 22px auto 4px !important;
+}
+.stage-head .stage-chapter {
+  font-size: 8px !important;
+  letter-spacing: .26em !important;
+}
+.stage-head .stage-name {
+  font-size: 12px !important;
+}
+
+/* ----- 54.2  Modal text vertically centred in the frame ----- */
+.modal-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 48px 46px !important;
+  text-align: center !important;
+}
+.modal-card .modal-title {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+}
+.modal-card .modal-body {
+  margin-bottom: 18px !important;
+}
+
+/* ----- 54.3  Tonight's Reading key — upright + larger ----- */
+.main-cta .cta-key {
+  width: 38px !important;
+  height: 92px !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 10px rgba(232,200,130,.6)) !important;
+}
+.main-cta .cta-key-l,
+.main-cta .cta-key-r {
+  transform: none !important;
+}
+.main-cta {
+  gap: 14px !important;
+}
+
+/* ----- 54.4  Cloze blank — kill the double-underline -----
+   The blank was rendered as actual underscore characters "______"
+   which draw a line as text, while CSS also added a border-bottom.
+   The fix is two-pronged:
+     - JS now emits a <span class="q-blank-fill"> instead of "_"s.
+       (See app.js change.)
+     - CSS removes border-bottom from .q-blank itself; the inner span
+       carries the underline.                                          */
+.q-sentence .q-blank,
+.q-blank {
+  border-bottom: none !important;
+}
+.q-blank-fill {
+  display: inline-block;
+  width: 4.6em;
+  height: 1em;
+  margin: 0 4px;
+  border-bottom: 1px solid rgba(237,184,158,.7);
+  vertical-align: -0.05em;
+}
+
+/* ----- 54.5  Tap-hint em-dash consistency -----
+   Some hint text shipped with "— text —" (two flanking dashes); some
+   buttons used a single ::before fade-line.  Unify by hiding the
+   trailing em-dash text via JS-side change (we strip the right "—"
+   in app.js).  Visual rule: every quiet line shows a single 22 px
+   gold fade-rule on the left.                                        */
+.q-tap-hint,
+.ex-tap-hint {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: rgba(244,226,200,.7);
+  text-align: center;
+  margin-top: 14px;
+}
+
+/* ----- 54.6  Cover layout fits viewport -----
+   With the new height clamp, the cover must lay out its rows so all
+   are visible.  Use a column flex with space-between and a tighter
+   gap so the (her note · the index) row lands at the bottom.        */
+#screen-cover.active {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  padding: 14px 18px 28px !important;
+}
+#screen-cover .main-cta {
+  margin-top: 16vh !important;
+}
+#screen-cover .lil-row {
+  margin-top: auto !important;
+  padding-bottom: 4px !important;
+}
+
+/* ----- 54.7  Stage2 options: let post-pick clicks pass through -----
+   Replacing `button.disabled = true` (which swallowed clicks) with a
+   class lets the same click still bubble to the document-level
+   "tap anywhere to advance" listener.                                 */
+.card--option.is-resolved {
+  pointer-events: none;
+}
+/* Restore visual states on the resolved buttons */
+.card--option.is-resolved.picked-right { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
+.card--option.is-resolved.picked-wrong { opacity: .5; }
+.card--option.is-resolved.reveal-right { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
+
+
+/* ============================================================
+   55. Round-3 audit fixes
+   ============================================================
+   From the self-audit screenshot pass:
+     - cover key was rendering its black background (the PNG had no
+       alpha).  Companion script /tmp/chromakey_icons.py re-saved
+       every icon with chroma-key alpha; this section bumps the
+       cache-buster + clamps icon sizing so the new files load.
+     - index / note page-title frames were eating ~30% of the
+       viewport; shrink to ~210 px wide.
+     - Study card detail had its close / fold pills clipped by the
+       scroll asset's decorative top/bottom edges; hide them and
+       rely on the corner × for navigation.
+     - Stage 1 instruction + note stat labels were too dim.
+   ============================================================ */
+
+/* ----- 55.1  Force the freshly chroma-keyed icons to reload ----- */
+.main-cta .cta-key { content: none !important; }
+
+/* ----- 55.2  Page header frame — wraps ALL top content in ui-page-title -----
+   User spec: the decorative frame should contain title + (search +
+   alphabet) for index, title + (subtitle + stats) for note.            */
+#screen-note .screen-stickyhead,
+#screen-index .screen-stickyhead {
+  /* Reset the old §39 fixed-top positioning — we're using this as a
+     flow content frame now.                                              */
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: url("assets/ui-score.png?v=31") center/100% 100% no-repeat !important;
+  /* ui-score frame anatomy (from sampling the asset):
+     - top:    small moon + stars decoration extends ~22% down
+     - sides:  ornate flourish ~16% wide each side
+     - bottom: large pink bow + stems extends ~28% up
+     At max-width 340 px the frame is ~340 × 340 (square-ish), so
+     padding-top 78 px clears the moon, padding-sides 60 px clears the
+     flourish, padding-bottom 105 px clears the bow.                      */
+  padding: 78px 60px 105px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  max-width: 340px !important;
+}
+#screen-note .page-title,
+#screen-index .page-title {
+  background: none !important;
+  width: auto !important;
+  max-width: none !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 18px !important;
+  letter-spacing: .02em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  text-shadow: 0 0 8px rgba(232,200,130,.5) !important;
+  text-align: center !important;
+}
+#screen-note .page-title::after,
+#screen-index .page-title::after { display: none !important; }
+#screen-note .page-subtitle {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .12em !important;
+  color: rgba(244, 226, 200, .7) !important;
+  text-align: center !important;
+  margin: 0 0 12px !important;
+}
+#screen-index .index-search {
+  background: rgba(0, 0, 0, .3) !important;
+  border: 1px solid rgba(232, 200, 130, .35) !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  width: 100% !important;
+  max-width: none !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  color: var(--cream) !important;
+  margin: 0 0 8px !important;
+}
+#screen-index .alpha-bar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 4px 8px !important;
+  margin: 0 !important;
+}
+#screen-index .alpha-bar a {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  color: rgba(244, 226, 200, .8) !important;
+  cursor: pointer !important;
+}
+#screen-note .note-stats {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px 14px !important;
+}
+#screen-note .note-stat {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 4px !important;
+}
+
+/* ----- 55.3  Study card detail — hide inline close/fold pills -----
+   The parchment asset's decorative crown + drape were clipping these
+   buttons.  The corner × already handles "leave the page", and the
+   fold (re-veil) interaction is rare enough to drop until we redesign
+   it for the scroll layout.                                            */
+#screen-card .ex-card-close,
+#screen-card .ex-card-fold {
+  display: none !important;
+}
+/* ----- 55.8  Study card content: 2-column layout + boxed sections -----
+   User spec from her marked-up sketch: 左边一列英文 右边中文 分区块.
+   Each section (her family, her friend, example) sits in a bordered
+   box; rows inside split English on the left, Chinese on the right.   */
+/* Compact study-card layout per user's marked-up sketch.
+   4 zones top-to-bottom:
+     (1) head: word + pos on left, Chinese gloss on right
+     (2) HER FAMILY label
+     (3) family rows: English (word + pos) left, Chinese right
+     (4) example sentence (compact, English + Chinese)
+   Everything sized small so nothing pushes off the visible paper.       */
+
+#screen-card .ex-card .ex-head {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  padding: 0 0 6px !important;
+  border-bottom: 1px solid rgba(140, 100, 60, .25) !important;
+  margin-bottom: 8px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+#screen-card .ex-card .ex-head .ex-speak-head {
+  flex: 0 0 auto !important;
+  font-size: 10px !important;
+  color: #8C6A4D !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+#screen-card .ex-card .ex-headword {
+  flex: 0 0 auto !important;
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 17px !important;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+}
+#screen-card .ex-card .ex-pos {
+  flex: 0 0 auto !important;
+  font-style: italic;
+  color: #8C6A4D !important;
+  -webkit-text-fill-color: #8C6A4D !important;
+  font-size: 9px !important;
+}
+#screen-card .ex-card .ex-headword-zh {
+  flex: 1 1 auto !important;
+  font-style: italic !important;
+  font-size: 9px !important;
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  padding-left: 6px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Section box — slim border, tight padding */
+#screen-card .ex-card .ex-section {
+  border: 1px solid rgba(140, 100, 60, .2) !important;
+  border-radius: 4px !important;
+  background: rgba(244, 226, 200, .05) !important;
+  padding: 6px 10px !important;
+  margin: 6px 0 !important;
+}
+#screen-card .ex-card .ex-section.ex-neighbor {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  padding: 5px 10px !important;
+}
+#screen-card .ex-card .ex-label {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 8px !important;
+  letter-spacing: .2em !important;
+  text-transform: uppercase !important;
+  color: #8C6A4D !important;
+  -webkit-text-fill-color: #8C6A4D !important;
+  display: block !important;
+  margin: 0 0 3px !important;
+}
+#screen-card .ex-card .ex-divider { display: none !important; }
+
+/* Family row: word + pos + Chinese on a SINGLE line.
+   Chinese stays italic + small + tucked next to the word.              */
+#screen-card .ex-card .fam-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  padding: 2px 0 !important;
+  border-bottom: 1px dashed rgba(140, 100, 60, .12) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+#screen-card .ex-card .fam-row:last-child { border-bottom: none !important; }
+#screen-card .ex-card .fam-head {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+#screen-card .ex-card .fam-word {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 12px !important;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+}
+#screen-card .ex-card .fam-pos {
+  font-size: 8px;
+  color: #8C6A4D !important;
+  -webkit-text-fill-color: #8C6A4D !important;
+}
+#screen-card .ex-card .fam-reveal {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#screen-card .ex-card .fam-reveal .ex-speak { display: none !important; }
+#screen-card .ex-card .fam-ex     { display: none !important; }   /* don't show fam example on the head row */
+#screen-card .ex-card .fam-ex-zh  {
+  font-style: italic !important;
+  font-size: 9px !important;
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Friend colloc row — also single-line English | Chinese */
+#screen-card .ex-card .colloc-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  padding: 2px 0 !important;
+  border-bottom: 1px dashed rgba(140, 100, 60, .12) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+#screen-card .ex-card .colloc-row:last-child { border-bottom: none !important; }
+#screen-card .ex-card .colloc-row .ex-speak { display: none !important; }
+#screen-card .ex-card .colloc-en  {
+  flex: 0 0 auto;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+  font-style: italic;
+  font-size: 10px !important;
+}
+#screen-card .ex-card .colloc-zh  {
+  flex: 1 1 auto;
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  font-style: italic !important;
+  font-size: 9px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Example sentence: compact, English then Chinese under */
+#screen-card .ex-card .ex-example {
+  display: block !important;
+  padding: 6px 10px !important;
+}
+#screen-card .ex-card .ex-example .ex-speak { display: none !important; }
+#screen-card .ex-card .ex-example-en {
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+  font-style: italic;
+  font-size: 11px !important;
+  line-height: 1.35;
+}
+#screen-card .ex-card .ex-example-zh {
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  font-size: 10px !important;
+  margin-top: 2px;
+}
+
+/* Neighbor pill */
+#screen-card .ex-card .ex-neighbor-link {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 15px;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+  background: rgba(244, 226, 200, .25);
+  border: 1px solid rgba(140, 100, 60, .3);
+  border-radius: 12px;
+  padding: 4px 12px;
+}
+
+/* Veiled reveals stay hidden as before — the parchment shows the
+   English headword always, and the 'tap to reveal' interaction
+   unveils each row's example or full colloc.                            */
+#screen-card .ex-card .fam-reveal.is-veiled,
+#screen-card .ex-card .colloc-row.is-veiled .colloc-zh,
+#screen-card .ex-card .ex-example.is-veiled .ex-example-en,
+#screen-card .ex-card .ex-example.is-veiled .ex-example-zh {
+  opacity: .15;
+  filter: blur(2px);
+}
+#screen-card .ex-card .colloc-row.is-veiled .colloc-en { opacity: .55; }
+
+/* ----- 55.4  Stage 1 instruction — brighter -----
+   The "tap one on the left, one on the right · four pairs" copy is
+   rendered in <div class="q-progress"> (reused from stage2's progress
+   label).  Brighten it on stage1.                                       */
+#screen-stage1 .q-progress {
+  color: rgba(244, 226, 200, .85) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .85) !important;
+  font-size: 13px !important;
+  letter-spacing: .04em !important;
+  text-align: center !important;
+  margin: 4px 0 12px !important;
+  font-style: italic !important;
+}
+
+/* ----- 55.5  Note stats — brighter labels + larger numbers -----
+   Markup is .note-stat > .lbl + .val.                                   */
+#screen-note .note-stat .lbl {
+  color: rgba(244, 226, 200, .82) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .82) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 12px !important;
+  letter-spacing: .06em !important;
+}
+#screen-note .note-stat .val {
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  font-family: var(--f-display) !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  text-shadow: 0 0 10px rgba(232,200,130,.45) !important;
+}
+#screen-note .note-stat.warn .val {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+  text-shadow: 0 0 12px rgba(244,181,200,.55) !important;
+}
+
+/* ----- 55.6  Stage 2 tap hint — make it visible ----- */
+.q-tap-hint {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  letter-spacing: .12em !important;
+  color: rgba(244, 226, 200, .85) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .85) !important;
+  text-align: center !important;
+  margin-top: 18px !important;
+  animation: hint-breathe 2.6s ease-in-out infinite !important;
+}
+
+/* ----- 55.A  顶头框 — ui-chapter ornate band, on EVERY page -----
+   User: chapter那个框叫定头框 居中 每个页面都有这个 里面的字稍微大一点.
+   Stage screens get the chapter + name pair.  note / index / card get
+   just a single name (rendered via pageTitle()).                        */
+.stage-head,
+#screen-stage1 .stage-head,
+#screen-stage1-result .stage-head,
+#screen-stage2 .stage-head,
+#screen-stage2-result .stage-head,
+#screen-stage3 .stage-head,
+#screen-stage3-result .stage-head,
+#screen-note .page-head,
+#screen-index .page-head,
+#screen-card .page-head {
+  background: url("assets/ui-chapter.png?v=31") center/100% 100% no-repeat !important;
+  /* Absolute-position the band on the corner-pin row so ≡, frame, ×
+     are STRICTLY on the same horizontal line (user: 严格的同一行).      */
+  position: absolute !important;
+  top: 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* User: 缩小压扁.  Compress to 32 px tall — same band height as the
+     corner pins.  Width 160 keeps the ornate moons readable.            */
+  width: 160px !important;
+  max-width: 160px !important;
+  min-width: 160px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  aspect-ratio: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  text-align: center !important;
+  z-index: 50 !important;
+}
+.stage-head .stage-chapter,
+#screen-stage1 .stage-head .stage-chapter,
+#screen-stage1-result .stage-head .stage-chapter,
+#screen-stage2 .stage-head .stage-chapter,
+#screen-stage2-result .stage-head .stage-chapter,
+#screen-stage3 .stage-head .stage-chapter,
+#screen-stage3-result .stage-head .stage-chapter {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 6px !important;
+  letter-spacing: .22em !important;
+  text-transform: lowercase !important;
+  color: rgba(244, 226, 200, .55) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .55) !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+.stage-head .stage-name,
+#screen-stage1 .stage-head .stage-name,
+#screen-stage1-result .stage-head .stage-name,
+#screen-stage2 .stage-head .stage-name,
+#screen-stage2-result .stage-head .stage-name,
+#screen-stage3 .stage-head .stage-name,
+#screen-stage3-result .stage-head .stage-name,
+#screen-note .page-head .stage-name,
+#screen-index .page-head .stage-name,
+#screen-card .page-head .stage-name {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .02em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  line-height: 1 !important;
+  margin: 1px 0 0 !important;
+  text-shadow: 0 0 6px rgba(232,200,130,.45) !important;
+}
+/* Kill the stage-rule div emitted by stageHeader (the ratty strike-
+   through line that was bleeding through the chapter text).            */
+#screen-stage1 .stage-head .stage-rule,
+#screen-stage1-result .stage-head .stage-rule,
+#screen-stage2 .stage-head .stage-rule,
+#screen-stage2-result .stage-head .stage-rule,
+#screen-stage3 .stage-head .stage-rule,
+#screen-stage3-result .stage-head .stage-rule {
+  display: none !important;
+}
+#screen-stage1 .stage-head::before,
+#screen-stage1 .stage-head::after,
+#screen-stage1-result .stage-head::before,
+#screen-stage1-result .stage-head::after,
+#screen-stage2 .stage-head::before,
+#screen-stage2 .stage-head::after,
+#screen-stage3 .stage-head::before,
+#screen-stage3 .stage-head::after {
+  display: none !important;
+  content: none !important;
+}
+/* All screens get 60 px top padding so the absolute-positioned 顶头框
+   (which sits at top: 12) doesn't overlap the flow content below.      */
+#screen-stage1, #screen-stage1-result,
+#screen-stage2, #screen-stage2-result,
+#screen-stage3, #screen-stage3-result,
+#screen-note, #screen-index, #screen-card {
+  padding-top: 60px !important;
+}
+#screen-stage1 .q-progress {
+  margin: 0 0 8px !important;
+  font-size: 12px !important;
+}
+
+/* Note stats — no box around each number, just floating glowing val.
+   User: 蓝色框内不要用那四个透明框 怪怪的 就发光的数字就行.            */
+#screen-note .note-stat,
+#screen-note .note-stat.warn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 4px !important;
+}
+#screen-note .note-stats {
+  background: transparent !important;
+  border: none !important;
+  gap: 12px 22px !important;
+}
+
+/* ----- 55.7  Result-page cards: tap to open the study card detail -----
+   The cards in stage1-result / stage2-result / stage3-result are
+   rendered via renderExCard with withControls:false.  We add a top-
+   right "open" pill that routes to #screen-card.  Cursor + hover
+   feedback tell the user the card is reachable.                       */
+#screen-stage1-result .ex-card,
+#screen-stage2-result .ex-card,
+#screen-stage3-result .ex-card {
+  cursor: pointer;
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+}
+#screen-stage1-result .ex-card:hover,
+#screen-stage2-result .ex-card:hover,
+#screen-stage3-result .ex-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 22px rgba(232,200,130,.32),
+    0 0 28px rgba(244,181,200,.18) !important;
+}
+.ex-card-open-detail {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(232,200,130,.5);
+  border-radius: 50%;
+  background: rgba(0,0,0,.25);
+  color: var(--gold-warm);
+  font-family: var(--f-display);
+  font-size: 14px;
+  line-height: 28px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 160ms ease-out;
+}
+.ex-card-open-detail:hover {
+  background: rgba(232,200,130,.18);
+  transform: scale(1.08);
+}
+
+
+/* ============================================================
+   56. note + index purring-pinwheel pass
+   ============================================================
+   - Corner-pins now wear icon-bow (left) + icon-key (right).
+   - All three top-row elements (bow / 顶头框 / key) share top:12px
+     and height:36px → strict vertical-midline alignment.
+   - Note's 4 mistake-bucket stats live in a vertical ui-modal frame
+     with bare glowing numbers (no transparent boxes).
+   - Favourites collection (wax-seal-stamped words) appears below the
+     stats frame as v=21 semi-transparent .ex-card glow cards.
+   - Index's old 188px padding-top hack is killed so the A-Z list
+     starts immediately under the search/alpha frame.
+   ============================================================ */
+
+/* ----- 56.1  Corner pins: icon backgrounds + strict alignment ----- */
+.moon-corner,
+.close-corner {
+  position: absolute !important;
+  top: 12px !important;
+  height: 36px !important;
+  width:  36px !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  background-size: 24px 24px !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  border: none !important;
+  border-radius: 50% !important;
+  z-index: 50 !important;
+  opacity: .85 !important;
+  filter: drop-shadow(0 0 4px rgba(232,200,130,.4)) !important;
+}
+.moon-corner {
+  left: 14px !important;
+  right: auto !important;
+  background-image: url("assets/icon-bow.png?v=31") !important;
+}
+.close-corner {
+  right: 14px !important;
+  left: auto !important;
+  background-image: url("assets/icon-key.png?v=31") !important;
+}
+.moon-corner:hover,
+.close-corner:hover {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 8px rgba(232,200,130,.7)) !important;
+}
+/* hide the CSS-drawn glyphs from the older rules */
+.moon-corner .mc-bar,
+.moon-corner .mc-bar::before,
+.moon-corner .mc-bar::after,
+.close-corner .cp-x,
+.close-corner .cp-x::before,
+.close-corner .cp-x::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ----- 56.2  Index gap kill + new index-frame ----- */
+#screen-index.active #index-body,
+#screen-index #index-body {
+  padding-top: 0 !important;
+}
+#screen-index .index-frame {
+  margin: 0 auto 14px !important;
+  max-width: 460px !important;
+  padding: 10px 18px !important;
+  background: rgba(8, 4, 18, .42) !important;
+  border: 1px solid rgba(232, 200, 130, .22) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 14px rgba(232, 200, 130, .12);
+}
+
+/* ----- 56.3  Note stats — vertical inside ui-modal frame ----- */
+#screen-note .note-stats-frame {
+  background: url("assets/ui-modal.png?v=31") center/100% 100% no-repeat;
+  width: 100%;
+  max-width: 320px;
+  margin: 18px auto 24px;
+  padding: 70px 50px 80px;
+}
+#screen-note .note-stats-frame .page-subtitle {
+  text-align: center !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .14em !important;
+  color: rgba(244, 226, 200, .72) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .72) !important;
+  margin: 0 0 16px !important;
+}
+#screen-note .note-stats {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  gap: 12px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+#screen-note .note-stat,
+#screen-note .note-stat.warn {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+#screen-note .note-stat .val {
+  font-family: var(--f-display) !important;
+  font-style: normal !important;
+  font-size: 28px !important;
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  text-shadow: 0 0 12px rgba(232, 200, 130, .55) !important;
+  line-height: 1 !important;
+  min-width: 28px !important;
+  text-align: right !important;
+}
+#screen-note .note-stat .lbl {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .08em !important;
+  color: rgba(244, 226, 200, .78) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .78) !important;
+}
+
+/* ----- 56.4  Favourite cards area ----- */
+#screen-note #note-body {
+  padding: 0 14px 80px !important;
+}
+#screen-note .note-empty {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  color: rgba(244, 226, 200, .45);
+  margin: 18px 0;
 }
