@@ -4095,66 +4095,95 @@ body.bg-result .match-result-grid > .card {
 #screen-card.active { padding-bottom: 40px; }
 
 /* ============================================================
-   47. v=26.2 — PAGE PANEL (the missing outer frame)
+   47. v=26.3 — NAV ZONE  +  SIMPLE PAGE PANEL  (corrected)
    ============================================================
-   The hub pages (note / note-bucket / index) all sit inside the
-   same outer ornate frame — 0511DE6F.png with bow + floral border.
-   Implemented as a CSS border-image 9-slice so the four corners
-   (and the bow at the bottom) stay sharp while the cream-purple
-   middle stretches to fit whatever content is inside.
+   THE OLD UNDERSTANDING WAS WRONG.  0511DE6F is NOT a page-wrapping
+   outer frame stretched vertically — that produced a squashed bow
+   and a "土豪酒店大堂" look.  The correct architecture is:
 
-   Source PNG is 1000×750.  Decorative borders measured:
-     top    ~180 px (top floral curve)
-     right  ~160 px (right-side flora)
-     bottom ~220 px (bow + flora — bigger so the bow survives)
-     left   ~160 px (left-side flora)
+     [banner — fixed]
+     [nav-zone  — ~110 px high horizontal bar]
+        ├ left corner button (moon-medallion)
+        ├ centred title plaque (3C68C8E6 dome)
+        └ right corner button (key)
+     [content area — floats on the bg directly, light cards / list]
+
+   Hard rules from the design owner:
+     • the decorative nav must NEVER be taller than ~140 px.
+     • do NOT vertically stretch any decorative frame asset.
+     • the word list is NOT inside an ornate stretched frame.
    ============================================================ */
-.page-panel {
+
+/* --- 47.1  the nav bar  --- */
+.nav-zone {
   position: relative;
-  width: calc(100% - 12px);
-  max-width: 520px;
-  margin: 14px auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: 110px;
+  width: 100%;
+  margin: 0 auto 6px;
+  padding: 0 6px;
   box-sizing: border-box;
-  border-style: solid;
-  border-color: transparent;
-  border-width: 60px 44px 90px 44px;
-  border-image-source: url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26");
-  border-image-slice: 180 160 220 160 fill;
-  border-image-repeat: stretch;
-  padding: 6px 10px 6px;
-  min-height: 240px;
 }
-/* Short variant — note hub has only 2 buttons, doesn't need
-   the same min-height as the index list. */
-.page-panel--short {
+.nav-zone .title-plaque {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 110px;
+  background:
+    url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
+    center/contain no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: clamp(17px, 4.4vw, 24px);
+  letter-spacing: .04em;
+  color: var(--cream);
+  text-shadow: 0 0 10px rgba(237,184,158,.45);
+  padding: 0 18% 6%;        /* drop the text into the dome's purple band */
+  text-align: center;
+  white-space: nowrap;
+  text-transform: lowercase;
+}
+/* Corner buttons that sit inside the nav-zone must DROP their
+   position:fixed (used elsewhere) and behave as flex items.   */
+.nav-zone .moon-corner,
+.nav-zone .close-corner {
+  position: static !important;
+  flex-shrink: 0 !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+}
+
+/* --- 47.2  the content card behind the page body --- */
+.page-panel {
+  /* ditch every border-image rule from the previous (wrong) version */
+  border-image: none !important;
+  border: 1px solid rgba(218,168,104,.22) !important;
+  background: rgba(18,12,38,.42) !important;
+  width: min(94vw, 540px);
+  max-width: none;
+  margin: 4px auto 24px;
+  padding: 16px 14px 22px;
+  border-radius: 18px;
+  box-shadow: 0 0 24px rgba(20,10,45,.35);
   min-height: 0;
-  padding-bottom: 12px;
+  box-sizing: border-box;
 }
+.page-panel--short { padding-bottom: 16px; }
 
-/* Inside the panel the inner dome (frame-top) should sit a touch
-   higher and tighter than its outer-page default. */
-.page-panel .frame-top {
-  margin: 0 auto 8px;
-  width: min(78vw, 380px);
-}
-
-/* The panel-head holds title + search + alpha-bar (sticky-ish look).
-   The panel-body holds the actual scrollable word list.            */
-.page-panel .panel-head {
-  position: relative;
-  z-index: 2;
-}
-.page-panel .panel-body {
-  position: relative;
-  z-index: 1;
-}
+/* --- 47.3  search + alpha-bar + list — inside .page-panel --- */
 .page-panel .index-search {
   display: block;
-  width: 90%;
-  margin: 8px auto 10px;
-  padding: 8px 12px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 9px 14px;
   background: rgba(8,4,18,.55);
-  border: 1px solid rgba(244,181,200,.35);
+  border: 1px solid rgba(244,181,200,.32);
   border-radius: 999px;
   color: var(--cream);
   font-family: var(--f-italic);
@@ -4163,15 +4192,15 @@ body.bg-result .match-result-grid > .card {
   letter-spacing: .08em;
   outline: none;
   text-align: center;
+  box-sizing: border-box;
 }
 .page-panel .index-search::placeholder { color: rgba(244,181,200,.5); }
 .page-panel .alpha-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px 10px;
-  margin: 4px auto 8px;
-  padding: 0 6px;
+  gap: 4px 9px;
+  margin: 4px auto 10px;
 }
 .page-panel .alpha-bar a {
   font-family: var(--f-italic);
@@ -4186,26 +4215,24 @@ body.bg-result .match-result-grid > .card {
 .page-panel .alpha-section-title {
   font-family: var(--f-display);
   font-style: italic;
-  font-size: 22px;
+  font-size: 20px;
   color: var(--gold-warm);
-  text-shadow: 0 0 8px rgba(232,200,130,.4);
-  margin: 14px 6px 6px;
+  text-shadow: 0 0 8px rgba(232,200,130,.35);
+  margin: 12px 4px 4px;
   padding-bottom: 4px;
-  border-bottom: 1px solid rgba(244,181,200,.25);
+  border-bottom: 1px solid rgba(244,181,200,.22);
 }
 .page-panel .word-row {
   display: grid;
   grid-template-columns: 1fr auto 1.2fr;
   align-items: baseline;
   gap: 10px;
-  padding: 8px 8px;
+  padding: 8px 6px;
   border-bottom: 1px dashed rgba(244,181,200,.15);
   cursor: pointer;
   transition: background-color .18s, color .18s;
 }
-.page-panel .word-row:hover {
-  background: rgba(237,184,158,.08);
-}
+.page-panel .word-row:hover { background: rgba(237,184,158,.08); }
 .page-panel .word-row .wr-word {
   font-family: var(--f-italic);
   font-style: italic;
@@ -4232,8 +4259,7 @@ body.bg-result .match-result-grid > .card {
   word-break: break-word;
 }
 
-/* The .screen base padding pushes content too far in; lighten it
-   for hub pages so the panel can reach closer to the viewport edge. */
+/* tighten hub-screen side padding so the panel can breathe */
 #screen-note,
 #screen-note-bucket,
 #screen-index {

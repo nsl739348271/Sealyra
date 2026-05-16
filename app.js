@@ -443,11 +443,12 @@ function stageHeader(chapterN, name) {
   `;
 }
 function pageTitle(name) {
-  // v=26: short page titles (note / index) sit inside the dome-shield PNG
-  // (3C68C8E6) — the "顶头框".  One unified UI for every cover-side hub.
+  // v=26.3: the page title now lives in the centred title plaque of the
+  // nav-zone (3C68C8E6 dome).  Corner buttons (moon, key) flank it.
+  // The plaque is a single horizontal bar — NEVER a full-page panel.
   return `
-    <div class="frame-top">
-      <div class="frame-top-text">${escapeHtml(name)}</div>
+    <div class="nav-zone">
+      <div class="title-plaque">${escapeHtml(name)}</div>
     </div>
   `;
 }
@@ -483,19 +484,19 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
   });
   const letters = Object.keys(groups).sort();
   el.innerHTML = `
+    ${pageTitle(title)}
     <div class="page-panel">
-      <div class="panel-head">
-        ${pageTitle(title)}
-        <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
-      </div>
+      <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
       <div class="panel-body" id="panel-body-${fromKey}">
         ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
       </div>
     </div>
   `;
-  el.prepend(moonCorner());
-  el.appendChild(closeCorner({ to: backTo }));
+  // Corner buttons live inside the nav-zone (the plaque + key bar)
+  const nav = $('.nav-zone', el);
+  nav.prepend(moonCorner());
+  nav.appendChild(closeCorner({ to: backTo }));
 
   $$('.alpha-bar a', el).forEach(a => {
     a.addEventListener('click', () => {
@@ -1315,8 +1316,8 @@ const Screens = {
       const soft  = entries.filter(([_, c]) => c >= 1 && c <= 2).map(([w]) => w);
       const haunt = entries.filter(([_, c]) => c >= 3).map(([w]) => w);
       el.innerHTML = `
+        ${pageTitle('her little note')}
         <div class="page-panel page-panel--short">
-          ${pageTitle('her little note')}
           <div class="bucket-row">
             <button class="bucket-card" data-bucket="soft" ${soft.length  ? '' : 'disabled'}>
               <div class="bk-hint">words that slipped once</div>
@@ -1332,8 +1333,10 @@ const Screens = {
           ${entries.length ? '' : `<div class="note-empty">no slips yet · the page is still pristine</div>`}
         </div>
       `;
-      el.prepend(moonCorner());
-      el.appendChild(closeCorner());
+      // Corner buttons go INSIDE the nav-zone so they flank the plaque.
+      const nav = $('.nav-zone', el);
+      nav.prepend(moonCorner());
+      nav.appendChild(closeCorner());
 
       $$('.bucket-card', el).forEach(b => b.addEventListener('click', () => {
         if (b.disabled) return;
