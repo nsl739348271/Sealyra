@@ -223,19 +223,9 @@ function lilGhost(label, onClick) {
   b.addEventListener('click', () => { SFX.tap(); onClick && onClick(); });
   return b;
 }
-// 🗝 key icon (gold-stroke SVG) — used to flank "Tonight's Reading" and
-// "next chapter / next stage" buttons.  Always opens the next door.
-function keyIconHtml() {
-  return `<svg class="ico-key" viewBox="0 0 28 80" aria-hidden="true">
-    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="14" cy="14" r="7"/>
-      <circle cx="14" cy="14" r="3" fill="currentColor" opacity=".55"/>
-      <path d="M14 21 L14 64"/>
-      <path d="M14 58 L20 58 M14 64 L18 64"/>
-      <path d="M14 70 L14 74"/>
-    </g>
-  </svg>`;
-}
+// 🗝 key icon for "Tonight's Reading" + "next" buttons now lives as a
+// PNG <img> inside mainCTA() / nextDoor() — the inline SVG helper that
+// used to live here is gone.
 function mainCTA(label, onClick) {
   const a = document.createElement('button');
   a.className = 'main-cta';
@@ -718,10 +708,10 @@ function showModal({ title, body = '', score = null, actions = [], variant = '' 
   // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
-      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=25" alt="">
-      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=25" alt="">
-      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=25" alt="">
-      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=25" alt="">
+      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=26" alt="">
+      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=26" alt="">
+      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=26" alt="">
+      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=26" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -1096,7 +1086,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=25" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=26" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>

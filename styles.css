@@ -411,40 +411,13 @@ body.cover-pending .cover-gate     { visibility: visible; }
   width: 100%;
   z-index: 1;
 }
-.match-card {
-  position: relative;
-  padding: 16px 14px;
-  min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-family: var(--f-card);
-  font-style: italic;
-  font-size: 16px;
-  letter-spacing: .045em;
-  color: var(--cream);
-  background: rgba(6,3,15,.44);
-  border: 1px solid rgba(245,239,227,.10);
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-  transition: border-color .25s, background .25s, color .25s, transform .15s;
-}
-.match-card:active { transform: translateY(1px); }
-.match-card.tag-0 { border-color: var(--p0); color: var(--p0); background: rgba(244,181,200,.10); box-shadow: 0 0 18px rgba(244,181,200,.16); }
-.match-card.tag-1 { border-color: var(--p1); color: var(--p1); background: rgba(238,192,180,.10); box-shadow: 0 0 18px rgba(238,192,180,.16); }
-.match-card.tag-2 { border-color: var(--p2); color: var(--p2); background: rgba(176,180,228,.10); box-shadow: 0 0 18px rgba(176,180,228,.16); }
-.match-card.tag-3 { border-color: var(--p3); color: var(--p3); background: rgba(196,200,196,.10); box-shadow: 0 0 18px rgba(196,200,196,.16); }
-.match-card.flipping { animation: tarotFlip .42s ease-out forwards; }
+/* .match-card.* rules removed — DOM uses .card.card--match (see §35/§41).
+   tarotFlip @keyframes kept below because .card.flipping still references it. */
 @keyframes tarotFlip {
   0%   { transform: scale(1)    rotateY(0); opacity: 1; box-shadow: 0 0 0 rgba(255,242,210,0); }
   50%  { transform: scale(1.05) rotateY(90deg); opacity: .8; box-shadow: 0 0 24px rgba(255,242,210,.55); }
   100% { transform: scale(1.05) rotateY(90deg); opacity: 0; }
 }
-
-.match-card.correct { border-color: var(--gold); color: var(--gold); background: rgba(240,200,148,.10); box-shadow: 0 0 22px rgba(240,200,148,.30); }
-.match-card.wrong   { opacity: .35; filter: grayscale(.5); }
 
 .match-actions, .stage-actions {
   display: flex;
@@ -1099,13 +1072,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
   align-items: center;
   opacity: .85;
 }
-.main-cta .cta-key .ico-key {
-  width: 16px; height: 56px;
-  filter: drop-shadow(0 0 6px rgba(218,168,104,.35));
-}
-.main-cta .cta-key-l .ico-key { transform: rotate(-12deg); }
-.main-cta .cta-key-r .ico-key { transform: rotate( 12deg); }
-.main-cta .cta-rule { display: none; }   /* keys replace the underline */
+/* old .ico-key inline-SVG sizing removed — keys are PNG <img> now (see §41/§49) */
 .main-cta:hover .cta-text { text-shadow: 0 0 24px rgba(237,184,158,.85); }
 .main-cta:active { opacity: .85; transform: translateY(1px); }
 .main-cta.is-engaged .cta-text { color: var(--cream); -webkit-text-fill-color: var(--cream); }
@@ -1132,10 +1099,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
 .next-door:hover { box-shadow: 0 0 20px rgba(244,181,200,.42); }
 .next-door:active { transform: translateY(1px); }
 .next-door.is-engaged { box-shadow: 0 0 26px rgba(237,184,158,.7); color: var(--cream); }
-.next-door .nd-key { color: var(--gold-deep); display: inline-flex; }
-.next-door .nd-key .ico-key { width: 10px; height: 32px; }
-.next-door .nd-key:first-child .ico-key { transform: rotate(-12deg); }
-.next-door .nd-key:last-child  .ico-key { transform: rotate( 12deg); }
+/* .nd-key + .ico-key rules removed — nextDoor() renders plain text now (see §41) */
 
 /* Tiny moon button anchored to the top-left of every game screen.
    "her unfinished pages" — opens the mistakes notebook.            */
@@ -1225,12 +1189,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
 /* Stage-1 match: correct-pair glow recolored to rose.  Wrong cards
    keep their 4-tag colour (no rule needed — they just don't gain
    .correct).  Done in match-card. */
-.match-card.correct {
-  border-color: var(--rose);
-  color: var(--rose);
-  background: rgba(237,184,158,.10);
-  box-shadow: var(--rose-glow);
-}
+/* .match-card.correct dead — DOM uses .card.card--match.is-correct (see §41/B) */
 
 /* ex-card "is-correct" / "is-wrong" — re-skin the post-game ex-card
    marker to the unified rose, so result pages share the same warmth. */
@@ -1310,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=25"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=26"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=25"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=26"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=25"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=26"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=25"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=26"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1338,27 +1297,8 @@ body {
    18. REAL PNG ICONS — replace the SVG/unicode stand-ins
    ============================================================ */
 
-/* The slim gold key flanking Tonight's Reading and next-door */
-.main-cta .cta-key .ico-key,
-.next-door .nd-key .ico-key { display: none; }
-.main-cta .cta-key::before {
-  content: "";
-  display: block;
-  width: 22px; height: 64px;
-  background: url("assets/icon-key.png?v=25") center/contain no-repeat;
-  filter: drop-shadow(0 0 6px rgba(218,168,104,.45));
-}
-.main-cta .cta-key-l::before { transform: rotate(-12deg); }
-.main-cta .cta-key-r::before { transform: rotate( 12deg); }
-
-.next-door .nd-key::before {
-  content: "";
-  display: block;
-  width: 14px; height: 40px;
-  background: url("assets/icon-key.png?v=25") center/contain no-repeat;
-}
-.next-door .nd-key:first-child::before { transform: rotate(-12deg); }
-.next-door .nd-key:last-child::before  { transform: rotate( 12deg); }
+/* old ::before pseudo-key painters removed — they were already neutralized
+   by §48's `content: none` kill-switch, plus keys are real <img> now (§41/§49). */
 
 /* Moon-corner uses the ornate moon PNG */
 .moon-corner { color: transparent; }
@@ -1367,7 +1307,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=25") center/contain no-repeat;
+  background: url("assets/icon-moon.png?v=26") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1378,7 +1318,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=25") center/contain no-repeat;
+  background: url("assets/icon-bow.png?v=26") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1395,10 +1335,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=25"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=25"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=25"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=25"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=26"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=26"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=26"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=26"); width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1447,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=25"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=25"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=25"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=25"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=26"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=26"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=26"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=26"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
