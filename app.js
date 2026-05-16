@@ -263,7 +263,7 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=27" alt="">
+      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=28" alt="">
       <span class="cta-text">${escapeHtml(label)}</span>
     </span>
   `;
@@ -486,6 +486,33 @@ function sprinkleStars(container, count = 18) {
    Shared by stage results, note, index detail view.
    classes here mirror the old aesthetic but are reusable.
    ------------------------------------------------------------ */
+/* Attach a small "open detail" pill to a card so it routes to
+   #screen-card.  Used on result pages and the note's saved-card list
+   where the inline card is a preview — the user can drill into the
+   full parchment-scroll detail view by tapping the pill OR anywhere
+   on the card outside of an interactive element.                       */
+function attachOpenDetail(cardEl, word, fromScreen) {
+  cardEl.style.position = cardEl.style.position || 'relative';
+  const pill = document.createElement('button');
+  pill.className = 'ex-card-open-detail';
+  pill.setAttribute('aria-label', 'open the page');
+  pill.textContent = '→';
+  cardEl.appendChild(pill);
+  const openDetail = (e) => {
+    if (e) e.stopPropagation();
+    SFX.pageTurn();
+    go('card', { word, from: fromScreen });
+  };
+  pill.addEventListener('click', openDetail);
+  cardEl.addEventListener('click', (e) => {
+    // Tapping anywhere on the card opens the detail UNLESS the user
+    // hit a sub-control (♪, neighbour link, rewrite input, etc.).
+    if (e.target.closest('.ex-speak, .ex-neighbor-link, .ex-card-close, .ex-card-fold, .ex-rewrite, input, button')) return;
+    openDetail();
+  }, true);   // capture phase so we beat the queue-reveal handler
+}
+
+
 /* renderExCard — the study card, with the v21 progressive-reveal
    mechanic.  Initial view shows only what doesn't spoil the lesson:
    the headword, the family heads (with their pos+chinese), and the
@@ -738,10 +765,10 @@ function showModal({ title, body = '', score = null, actions = [], variant = '' 
   // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
-      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=27" alt="">
-      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=27" alt="">
-      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=27" alt="">
-      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=27" alt="">
+      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=28" alt="">
+      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=28" alt="">
+      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=28" alt="">
+      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=28" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -1093,7 +1120,11 @@ const Screens = {
       el.appendChild(closeCorner());
       $('.stage-actions', el).appendChild(nextDoor('the writing hand', () => go('stage3'), { confirm: true }));
       const grid = $('.result-grid', el);
-      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].oracle, { rewrite: true, withControls: false })));
+      state.session.words.forEach(w => {
+        const card = renderExCard(w, state.results[w].oracle, { rewrite: true, withControls: false });
+        attachOpenDetail(card, w, 'stage2-result');
+        grid.appendChild(card);
+      });
     }
   },
 
@@ -1125,7 +1156,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=27" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=28" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
@@ -1229,7 +1260,11 @@ const Screens = {
         sum.appendChild(row);
       });
       const grid = $('.result-grid', el);
-      state.session.words.forEach(w => grid.appendChild(renderExCard(w, state.results[w].dict, { withControls: false })));
+      state.session.words.forEach(w => {
+        const card = renderExCard(w, state.results[w].dict, { withControls: false });
+        attachOpenDetail(card, w, 'stage3-result');
+        grid.appendChild(card);
+      });
     }
   },
 

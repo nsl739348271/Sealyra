@@ -1269,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=27"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=28"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=27"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=28"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=27"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=28"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=27"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=28"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1307,7 +1307,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=27") center/contain no-repeat;
+  background: url("assets/icon-moon.png?v=28") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1318,7 +1318,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=27") center/contain no-repeat;
+  background: url("assets/icon-bow.png?v=28") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1335,10 +1335,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=27"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=27"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=27"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=27"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=28"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=28"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=28"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=28"); width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1387,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=27"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=27"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=27"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=28"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=28"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=28"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3614,14 +3614,14 @@ body { background: transparent !important; }
 }
 
 /* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=27") !important; }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=27") !important; }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=27") !important; }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !important; }
-#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=27") !important; }
-#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=27") !important; }
-#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=27") !important; }
-#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=27") !important; }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=28") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=28") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=28") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=28") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=28") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=28") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=28") !important; }
 
 /* ============================================================
    50. v=27 — UI art binding (the 7 new container frames)
@@ -3676,7 +3676,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
 #screen-stage1 .card.card--match,
 #screen-stage1-result .card.card--match,
 .card.card--option {
-  background: url("assets/ui-word.png?v=27") center/100% 100% no-repeat !important;
+  background: url("assets/ui-word.png?v=28") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   color: var(--cream) !important;
@@ -3707,7 +3707,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
    decorative moons stay readable.  Push the strip down so it clears
    the corner-pin buttons (≡ / ×) which sit at top:14px.              */
 .stage-head {
-  background: url("assets/ui-chapter.png?v=27") center/100% 100% no-repeat !important;
+  background: url("assets/ui-chapter.png?v=28") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 320px !important;
   aspect-ratio: 1916 / 821 !important;
@@ -3740,7 +3740,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
    Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
 #screen-note .page-title,
 #screen-index .page-title {
-  background: url("assets/ui-page-title.png?v=27") center/100% 100% no-repeat !important;
+  background: url("assets/ui-page-title.png?v=28") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 360px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3761,7 +3761,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
 
 /* ----- 50.6  Study card parchment ----- */
 #screen-card .ex-card {
-  background: url("assets/ui-parchment.png?v=27") center/100% 100% no-repeat !important;
+  background: url("assets/ui-parchment.png?v=28") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   padding: 80px 56px 110px !important;          /* room for the ribbon top + scroll bottom */
@@ -3775,7 +3775,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
 
 /* ----- 50.7  Modal panel ----- */
 .modal-card {
-  background: url("assets/ui-modal.png?v=27") center/100% 100% no-repeat !important;
+  background: url("assets/ui-modal.png?v=28") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   padding: 64px 46px !important;
@@ -3799,7 +3799,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
    ui-score is a wide horizontal frame (1448x1086) with pink bow.
    Trim to ~240px wide so it doesn't dominate the result page.          */
 .score-block {
-  background: url("assets/ui-score.png?v=27") center/100% 100% no-repeat !important;
+  background: url("assets/ui-score.png?v=28") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 260px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3835,7 +3835,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
 }
 
 /* ----- 50.9  Cache-bust new UI assets ----- */
-/* (already inlined above as ?v=27 — keep older asset refs at v=26)    */
+/* (already inlined above as ?v=28 — keep older asset refs at v=26)    */
 
 
 /* ============================================================
@@ -4114,7 +4114,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: url("assets/ui-parchment.png?v=27") center/100% 100% no-repeat;
+  background: url("assets/ui-parchment.png?v=28") center/100% 100% no-repeat;
   pointer-events: none;
   z-index: 0;
 }
@@ -4385,3 +4385,139 @@ html, body {
 .card--option.is-resolved.picked-right { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
 .card--option.is-resolved.picked-wrong { opacity: .5; }
 .card--option.is-resolved.reveal-right { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
+
+
+/* ============================================================
+   55. Round-3 audit fixes
+   ============================================================
+   From the self-audit screenshot pass:
+     - cover key was rendering its black background (the PNG had no
+       alpha).  Companion script /tmp/chromakey_icons.py re-saved
+       every icon with chroma-key alpha; this section bumps the
+       cache-buster + clamps icon sizing so the new files load.
+     - index / note page-title frames were eating ~30% of the
+       viewport; shrink to ~210 px wide.
+     - Study card detail had its close / fold pills clipped by the
+       scroll asset's decorative top/bottom edges; hide them and
+       rely on the corner × for navigation.
+     - Stage 1 instruction + note stat labels were too dim.
+   ============================================================ */
+
+/* ----- 55.1  Force the freshly chroma-keyed icons to reload ----- */
+.main-cta .cta-key { content: url("assets/icon-key.png?v=28") !important; }
+
+/* ----- 55.2  Page title frames in note + index — shrink dramatically ----- */
+#screen-note .page-title,
+#screen-index .page-title {
+  max-width: 240px !important;
+  margin: 14px auto 8px !important;
+  font-size: 17px !important;
+  letter-spacing: .02em !important;
+}
+
+/* ----- 55.3  Study card detail — hide inline close/fold pills -----
+   The parchment asset's decorative crown + drape were clipping these
+   buttons.  The corner × already handles "leave the page", and the
+   fold (re-veil) interaction is rare enough to drop until we redesign
+   it for the scroll layout.                                            */
+#screen-card .ex-card-close,
+#screen-card .ex-card-fold {
+  display: none !important;
+}
+/* Push content past the scroll's crown + drape decorations */
+#screen-card .ex-card {
+  padding: 92px 56px 82px !important;
+}
+
+/* ----- 55.4  Stage 1 instruction — brighter -----
+   The "tap one on the left, one on the right · four pairs" copy is
+   rendered in <div class="q-progress"> (reused from stage2's progress
+   label).  Brighten it on stage1.                                       */
+#screen-stage1 .q-progress {
+  color: rgba(244, 226, 200, .85) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .85) !important;
+  font-size: 13px !important;
+  letter-spacing: .04em !important;
+  text-align: center !important;
+  margin: 4px 0 12px !important;
+  font-style: italic !important;
+}
+
+/* ----- 55.5  Note stats — brighter labels + larger numbers -----
+   Markup is .note-stat > .lbl + .val.                                   */
+#screen-note .note-stat .lbl {
+  color: rgba(244, 226, 200, .82) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .82) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 12px !important;
+  letter-spacing: .06em !important;
+}
+#screen-note .note-stat .val {
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  font-family: var(--f-display) !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  text-shadow: 0 0 10px rgba(232,200,130,.45) !important;
+}
+#screen-note .note-stat.warn .val {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+  text-shadow: 0 0 12px rgba(244,181,200,.55) !important;
+}
+
+/* ----- 55.6  Stage 2 tap hint — make it visible ----- */
+.q-tap-hint {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  letter-spacing: .12em !important;
+  color: rgba(244, 226, 200, .85) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .85) !important;
+  text-align: center !important;
+  margin-top: 18px !important;
+  animation: hint-breathe 2.6s ease-in-out infinite !important;
+}
+
+/* ----- 55.7  Result-page cards: tap to open the study card detail -----
+   The cards in stage1-result / stage2-result / stage3-result are
+   rendered via renderExCard with withControls:false.  We add a top-
+   right "open" pill that routes to #screen-card.  Cursor + hover
+   feedback tell the user the card is reachable.                       */
+#screen-stage1-result .ex-card,
+#screen-stage2-result .ex-card,
+#screen-stage3-result .ex-card {
+  cursor: pointer;
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+}
+#screen-stage1-result .ex-card:hover,
+#screen-stage2-result .ex-card:hover,
+#screen-stage3-result .ex-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 22px rgba(232,200,130,.32),
+    0 0 28px rgba(244,181,200,.18) !important;
+}
+.ex-card-open-detail {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(232,200,130,.5);
+  border-radius: 50%;
+  background: rgba(0,0,0,.25);
+  color: var(--gold-warm);
+  font-family: var(--f-display);
+  font-size: 14px;
+  line-height: 28px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 160ms ease-out;
+}
+.ex-card-open-detail:hover {
+  background: rgba(232,200,130,.18);
+  transform: scale(1.08);
+}
