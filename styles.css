@@ -4232,24 +4232,23 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   overflow-y: auto;
   overflow-x: hidden;
   /* New parchment art (1FFF1701) — portrait scroll with curls top and
-     bottom + a quill at the lower right.  Anchor to top, sized 132%
-     so the actual cream paper area (which sits inside the asset's
-     transparent torn-paper margins) fills nearly the full viewport
-     width.  The decorative edges spill off-screen left/right, which
-     the user OK'd: 屁股不重要 被遮就被遮.                              */
+     bottom + a quill at the lower right.  Anchor to top.  100% width
+     keeps the quill visible inside the card; the actual cream paper
+     fills ~80% of the card width once you account for the asset's
+     transparent torn-paper margins.  Padding inside compresses to
+     match.                                                              */
   background-image: url("assets/ui-parchment.png?v=30") !important;
   background-repeat: no-repeat !important;
   background-position: top center !important;
-  background-size: 132% auto !important;
+  background-size: 100% auto !important;
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* With bg-size 132%, the image is wider than the card so its proportions
-     re-scale.  At 132% × ~390 = ~515 px wide, the ribbon-bottom sits
-     around 38vw from card top; torn edges now extend BEYOND the card
-     bounds so side padding can drop a little.                           */
-  padding: 38vw 11vw 14vw !important;
+  /* 100% bg-size: torn edges stay inside the card, so side padding has
+     to clear ~15% of card width each side.  Ribbon at top extends to
+     ~26vw down → top padding 28vw.                                       */
+  padding: 28vw 15vw 12vw !important;
   color: #3A2E22 !important;
   -webkit-text-fill-color: #3A2E22 !important;
 }
@@ -4683,24 +4682,36 @@ html, body {
    User spec from her marked-up sketch: 左边一列英文 右边中文 分区块.
    Each section (her family, her friend, example) sits in a bordered
    box; rows inside split English on the left, Chinese on the right.   */
+/* Compact study-card layout per user's marked-up sketch.
+   4 zones top-to-bottom:
+     (1) head: word + pos on left, Chinese gloss on right
+     (2) HER FAMILY label
+     (3) family rows: English (word + pos) left, Chinese right
+     (4) example sentence (compact, English + Chinese)
+   Everything sized small so nothing pushes off the visible paper.       */
+
 #screen-card .ex-card .ex-head {
   display: grid !important;
   grid-template-columns: auto auto 1fr !important;
-  grid-template-rows: auto !important;
   align-items: baseline !important;
-  gap: 6px 10px !important;
-  padding: 4px 0 18px !important;
+  gap: 0 6px !important;
+  padding: 0 0 8px !important;
   border-bottom: 1px solid rgba(140, 100, 60, .25) !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 8px !important;
 }
 #screen-card .ex-card .ex-head .ex-speak-head {
   grid-row: 1;
   align-self: center;
+  font-size: 11px !important;
+  color: #8C6A4D !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
 }
 #screen-card .ex-card .ex-headword {
   font-family: var(--f-display) !important;
   font-style: italic !important;
-  font-size: 26px !important;
+  font-size: 18px !important;
   color: #2A1F18 !important;
   -webkit-text-fill-color: #2A1F18 !important;
 }
@@ -4708,113 +4719,114 @@ html, body {
   font-style: italic;
   color: #8C6A4D !important;
   -webkit-text-fill-color: #8C6A4D !important;
-  font-size: 13px !important;
+  font-size: 10px !important;
 }
 #screen-card .ex-card .ex-headword-zh {
   grid-column: 1 / -1;
-  font-size: 14px;
+  font-size: 11px !important;
   color: #6B5341 !important;
   -webkit-text-fill-color: #6B5341 !important;
-  padding-left: 32px;
+  padding-left: 22px;
+  margin-top: 2px;
 }
 
-/* Section as a bordered box */
+/* Section box — slim border, tight padding */
 #screen-card .ex-card .ex-section {
-  border: 1px solid rgba(140, 100, 60, .22) !important;
-  border-radius: 6px !important;
-  background: rgba(244, 226, 200, .06) !important;
-  padding: 14px 16px !important;
-  margin: 12px 0 !important;
+  border: 1px solid rgba(140, 100, 60, .2) !important;
+  border-radius: 4px !important;
+  background: rgba(244, 226, 200, .05) !important;
+  padding: 6px 10px !important;
+  margin: 6px 0 !important;
 }
 #screen-card .ex-card .ex-section.ex-neighbor {
   display: flex !important;
   align-items: baseline !important;
-  gap: 12px !important;
-  padding: 10px 14px !important;
+  gap: 8px !important;
+  padding: 5px 10px !important;
 }
 #screen-card .ex-card .ex-label {
   font-family: var(--f-display) !important;
   font-style: italic !important;
-  font-size: 11px !important;
-  letter-spacing: .22em !important;
+  font-size: 8px !important;
+  letter-spacing: .2em !important;
   text-transform: uppercase !important;
   color: #8C6A4D !important;
   -webkit-text-fill-color: #8C6A4D !important;
   display: block !important;
-  margin-bottom: 8px !important;
+  margin: 0 0 3px !important;
 }
 #screen-card .ex-card .ex-divider { display: none !important; }
 
-/* Family rows: word + pos on the left line, Chinese reveal on right
-   when un-veiled.                                                       */
+/* Family row — single compact line: word + pos | Chinese gloss */
 #screen-card .ex-card .fam-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  column-gap: 14px !important;
+  column-gap: 8px !important;
   align-items: baseline !important;
-  padding: 6px 0 !important;
-  border-bottom: 1px dashed rgba(140, 100, 60, .15) !important;
+  padding: 3px 0 !important;
+  border-bottom: 1px dashed rgba(140, 100, 60, .12) !important;
 }
 #screen-card .ex-card .fam-row:last-child { border-bottom: none !important; }
 #screen-card .ex-card .fam-head {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
 }
 #screen-card .ex-card .fam-word {
   font-family: var(--f-display) !important;
   font-style: italic !important;
-  font-size: 15px !important;
+  font-size: 12px !important;
   color: #2A1F18 !important;
   -webkit-text-fill-color: #2A1F18 !important;
 }
 #screen-card .ex-card .fam-pos {
-  font-size: 11px;
+  font-size: 9px;
   color: #8C6A4D !important;
   -webkit-text-fill-color: #8C6A4D !important;
 }
 #screen-card .ex-card .fam-reveal {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12px;
-  line-height: 1.45;
+  gap: 1px;
+  font-size: 10px;
+  line-height: 1.35;
 }
 #screen-card .ex-card .fam-reveal .ex-speak { display: none !important; }
-#screen-card .ex-card .fam-ex     { color: #4A3A2A !important; -webkit-text-fill-color: #4A3A2A !important; }
-#screen-card .ex-card .fam-ex-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 11px; }
+#screen-card .ex-card .fam-ex     { color: #4A3A2A !important; -webkit-text-fill-color: #4A3A2A !important; font-size: 9px !important; }
+#screen-card .ex-card .fam-ex-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 9px !important; }
 
-/* Friend (colloc) rows: same 2-col grid */
+/* Friend colloc row */
 #screen-card .ex-card .colloc-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  column-gap: 14px !important;
+  column-gap: 8px !important;
   align-items: baseline !important;
-  padding: 8px 0 !important;
-  border-bottom: 1px dashed rgba(140, 100, 60, .15) !important;
+  padding: 3px 0 !important;
+  border-bottom: 1px dashed rgba(140, 100, 60, .12) !important;
 }
 #screen-card .ex-card .colloc-row:last-child { border-bottom: none !important; }
 #screen-card .ex-card .colloc-row .ex-speak { display: none !important; }
-#screen-card .ex-card .colloc-en  { color: #2A1F18 !important; -webkit-text-fill-color: #2A1F18 !important; font-style: italic; font-size: 14px; }
-#screen-card .ex-card .colloc-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 12px; }
+#screen-card .ex-card .colloc-en  { color: #2A1F18 !important; -webkit-text-fill-color: #2A1F18 !important; font-style: italic; font-size: 11px !important; }
+#screen-card .ex-card .colloc-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 10px !important; }
 
-/* Example sentence: full-width English on top, Chinese below */
+/* Example sentence: compact, English then Chinese under */
 #screen-card .ex-card .ex-example {
   display: block !important;
+  padding: 6px 10px !important;
 }
 #screen-card .ex-card .ex-example .ex-speak { display: none !important; }
 #screen-card .ex-card .ex-example-en {
   color: #2A1F18 !important;
   -webkit-text-fill-color: #2A1F18 !important;
   font-style: italic;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 11px !important;
+  line-height: 1.35;
 }
 #screen-card .ex-card .ex-example-zh {
   color: #6B5341 !important;
   -webkit-text-fill-color: #6B5341 !important;
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 10px !important;
+  margin-top: 2px;
 }
 
 /* Neighbor pill */
