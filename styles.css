@@ -1269,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=28"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=29"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=28"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=29"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=28"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=29"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=28"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=29"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1307,7 +1307,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=28") center/contain no-repeat;
+  background: url("assets/icon-moon.png?v=29") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1318,7 +1318,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=28") center/contain no-repeat;
+  background: url("assets/icon-bow.png?v=29") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1335,10 +1335,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=28"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=28"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=28"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=28"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=29"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=29"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=29"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=29"); width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1387,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=28"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=28"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=28"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=29"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=29"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=29"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3614,14 +3614,14 @@ body { background: transparent !important; }
 }
 
 /* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=28") !important; }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=28") !important; }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=28") !important; }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !important; }
-#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=28") !important; }
-#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=28") !important; }
-#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=28") !important; }
-#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=28") !important; }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=29") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=29") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=29") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=29") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=29") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=29") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=29") !important; }
 
 /* ============================================================
    50. v=27 — UI art binding (the 7 new container frames)
@@ -3637,66 +3637,82 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
      icon-quill     — dictation pen (replaces old icon-quill silhouette)
    ============================================================ */
 
-/* ----- 50.1  Tonight's Reading — restyled per spec ----------
-   ・font: banner-style display serif (Bodoni 72)
-   ・color: solid gold (no pink mixed)
-   ・underline: 110px wide, gap 2px (was 220px, gap 8px — felt detached)
-   ・default state: gentle gold breathing glow
-   No frame — text floats on the night sky background per user spec.   */
+/* ----- 50.1  Tonight's Reading — uses uploaded cta-tonight.png ----------
+   The wordmark is a hand-designed gold-on-black PNG, chroma-keyed to
+   transparent.  Wire it in as the cover's main CTA, hide the legacy
+   text + key, add a subtle constant breathing glow and a momentary
+   bloom on click.                                                       */
 @keyframes cta-breathe {
-  0%, 100% { text-shadow: 0 0 6px rgba(232,200,130,.40), 0 0 14px rgba(218,168,104,.18); }
-  50%      { text-shadow: 0 0 10px rgba(255,225,170,.85), 0 0 28px rgba(232,200,130,.55); }
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) drop-shadow(0 0 12px rgba(218,168,104,.18)); }
+  50%      { filter: drop-shadow(0 0 8px rgba(255,225,170,.65)) drop-shadow(0 0 22px rgba(232,200,130,.40)); }
 }
-.main-cta .cta-text {
-  font-family: var(--f-display) !important;
-  font-style: normal !important;
-  font-weight: 500 !important;
-  font-size: 28px !important;
-  letter-spacing: .05em !important;
-  color: var(--gold-warm) !important;
-  -webkit-text-fill-color: var(--gold-warm) !important;
-  background: linear-gradient(180deg, #F5D9A4 0%, #E8B57A 35%, #DAA868 70%, #F0CB94 100%) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  text-shadow: 0 0 6px rgba(232,200,130,.40), 0 0 14px rgba(218,168,104,.18) !important;
-  animation: cta-breathe 3.2s ease-in-out infinite !important;
+@keyframes cta-bloom {
+  0%   { filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) drop-shadow(0 0 12px rgba(218,168,104,.18)); transform: scale(1); }
+  35%  { filter: drop-shadow(0 0 24px rgba(255,232,180,1))  drop-shadow(0 0 48px rgba(255,210,140,.85)); transform: scale(1.03); }
+  100% { filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) drop-shadow(0 0 12px rgba(218,168,104,.18)); transform: scale(1); }
+}
+/* Hide legacy text + key — cta-tonight.png is self-contained */
+.main-cta .cta-text,
+.main-cta .cta-key {
+  display: none !important;
 }
 .main-cta::after {
-  /* User spec: underline should extend wide past the text so it feels
-     like a long horizontal flourish, not a tight pill underline.       */
-  width: 300px !important;
-  height: 1.5px !important;
-  margin-top: 6px !important;
-  background: linear-gradient(90deg, transparent 0%, rgba(232,200,130,1) 22%, rgba(232,200,130,1) 78%, transparent 100%) !important;
-  box-shadow: 0 0 6px rgba(232,200,130,.45);
+  display: none !important;
+}
+/* The wordmark image itself: constant breathing glow */
+.main-cta .cta-tonight {
+  display: block;
+  width: 88%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: cta-breathe 3.4s ease-in-out infinite;
+}
+/* Click → momentary bloom (the breathing animation pauses during it) */
+.main-cta.is-engaged .cta-tonight {
+  animation: cta-bloom 600ms ease-out !important;
+}
+/* Hover/press feedback for desktop and pre-click feel */
+.main-cta:hover .cta-tonight {
+  filter: drop-shadow(0 0 14px rgba(255,225,170,.85)) drop-shadow(0 0 30px rgba(232,200,130,.45));
+}
+.main-cta {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 0 !important;
+  cursor: pointer;
 }
 
 /* ----- 50.2  Cover-bottom buttons (her note / the index) -----
    No frame asset for these — user clarified ② was actually score.
    Keep the existing rose-pink outline pill from §41.D.                */
 
-/* ----- 50.3  Game word tiles — stage1 matching + stage2 options -----
-   Per user feedback: 选择题和连连看的卡牌长宽一模一样.  Both use the
-   ui-word ornate horizontal frame at the same dimensions so the visual
-   rhythm carries from stage1 → stage2.                                   */
+/* ----- 50.3  Game word tiles — stage1 / stage1-result / stage2 share
+   IDENTICAL dimensions.  User spec: 所有按钮卡牌统一长宽! 为你现在
+   matching结算的那个长宽.  Reference tile = stage1-result tile.       */
 #screen-stage1 .card.card--match,
 #screen-stage1-result .card.card--match,
 .card.card--option {
-  background: url("assets/ui-word.png?v=28") center/100% 100% no-repeat !important;
+  background: url("assets/ui-word.png?v=29") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   color: var(--cream) !important;
   font-family: var(--f-italic) !important;
   font-style: italic !important;
-  padding: 14px 22px !important;
-  min-height: 56px !important;
+  padding: 0 16px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-}
-.card.card--option {
-  margin: 6px 0 !important;
+  font-size: 15px !important;
+  letter-spacing: .02em !important;
+  margin: 0 !important;
 }
 /* keep the tag-colour cues but as gentle glow on the frame, not a recolour */
 .card.card--match.tag-0 { filter: drop-shadow(0 0 10px rgba(244,181,200,.55)); }
@@ -3710,17 +3726,28 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
 .card.card--option.reveal-right  { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
 .card.card--option.is-picking    { filter: drop-shadow(0 0 12px rgba(244,181,200,.55)); }
 
-/* Stage 2 option grid: 2x2 to match stage 1's 2-column rhythm.
-   This makes the option tile dimensions identical to a matching tile. */
+/* Stage 2 option grid: 2x2 — same column / gap as stage1 match grid. */
 .oracle-options {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 10px !important;
+  gap: 8px !important;
   max-width: 100% !important;
   margin: 12px auto 0 !important;
 }
-.oracle-options .card.card--option {
-  margin: 0 !important;
+/* Stage 1 + stage 1-result match grids share the same gap */
+#screen-stage1 .match-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  max-width: 100% !important;
+  margin: 10px auto 0 !important;
+}
+#screen-stage1-result .match-result-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  max-width: 100% !important;
+  margin: 8px auto !important;
 }
 
 /* Push stage1 / stage2 / stage3 game content UP so the bottom 20% of
@@ -3772,24 +3799,60 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
   font-size: 13px !important;
 }
 
-/* ----- 50.4  Chapter strip -----
-   Lock the box to the asset's native 1916:821 ratio so the
-   decorative moons stay readable.  Push the strip down so it clears
-   the corner-pin buttons (≡ / ×) which sit at top:14px.              */
+/* ----- 50.4  Chapter — small text label aligned with corner pins -----
+   User spec: chapter再小一点再靠上一点和三和x同高度.  At corner-pin
+   height (~32 px) the ornate ui-chapter frame turns to mush.  Drop the
+   frame entirely; render as a thin text band centred between ≡ and ×.  */
 .stage-head {
-  background: url("assets/ui-chapter.png?v=28") center/100% 100% no-repeat !important;
-  width: 100% !important;
-  max-width: 320px !important;
-  aspect-ratio: 1916 / 821 !important;
-  margin: 44px auto 6px !important;
+  background: none !important;
+  position: absolute !important;
+  top: 18px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  margin: 0 !important;
   padding: 0 !important;
   min-height: 0 !important;
   display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
   justify-content: center !important;
-  gap: 0 !important;
-  overflow: hidden !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  z-index: 60 !important;
+  text-align: center !important;
+}
+.stage-head::before,
+.stage-head::after { display: none !important; }
+.stage-head .stage-chapter {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 10px !important;
+  letter-spacing: .26em !important;
+  text-transform: lowercase !important;
+  color: rgba(244, 226, 200, .55) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .55) !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+.stage-head .stage-name {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .03em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+/* Push stage flow content below the chapter band so the instruction
+   text (.q-progress) and grids don't sit underneath the chapter.       */
+#screen-stage1, #screen-stage2, #screen-stage3,
+#screen-stage1-result, #screen-stage2-result, #screen-stage3-result {
+  padding-top: 48px !important;
 }
 .stage-head::after { display: none !important; }   /* the frame already has art */
 .stage-head .stage-chapter {
@@ -3810,7 +3873,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
    Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
 #screen-note .page-title,
 #screen-index .page-title {
-  background: url("assets/ui-page-title.png?v=28") center/100% 100% no-repeat !important;
+  background: url("assets/ui-page-title.png?v=29") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 360px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3831,7 +3894,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
 
 /* ----- 50.6  Study card parchment ----- */
 #screen-card .ex-card {
-  background: url("assets/ui-parchment.png?v=28") center/100% 100% no-repeat !important;
+  background: url("assets/ui-parchment.png?v=29") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   padding: 80px 56px 110px !important;          /* room for the ribbon top + scroll bottom */
@@ -3845,7 +3908,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
 
 /* ----- 50.7  Modal panel ----- */
 .modal-card {
-  background: url("assets/ui-modal.png?v=28") center/100% 100% no-repeat !important;
+  background: url("assets/ui-modal.png?v=29") center/100% 100% no-repeat !important;
   border: none !important;
   box-shadow: none !important;
   padding: 64px 46px !important;
@@ -3869,7 +3932,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
    ui-score is a wide horizontal frame (1448x1086) with pink bow.
    Trim to ~240px wide so it doesn't dominate the result page.          */
 .score-block {
-  background: url("assets/ui-score.png?v=28") center/100% 100% no-repeat !important;
+  background: url("assets/ui-score.png?v=29") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 260px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3905,7 +3968,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
 }
 
 /* ----- 50.9  Cache-bust new UI assets ----- */
-/* (already inlined above as ?v=28 — keep older asset refs at v=26)    */
+/* (already inlined above as ?v=29 — keep older asset refs at v=26)    */
 
 
 /* ============================================================
@@ -3940,12 +4003,17 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
   align-items: center !important;
   gap: 10px !important;
 }
-.lil-row .lil-ghost::before {
+.lil-row .lil-ghost::before,
+.lil-row .lil-ghost::after {
   content: '' !important;
   display: inline-block !important;
   width: 22px !important;
   height: 1px !important;
   background: linear-gradient(90deg, transparent, rgba(232,200,130,.72)) !important;
+}
+.lil-row .lil-ghost::after {
+  /* mirror the gradient so it fades out on the right */
+  background: linear-gradient(90deg, rgba(232,200,130,.72), transparent) !important;
 }
 .lil-row .lil-ghost:hover {
   color: var(--rose) !important;
@@ -3954,6 +4022,9 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
 }
 .lil-row .lil-ghost:hover::before {
   background: linear-gradient(90deg, transparent, rgba(244,181,200,.9)) !important;
+}
+.lil-row .lil-ghost:hover::after {
+  background: linear-gradient(90deg, rgba(244,181,200,.9), transparent) !important;
 }
 .lil-row {
   gap: 22px !important;
@@ -4068,40 +4139,51 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
    the page never reflows mid-ceremony.
    ============================================================ */
 
-/* ----- 52.1  Wax seal — uses the purple ui-medallion.png asset -----
-   Earlier this was a CSS-drawn red disc.  User-supplied art is the
-   purple-gold crescent-moon medallion that lives in /assets, so we
-   render it as an <img> background, scaled bigger than the disc was.  */
-.wax-seal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 220px;
-  height: 220px;
+/* ----- 52.1  Wax-seal stamp — bottom-left of the parchment -----
+   User spec: 火漆是盖在学习羊皮纸左下角的 代表加入note的意思.
+   The medallion (ui-medallion.png) is a small stamp at the bottom-
+   left corner of the parchment card.  Tap = add this word to note.
+   No separate seal screen.                                            */
+.wax-seal-stamp {
+  position: absolute;
+  left: 20px;
+  bottom: 24px;
+  width: 84px;
+  height: 84px;
   padding: 0;
   border: none;
-  background: url("assets/ui-medallion.png?v=28") center/contain no-repeat;
+  background: url("assets/ui-medallion.png?v=29") center/contain no-repeat;
   cursor: pointer;
-  z-index: 50;
-  filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(180,140,220,.35));
-  animation: seal-breathe 3.2s ease-in-out infinite;
+  z-index: 30;
+  /* a stamp is slightly off-axis, like a hand pressed it */
+  transform: rotate(-8deg);
+  opacity: 1;
+  /* Bright gold halo so the purple medallion stands out against the
+     dark night-sky bg.                                                  */
+  filter:
+    drop-shadow(0 0 12px rgba(232,200,130,.55))
+    drop-shadow(0 4px 10px rgba(0,0,0,.55));
+  transition: transform 160ms ease-out, filter 160ms ease-out;
 }
-.wax-seal::before,
-.wax-seal::after,
-.wax-seal .wax-emblem { display: none !important; }
-@keyframes seal-breathe {
-  0%, 100% { filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(180,140,220,.35)); }
-  50%      { filter: drop-shadow(0 6px 22px rgba(0,0,0,.55)) drop-shadow(0 0 36px rgba(232,200,130,.55)); }
+.wax-seal-stamp:hover {
+  filter:
+    drop-shadow(0 0 20px rgba(232,200,130,.85))
+    drop-shadow(0 4px 10px rgba(0,0,0,.55));
 }
-.wax-seal.is-breaking {
-  animation: seal-break 320ms ease-out forwards;
-  pointer-events: none;
+.wax-seal-stamp:hover {
+  transform: rotate(-8deg) scale(1.05);
+  opacity: 1;
 }
-@keyframes seal-break {
-  0%   { transform: translate(-50%, -50%) scale(1)    rotate(0deg);  opacity: 1; }
-  60%  { transform: translate(-50%, -50%) scale(1.18) rotate( 8deg); opacity: .8; }
-  100% { transform: translate(-50%, -50%) scale(1.35) rotate(15deg); opacity: 0;  }
+.wax-seal-stamp.is-stamped {
+  /* once stamped — slightly pressed in + locked */
+  transform: rotate(-8deg) scale(0.96);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
+  animation: stamp-down 320ms ease-out;
+}
+@keyframes stamp-down {
+  0%   { transform: rotate(-8deg) scale(1.15); }
+  60%  { transform: rotate(-8deg) scale(0.92); filter: drop-shadow(0 0 14px rgba(232,200,130,.6)); }
+  100% { transform: rotate(-8deg) scale(0.96); }
 }
 
 /* ----- 52.2  Card container — parchment fills the viewport -----
@@ -4155,7 +4237,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=28") !imp
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: url("assets/ui-parchment.png?v=28") center/100% 100% no-repeat;
+  background: url("assets/ui-parchment.png?v=29") center/100% 100% no-repeat;
   pointer-events: none;
   z-index: 0;
 }
@@ -4276,6 +4358,7 @@ html, body {
   padding-top: calc(100vw * 821 / 1916) !important;
 }
 .screen {
+  position: relative !important;     /* anchor for .stage-head absolute */
   height: calc(100vh - (100vw * 821 / 1916)) !important;
   height: calc(100dvh - (100vw * 821 / 1916)) !important;
   min-height: 0 !important;
@@ -4349,14 +4432,17 @@ html, body {
 
 /* ----- 54.3  Tonight's Reading key — upright + larger ----- */
 .main-cta .cta-key {
-  width: 26px !important;
-  height: 64px !important;
+  width: 38px !important;
+  height: 92px !important;
   opacity: 1 !important;
-  filter: drop-shadow(0 0 8px rgba(232,200,130,.55)) !important;
+  filter: drop-shadow(0 0 10px rgba(232,200,130,.6)) !important;
 }
 .main-cta .cta-key-l,
 .main-cta .cta-key-r {
   transform: none !important;
+}
+.main-cta {
+  gap: 14px !important;
 }
 
 /* ----- 54.4  Cloze blank — kill the double-underline -----
@@ -4445,7 +4531,7 @@ html, body {
    ============================================================ */
 
 /* ----- 55.1  Force the freshly chroma-keyed icons to reload ----- */
-.main-cta .cta-key { content: url("assets/icon-key.png?v=28") !important; }
+.main-cta .cta-key { content: url("assets/icon-key.png?v=29") !important; }
 
 /* ----- 55.2  Page title frames in note + index — shrink dramatically ----- */
 #screen-note .page-title,
@@ -4677,6 +4763,83 @@ html, body {
   text-align: center !important;
   margin-top: 18px !important;
   animation: hint-breathe 2.6s ease-in-out infinite !important;
+}
+
+/* ----- 55.A  Chapter text label — small inline band at top -----
+   Stays in flow so following content (.q-progress, grids) lands
+   naturally beneath without needing padding-top hacks.                 */
+#screen-stage1 .stage-head,
+#screen-stage1-result .stage-head,
+#screen-stage2 .stage-head,
+#screen-stage2-result .stage-head,
+#screen-stage3 .stage-head,
+#screen-stage3-result .stage-head {
+  background: none !important;
+  position: static !important;
+  width: 100% !important;
+  height: 22px !important;
+  aspect-ratio: auto !important;
+  padding: 0 !important;
+  margin: 4px 0 8px !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  text-align: center !important;
+}
+#screen-stage1 .stage-head .stage-chapter,
+#screen-stage1-result .stage-head .stage-chapter,
+#screen-stage2 .stage-head .stage-chapter,
+#screen-stage2-result .stage-head .stage-chapter,
+#screen-stage3 .stage-head .stage-chapter,
+#screen-stage3-result .stage-head .stage-chapter {
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 10px !important;
+  letter-spacing: .26em !important;
+  text-transform: lowercase !important;
+  color: rgba(244, 226, 200, .55) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .55) !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+#screen-stage1 .stage-head .stage-name,
+#screen-stage1-result .stage-head .stage-name,
+#screen-stage2 .stage-head .stage-name,
+#screen-stage2-result .stage-head .stage-name,
+#screen-stage3 .stage-head .stage-name,
+#screen-stage3-result .stage-head .stage-name {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .03em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  text-shadow: none !important;
+}
+#screen-stage1 .stage-head::before,
+#screen-stage1 .stage-head::after,
+#screen-stage1-result .stage-head::before,
+#screen-stage1-result .stage-head::after,
+#screen-stage2 .stage-head::before,
+#screen-stage2 .stage-head::after,
+#screen-stage3 .stage-head::before,
+#screen-stage3 .stage-head::after {
+  display: none !important;
+  content: none !important;
+}
+/* Stage screens use the default 14px top padding from §53.  The chapter
+   (now in flow) sits at the top, between the corner pins.              */
+#screen-stage1 .q-progress {
+  margin: 0 0 8px !important;
+  font-size: 12px !important;
 }
 
 /* ----- 55.7  Result-page cards: tap to open the study card detail -----

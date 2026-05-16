@@ -263,8 +263,7 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=28" alt="">
-      <span class="cta-text">${escapeHtml(label)}</span>
+      <img class="cta-tonight" src="assets/cta-tonight.png?v=29" alt="${escapeAttr(label)}">
     </span>
   `;
   a.addEventListener('click', () => {
@@ -765,10 +764,10 @@ function showModal({ title, body = '', score = null, actions = [], variant = '' 
   // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
-      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=28" alt="">
-      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=28" alt="">
-      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=28" alt="">
-      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=28" alt="">
+      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=29" alt="">
+      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=29" alt="">
+      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=29" alt="">
+      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=29" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -1156,7 +1155,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=28" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=29" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
@@ -1391,14 +1390,13 @@ const Screens = {
   },
 
   /* ---------- CARD detail (opened from sidebar, index, tiles) ----------
-     The opening ceremony has three beats:
-       1. Wax seal sits centred on the night sky.  Tap it.
-       2. Seal cracks (sfxSeal), scales out, fades.
-       3. Card scale-fades in (500ms).  Each line — head, family
-          heads, friend label, neighbour — gets written by a mask
-          sweep, staggered 180ms, with sfxWrite per line.
-       4. After the last line + 600ms, the "tap anywhere · 任意处继续"
-          breathing hint appears at the bottom.                          */
+     The parchment opens directly (no separate seal page).  The wax
+     seal is a stamp in the bottom-left corner of the scroll that means
+     "add this word to her note".  Layout sequence:
+       1. Parchment scale-fades in (500ms).
+       2. Each line — head, family heads, friend label, neighbour —
+          gets written by a mask sweep, staggered 180ms with sfxWrite.
+       3. After the last line + 600ms, the bottom hint appears.        */
   card: {
     onEnter(opts) {
       const el = $('#screen-card');
@@ -1410,65 +1408,56 @@ const Screens = {
       el.prepend(moonCorner());
       el.appendChild(closeCorner({ to: from }));
 
-      // --- Beat 1: the wax seal -----------------------------------
-      const seal = document.createElement('button');
-      seal.className = 'wax-seal';
-      seal.setAttribute('aria-label', 'open the page');
-      seal.innerHTML = `<span class="wax-emblem">✦</span>`;
-      el.appendChild(seal);
+      const host = document.createElement('div');
+      host.className = 'card-host';
+      host.id = 'card-host';
+      el.appendChild(host);
 
-      const openCard = () => {
-        seal.disabled = true;
+      const card = renderExCard(word, null, { withControls: true });
+      card.classList.add('is-entering');
+      host.appendChild(card);
+
+      // --- The wax seal stamp: pinned to the bottom-left of the screen
+      // so it sits over the parchment even when the user scrolls the
+      // card content.  Tap = add this word to her note.                */
+      const stamp = document.createElement('button');
+      stamp.className = 'wax-seal-stamp';
+      stamp.setAttribute('aria-label', 'add to her note');
+      stamp.title = 'add to her note';
+      el.appendChild(stamp);
+      stamp.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (stamp.classList.contains('is-stamped')) return;
         SFX.seal();
-        seal.classList.add('is-breaking');
-        // --- Beat 2: seal animation ends, build the card stage ---
-        setTimeout(() => {
-          seal.remove();
-          const host = document.createElement('div');
-          host.className = 'card-host';
-          host.id = 'card-host';
-          el.appendChild(host);
+        stamp.classList.add('is-stamped');
+        recordMistake(word);     // mark this word as one she returns to
+      });
 
-          const card = renderExCard(word, null, { withControls: true });
-          card.classList.add('is-entering');
-          host.appendChild(card);
+      // --- Beat 2: line-by-line write reveal --------------------------
+      const lines = Array.from(card.querySelectorAll(
+        '.ex-head, .ex-family > .ex-label, .ex-family > .fam-row > .fam-head, ' +
+        '.ex-friend > .ex-label, .ex-neighbor, .ex-rewrite'
+      ));
+      lines.forEach((line, i) => {
+        line.classList.add('write-line');
+        line.style.animationDelay = (200 + i * 160) + 'ms';
+        setTimeout(() => SFX.write(0.45), 200 + i * 160);
+      });
 
-          // --- Beat 3: line-by-line write reveal ------------------
-          // Pick logical "lines" that are visible at entrance.  The
-          // .is-veiled targets (fam-reveal / colloc-row / example)
-          // stay veiled — they unfold on tap as before.
-          const lines = Array.from(card.querySelectorAll(
-            '.ex-head, .ex-family > .ex-label, .ex-family > .fam-row > .fam-head, ' +
-            '.ex-friend > .ex-label, .ex-neighbor, .ex-rewrite'
-          ));
-          lines.forEach((line, i) => {
-            line.classList.add('write-line');
-            line.style.animationDelay = (300 + i * 180) + 'ms';
-            setTimeout(() => SFX.write(0.45), 300 + i * 180);
-          });
-
-          // --- Beat 4: bottom breathing hint ----------------------
-          const lastLineEnd = 300 + (lines.length - 1) * 180 + 700;
-          setTimeout(() => {
-            const hint = document.createElement('div');
-            hint.className = 'card-tap-hint';
-            hint.innerHTML = `<span>tap anywhere · 任意处继续</span>`;
-            el.appendChild(hint);
-            // First tap on the screen dismisses the hint (the user
-            // can keep tapping the card to walk through the queue).
-            const dismiss = () => {
-              hint.classList.add('is-fading');
-              setTimeout(() => hint.remove(), 320);
-              el.removeEventListener('click', dismiss, true);
-            };
-            // Defer one tick so the click that summoned the hint
-            // doesn't immediately dismiss it.
-            setTimeout(() => el.addEventListener('click', dismiss, true), 50);
-          }, lastLineEnd + 600);
-        }, 320);
-      };
-
-      seal.addEventListener('click', openCard);
+      // --- Beat 3: bottom breathing hint ------------------------------
+      const lastLineEnd = 200 + (lines.length - 1) * 160 + 700;
+      setTimeout(() => {
+        const hint = document.createElement('div');
+        hint.className = 'card-tap-hint';
+        hint.innerHTML = `<span>tap anywhere · 任意处继续</span>`;
+        el.appendChild(hint);
+        const dismiss = () => {
+          hint.classList.add('is-fading');
+          setTimeout(() => hint.remove(), 320);
+          el.removeEventListener('click', dismiss, true);
+        };
+        setTimeout(() => el.addEventListener('click', dismiss, true), 50);
+      }, lastLineEnd + 600);
     }
   }
 };
