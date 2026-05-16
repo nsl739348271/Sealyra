@@ -3436,25 +3436,8 @@ body { background: transparent !important; }
   animation: tap-hint-breathe 2.4s ease-in-out infinite;
 }
 
-/* Result-page cards were getting squashed into a ~160px tall pill.
-   Widen the grid + open the cell breathing room so they read as
-   real cards instead of compressed labels.                          */
-.match-result-grid,
-.match-grid {
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 8px 6px !important;
-  max-width: 560px !important;
-  margin: 0 auto !important;
-}
-.match-grid > .card,
-.match-result-grid > .card {
-  width: 100% !important;
-  min-height: 64px;
-  font-size: 18px !important;
-  padding: 18px 12px !important;
-  display: flex !important;
-}
+/* (match-grid overrides previously defined here removed — see §49.2
+   below for the single canonical rule that wins.)                    */
 
 /* Tonight's Reading + every .h-plaque — refined glow.  Was a single
    wide blur that looked muddy; now it's a layered glow:
@@ -3488,112 +3471,10 @@ body { background: transparent !important; }
 }
 
 
-/* ============================================================
-   44. design system v1.3 — bigger result tiles + hard veil
-   ============================================================
-   Result-page cards were still squashed.  Force a proper card
-   shape with explicit min-height and tighter aspect.  Also stamp
-   the linear-reveal hide rule one more time with even higher
-   specificity in case an older sheet was winning on cache.       */
-
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid .card.card--match,
-.match-grid .card.card--match {
-  width: 100% !important;
-  min-height: 90px !important;
-  font-size: 19px !important;
-  padding: 24px 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Belt-and-braces — every .is-veiled row stays hidden, with the
-   ex-card selector prefix bumping specificity over anything else. */
-.ex-card .fam-reveal.is-veiled,
-.ex-card .colloc-row.is-veiled,
-.ex-card .ex-example.is-veiled {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* ============================================================
-   45. design system v1.4 — IDENTICAL grids + indestructible veil
-   ============================================================
-   the result page tiles were narrower than the matching grid cards
-   because older sheets pinned .match-result-grid to padding:18px+16
-   and max-width:540, while .match-grid sat at full width.  force
-   both grids to one shape with !important, use aspect-ratio so
-   cells stay proportional regardless of viewport, and brick-wall
-   the .is-veiled hide so no later cascade can revive it.          */
-
-.match-result-grid,
-.match-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 560px !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  width: 100% !important;
-  aspect-ratio: 17 / 8 !important;       /* same shape on both pages */
-  min-height: 96px !important;
-  padding: 0 12px !important;            /* aspect-ratio handles height */
-  font-size: 19px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;             /* never let flex column squash cards */
-}
-
-/* brick-wall hide: 5 properties so absolutely no later override
-   can make a veiled colloc / family reveal / example show up.    */
-.ex-card .fam-reveal.is-veiled,
-.ex-card .colloc-row.is-veiled,
-.ex-card .ex-example.is-veiled,
-.fam-reveal.is-veiled,
-.colloc-row.is-veiled,
-.ex-example.is-veiled {
-  display: none !important;
-  height: 0 !important;
-  max-height: 0 !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  overflow: hidden !important;
-  pointer-events: none !important;
-}
-
-/* ============================================================
-   46. design system v1.5 — middle ground for the match grid
-   ============================================================
-   v1.4 pinned both grids to 560px which made them feel cavernous
-   on the game page.  drop to 480px max + 12px gap + a slightly
-   squatter aspect (9 / 4 instead of 17 / 8).  same numbers on
-   both grids so they stay identical to each other.               */
-
-.match-result-grid,
-.match-grid {
-  max-width: 480px !important;
-  gap: 12px !important;
-  margin: 12px auto !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  font-size: 18px !important;
-  padding: 0 12px !important;
-}
+/* (sections 44/45/46 — successive match-grid + veil overrides —
+   were removed.  Match-grid sizing lives in §49.2 below; the .is-veiled
+   veil is defined animatable-style in §47 below, which is the form
+   we actually want.)                                                  */
 
 /* ============================================================
    47. ink-writing reveal — the parchment unfurl
@@ -3683,26 +3564,121 @@ body { background: transparent !important; }
   filter: none !important;
 }
 
-body.bg-stage  .match-grid,
-body.bg-result .match-result-grid {
+/* (the body.bg-stage / body.bg-result match-grid override that used
+   to live here is now in §49.2 with viewport-fitting rows.)          */
+
+/* ============================================================
+   49. v=26 — final consolidation
+   ============================================================
+   Three jobs:
+     1) "Tonight's Reading" CTA: single key on the LEFT of the text.
+        (was two keys flanking it)
+     2) Stage 1 / result grids must FIT THE VIEWPORT — no scroll.
+        Cards size from available height, not fixed min-height.
+     3) Every other rule above stays as-is.  This block wins because
+        it comes last in the cascade.
+   ============================================================ */
+
+/* ----- 49.1  Single-key CTA ----- */
+.main-cta .cta-inner {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+/* hide any legacy right-side key if it still gets rendered somewhere */
+.main-cta .cta-key-r { display: none !important; }
+.main-cta .cta-key,
+.main-cta .cta-key-l {
+  display: inline-block !important;
+  width: 22px !important;
+  height: 62px !important;
+  object-fit: contain !important;
+  opacity: .92 !important;
+  transform: rotate(-14deg) !important;
+  filter: drop-shadow(0 0 8px rgba(218,168,104,.55)) !important;
+}
+
+/* ----- 49.2  Stage 1 fits one viewport ----- */
+/* Banner height ≈ 100vw * 821/1916 = ~42.85vw.
+   Use dynamic viewport (dvh) so iOS chrome doesn't break the calc.   */
+:root { --banner-h: calc(100vw * 821 / 1916); }
+
+#screen-stage1.active,
+#screen-stage1-result.active {
+  min-height: calc(100vh - var(--banner-h)) !important;
+  min-height: calc(100dvh - var(--banner-h)) !important;
+  height:     calc(100vh - var(--banner-h)) !important;
+  height:     calc(100dvh - var(--banner-h)) !important;
+  padding: 14px 16px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;     /* never scroll the match screen */
+}
+
+/* Compact the stage header on the matching pages so the grid wins
+   more vertical space.                                                */
+#screen-stage1 .stage-head,
+#screen-stage1-result .stage-head { padding: 8px 0 4px !important; }
+#screen-stage1 .stage-head .stage-name,
+#screen-stage1-result .stage-head .stage-name { font-size: 22px !important; }
+#screen-stage1 .stage-head::after,
+#screen-stage1-result .stage-head::after { margin-top: 6px !important; }
+
+#screen-stage1 .q-progress {
+  margin: 6px 0 6px !important;
+  font-size: 12px !important;
+}
+
+/* The grid takes whatever vertical space is left; rows split evenly. */
+#screen-stage1 .match-grid,
+#screen-stage1-result .match-result-grid,
+#screen-stage1-result .match-grid {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 10px !important;
   padding: 0 !important;
   max-width: 480px !important;
   width: 100% !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
+  margin: 4px auto 8px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;        /* let it shrink inside the flex column */
+  aspect-ratio: auto !important;
 }
-body.bg-stage  .match-grid > .card,
-body.bg-result .match-result-grid > .card {
+
+/* Cards fill their cell — no aspect-ratio, no min-height, height is
+   whatever the grid row gives them.                                    */
+#screen-stage1 .match-grid > .card,
+#screen-stage1-result .match-result-grid > .card,
+#screen-stage1-result .match-grid > .card,
+#screen-stage1 .card.card--match,
+#screen-stage1-result .card.card--match {
   width: 100% !important;
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  padding: 0 12px !important;
-  font-size: 18px !important;
+  height: 100% !important;
+  aspect-ratio: auto !important;
+  min-height: 0 !important;
+  padding: 6px 10px !important;
+  font-size: clamp(14px, 4.2vw, 18px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  flex-shrink: 0 !important;
+  flex-shrink: 1 !important;
 }
+
+/* The confirm button row hugs the bottom — no top margin pushing the
+   grid off-screen.                                                     */
+#screen-stage1 .match-actions {
+  margin: 6px auto 0 !important;
+  max-width: 480px !important;
+}
+
+/* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=26") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=26") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=26") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=26") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=26") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=26") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=26") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=26") !important; }

@@ -244,9 +244,8 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=25" alt="">
+      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=26" alt="">
       <span class="cta-text">${escapeHtml(label)}</span>
-      <img class="cta-key cta-key-r" src="assets/icon-key.png?v=25" alt="">
     </span>
   `;
   a.addEventListener('click', () => {
