@@ -642,17 +642,31 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
 function buildOracleQuestion(word) {
   const c = CARDS[word];
   const sentence = c.example || c.h;
-  // Cloze: blank out the target word inside the english example.
+  // Cloze: keep the first letter, blank the rest.  "abrupt" → "a______"
+  const first  = c.h[0];
+  const blanks = '_'.repeat(Math.max(5, c.h.length - 1));
+  const blanked = `${first}${blanks}`;
   const sentenceHL = sentence.replace(
     new RegExp(`\\b${c.h}\\b`, 'i'),
-    '<em class="q-blank">_____</em>'
+    `<em class="q-blank">${blanked}</em>`
   );
-  // 4 english options: the right head + 3 random other heads.
-  const pool = Object.keys(CARDS).filter(k => k !== word);
+  // 3 distractors that ALSO start with the same letter — the lesson
+  // is "tell apart the words that share the first letter".
+  const sameLetter = Object.keys(CARDS).filter(k =>
+    k !== word && k[0].toLowerCase() === first.toLowerCase()
+  );
   const wrongs = [];
-  while (wrongs.length < 3) {
-    const cand = rand(pool);
+  while (wrongs.length < 3 && sameLetter.length) {
+    const cand = rand(sameLetter);
     if (!wrongs.includes(cand)) wrongs.push(cand);
+  }
+  // Fall back to random heads if there aren't 3 same-letter siblings.
+  if (wrongs.length < 3) {
+    const fallback = Object.keys(CARDS).filter(k => k !== word && !wrongs.includes(k));
+    while (wrongs.length < 3 && fallback.length) {
+      const cand = rand(fallback);
+      if (!wrongs.includes(cand)) wrongs.push(cand);
+    }
   }
   const options = shuffle([word, ...wrongs]);
   return { word, sentencePlain: sentence, sentenceHL, options, correctIdx: options.indexOf(word) };
@@ -1182,9 +1196,11 @@ const Screens = {
       });
       const letters = Object.keys(groups).sort();
       el.innerHTML = `
-        ${pageTitle('the index')}
-        <div class="page-subtitle">every word she has named</div>
-        <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
+        <div class="screen-stickyhead">
+          <div class="page-title">the index</div>
+          <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+          <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
+        </div>
         <div id="index-body"></div>
       `;
       el.prepend(moonCorner());
@@ -1197,6 +1213,7 @@ const Screens = {
           if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
+
       const body = $('#index-body', el);
       letters.forEach(L => {
         body.insertAdjacentHTML('beforeend', `<div class="alpha-section-title" id="letter-${L}">${L}</div>`);
@@ -1204,6 +1221,8 @@ const Screens = {
           const c = CARDS[h];
           const row = document.createElement('div');
           row.className = 'word-row';
+          row.dataset.word = c.h.toLowerCase();
+          row.dataset.zh = (c.zh || '').toLowerCase();
           row.innerHTML = `
             <span class="wr-word">${escapeHtml(c.h)}</span>
             <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
@@ -1214,6 +1233,26 @@ const Screens = {
             go('card', { word: h, from: 'index' });
           });
           body.appendChild(row);
+        });
+      });
+
+      // Live filter — matches both the head and its chinese gloss.
+      $('.index-search', el).addEventListener('input', e => {
+        const q = (e.target.value || '').toLowerCase().trim();
+        $$('.word-row', el).forEach(row => {
+          const hit = !q ||
+            row.dataset.word.includes(q) ||
+            row.dataset.zh.includes(q);
+          row.style.display = hit ? '' : 'none';
+        });
+        // hide section labels whose section now has no visible rows
+        $$('.alpha-section-title', el).forEach(h => {
+          let n = h.nextElementSibling, alive = false;
+          while (n && !n.classList.contains('alpha-section-title')) {
+            if (n.style.display !== 'none') { alive = true; break; }
+            n = n.nextElementSibling;
+          }
+          h.style.display = alive ? '' : 'none';
         });
       });
     }
