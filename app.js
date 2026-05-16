@@ -97,7 +97,14 @@ const SFX = (() => {
     src.start(c.currentTime);
   }
   return {
-    bling:   () => tone([1047, 1319, 1568, 1760, 2093], 0.07, 0.32, 'triangle', 0.14),
+    bling:   () => {
+      // Ascending chime …
+      tone([1175, 1568, 1976, 2349, 2794], 0.05, 0.32, 'triangle', 0.13);
+      // … with a shimmer chord layered ~80ms later …
+      setTimeout(() => tone([2349, 2794, 3136], 0.04, 0.22, 'sine', 0.08), 80);
+      // … and a final tiny sparkle.
+      setTimeout(() => tone([3520, 4186], 0.04, 0.14, 'sine', 0.05), 200);
+    },
     tap:     () => tone([1050],                          0.0, 0.07, 'sine',     0.06),
     pageTurn:() => { noise(0.18, 0.06, 2200); },
     pop:     () => tone([784, 1175, 1568],               0.06, 0.22, 'triangle', 0.12),
@@ -279,8 +286,9 @@ function nextDoor(label, onClick, { confirm = false } = {}) {
 // leave-confirm modal first so the user doesn't kill their stage by accident.
 function closeCorner({ confirm = false, to = 'cover', label = 'close the page' } = {}) {
   const b = document.createElement('button');
-  b.className = 'close-corner';
-  b.textContent = label;
+  b.className = 'close-corner corner-pin';
+  b.setAttribute('aria-label', label);
+  b.innerHTML = '<span class="cp-x"></span>';
   b.addEventListener('click', () => {
     SFX.tap();
     const exit = () => { LanBGM.stop(); go(to); };
@@ -294,12 +302,10 @@ function closeCorner({ confirm = false, to = 'cover', label = 'close the page' }
 // is needed — picking a word from it is the user's explicit action.
 function moonCorner() {
   const b = document.createElement('button');
-  b.className = 'moon-corner';
-  b.title = 'her words';
+  b.className = 'moon-corner corner-pin';
   b.setAttribute('aria-label', 'open her words');
-  // CSS-drawn three-line menu glyph — no png, no unicode glyph that
-  // might tofu on ios.  The "menu" is built from one element + two
-  // box-shadows so it always paints.
+  // Three-bar menu drawn in CSS via .mc-bar + two box-shadows — no
+  // PNG, no unicode glyph that might tofu on iOS.
   b.innerHTML = '<span class="mc-bar"></span>';
   b.addEventListener('click', () => { SFX.tap(); openSidebar(); });
   return b;
