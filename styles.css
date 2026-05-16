@@ -2427,58 +2427,121 @@ body { background: transparent !important; }
    .match-card / .match-tile / .oracle-option / .oracle-options are
    retired in JS; their old CSS just doesn't bind anymore.          */
 
+/* The .card itself is built like a tarot card:
+     – soft rose-on-dark gradient inside
+     – inner rose hairline border
+     – a 3px-offset gold ring outside, drawn via box-shadow so it
+       lands cleanly on iOS without pseudo-element rendering quirks
+     – a deep drop-shadow giving the cell some lift off the bg
+   The same body is used in the matching grid AND on the result
+   page; only .tag-* and .is-correct/.is-wrong recolour it.        */
 .card {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(8,4,18,.42);
-  border: 1.5px solid rgba(244,181,200,.42);
-  border-radius: 12px;
-  padding: 12px 14px;                /* less fat — was 22px */
+  background: linear-gradient(160deg,
+    rgba(244,181,200,.12) 0%,
+    rgba(8,4,18,.62) 100%);
+  border: 1.5px solid rgba(244,181,200,.55);
+  border-radius: 10px;
+  padding: 18px 12px;
   font-family: var(--f-italic);
   font-style: italic;
-  font-size: 16px;
+  font-size: 17px;
   color: var(--cream);
   text-align: center;
   letter-spacing: .02em;
   cursor: pointer;
-  transition: border-color .2s, color .2s, transform .14s, box-shadow .25s;
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),               /* gap between borders */
+    0 0 0 4px rgba(232,200,130,.32),          /* gold outer ring */
+    inset 0 0 18px rgba(199,122,149,.10),     /* inner rose glow */
+    0 6px 22px rgba(0,0,0,.40);               /* lift */
+  transition: transform .15s, box-shadow .25s, border-color .2s, color .2s;
   -webkit-tap-highlight-color: transparent;
 }
-.card:hover  { border-color: var(--rose); color: var(--rose); }
-.card:active { transform: translateY(1px); }
-.card[disabled] { cursor: default; }
+.card:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),
+    0 0 0 4px rgba(237,184,158,.55),
+    inset 0 0 22px rgba(237,184,158,.18),
+    0 8px 28px rgba(0,0,0,.50),
+    0 0 24px rgba(237,184,158,.30);
+}
+.card:active   { transform: translateY(1px); }
+.card[disabled]{ cursor: default; }
 
-/* Top-right marker (✓ / ✗) */
+/* Top-right marker (✓ / ✗) — italic-off so it reads as a glyph */
 .card .tile-mark {
   position: absolute;
-  top: 6px; right: 10px;
-  font-size: 11px;
+  top: 8px; right: 12px;
+  font-style: normal;
+  font-size: 12px;
   letter-spacing: 0;
   opacity: .85;
-  font-style: normal;
 }
 .card .tile-text { display: block; }
 
-/* Tag colours — softened so text reads on dark bg even unhovered */
-.card.tag-0 { border-color: rgba(232,200,130,.65); color: #F0D9A4; }
-.card.tag-1 { border-color: rgba(244,181,200,.65); color: #FBD2DD; }
-.card.tag-2 { border-color: rgba(165,200,228,.65); color: #C6DCEE; }
-.card.tag-3 { border-color: rgba(165,216,197,.65); color: #C6E5D5; }
-.card.tag-0:hover, .card.tag-1:hover,
-.card.tag-2:hover, .card.tag-3:hover { color: var(--cream); }
+/* Tag colours — recolour the gold ring + the rose border together
+   so the four families read instantly without losing the tarot look */
+.card.tag-0 {
+  border-color: rgba(232,200,130,.85);
+  color: #F0D9A4;
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),
+    0 0 0 4px rgba(232,200,130,.45),
+    inset 0 0 18px rgba(232,200,130,.12),
+    0 6px 22px rgba(0,0,0,.40);
+}
+.card.tag-1 {
+  border-color: rgba(244,181,200,.9);
+  color: #FBD2DD;
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),
+    0 0 0 4px rgba(244,181,200,.45),
+    inset 0 0 18px rgba(244,181,200,.14),
+    0 6px 22px rgba(0,0,0,.40);
+}
+.card.tag-2 {
+  border-color: rgba(165,200,228,.85);
+  color: #C6DCEE;
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),
+    0 0 0 4px rgba(165,200,228,.45),
+    inset 0 0 18px rgba(165,200,228,.12),
+    0 6px 22px rgba(0,0,0,.40);
+}
+.card.tag-3 {
+  border-color: rgba(165,216,197,.85);
+  color: #C6E5D5;
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),
+    0 0 0 4px rgba(165,216,197,.45),
+    inset 0 0 18px rgba(165,216,197,.12),
+    0 6px 22px rgba(0,0,0,.40);
+}
 
 /* Result states */
 .card.is-correct {
-  background: linear-gradient(180deg, rgba(244,181,200,.20), rgba(199,122,149,.20)) !important;
+  background: linear-gradient(160deg,
+    rgba(244,181,200,.32) 0%,
+    rgba(199,122,149,.30) 100%) !important;
   border-color: var(--rose) !important;
   color: var(--cream) !important;
-  box-shadow: 0 0 18px rgba(237,184,158,.42);
+  box-shadow:
+    0 0 0 3px rgba(8,4,18,.55),
+    0 0 0 4px var(--rose),
+    inset 0 0 22px rgba(237,184,158,.30),
+    0 8px 28px rgba(0,0,0,.50),
+    0 0 26px rgba(237,184,158,.50) !important;
 }
 .card.is-correct .tile-mark { color: var(--rose); }
-.card.is-wrong               { opacity: .58; }
-.card.is-wrong .tile-mark    { color: rgba(244,181,200,.55); }
+.card.is-wrong              { opacity: .56; }
+.card.is-wrong .tile-mark   { color: rgba(244,181,200,.55); }
 
 /* Match grid layout — slimmer cells */
 .match-grid,
@@ -2558,6 +2621,50 @@ body { background: transparent !important; }
   color: var(--rose) !important;
   -webkit-text-fill-color: var(--rose) !important;
   text-shadow: 0 0 26px rgba(237,184,158,.95) !important;
+}
+
+
+/* ============================================================
+   37. ORACLE — cloze prompt, english options, tap-to-advance
+   ============================================================
+   The example sentence comes pre-blanked from buildOracleQuestion();
+   the blank is wrapped in <em class="q-blank"> so we can underline
+   it like a fill-in field.  After the user picks, a hint at the
+   bottom waits for any tap to flip to the next question.            */
+.q-sentence {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.55;
+  color: var(--cream);
+  text-align: center;
+  padding: 14px 18px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.q-sentence .q-blank {
+  font-style: italic;
+  color: var(--rose);
+  letter-spacing: .05em;
+  border-bottom: 1px solid rgba(237,184,158,.55);
+  padding: 0 4px 1px;
+  margin: 0 2px;
+  text-shadow: 0 0 10px rgba(237,184,158,.45);
+}
+.q-tap-hint {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .22em;
+  color: var(--pink-soft);
+  opacity: .55;
+  padding: 18px 0 10px;
+  animation: tap-hint-breathe 2.4s ease-in-out infinite;
+}
+@keyframes tap-hint-breathe {
+  0%, 100% { opacity: .35; }
+  50%      { opacity: .82; }
 }
 
 
