@@ -4137,16 +4137,15 @@ body.bg-result .match-result-grid > .card {
   transform-origin: 50% 50%;
 }
 
-/* --- 47.3  title plaque — the dome PNG is the picture, the .tp-text
-   inside is absolutely positioned so it always lands in the purple
-   band of the dome regardless of plaque size. --- */
+/* --- 47.3  title plaque — bigger dome + bigger text, matching
+   the banner's display serif so the two reads as one set. --- */
 .nav-card .title-plaque {
   position: absolute;
-  top: 2%;
+  top: 0%;
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
-  height: 28%;
+  width: 72%;
+  height: 36%;                /* bigger dome */
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
     center/100% 100% no-repeat;
@@ -4154,28 +4153,28 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  top: 58%;                       /* the dome's text band centre */
+  top: 56%;                       /* lands in the dome's text band */
   transform: translate(-50%, -50%);
-  width: 70%;
+  width: 72%;
   text-align: center;
-  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-family: var(--f-display), 'Bodoni 72', 'Didot', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(13px, 3.2vw, 17px);
+  font-size: clamp(18px, 4.6vw, 24px);
   line-height: 1.05;
-  letter-spacing: .06em;
+  letter-spacing: .03em;
   color: #f3d99a;
   text-shadow:
-    0 0 8px rgba(243,217,154,.55),
-    0 0 16px rgba(218,168,104,.35);
+    0 0 10px rgba(243,217,154,.6),
+    0 0 22px rgba(218,168,104,.4);
   text-transform: lowercase;
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — sits below the title plaque, clears bow --- */
+/* --- 47.4  body area — sits below the bigger title plaque ---- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 34%;
+  top: 40%;
   left: 13%;
   right: 13%;
   bottom: 22%;
@@ -4316,59 +4315,50 @@ body.bg-result .match-result-grid > .card {
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(244,181,200,.22);
 }
-/* --- word row — two-row grid, EN+pos on top, Chinese left-aligned
-   on its own line below.  Colours per the design owner:
-     EN word  = warm gold + glow
-     POS      = small italic dark pink, hugs the word
-     ZH       = small italic dark purple, left-aligned new line --- */
+/* --- word row — back to the initial 3-column single-line layout
+   that reads like an old vellum index.  Chinese sits on the right
+   in a soft muted lilac so it doesn't fight the EN word. --- */
 .word-list .word-row {
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 8px;
-  row-gap: 1px;
-  padding: 9px 6px 10px;
-  border-bottom: 1px dashed rgba(244,181,200,.15);
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  column-gap: 10px;
+  padding: 10px 4px 11px;
+  border-bottom: 1px dashed rgba(244,181,200,.12);
   cursor: pointer;
   transition: background-color .18s;
 }
-.word-list .word-row:hover { background: rgba(237,184,158,.06); }
+.word-list .word-row:hover { background: rgba(237,184,158,.05); }
 .word-list .word-row .wr-word {
-  grid-column: 1; grid-row: 1;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 19px;
   color: var(--gold-warm);
   text-shadow:
-    0 0 8px rgba(243,217,154,.55),
-    0 0 18px rgba(218,168,104,.32);
+    0 0 8px rgba(243,217,154,.5),
+    0 0 18px rgba(218,168,104,.3);
   letter-spacing: .01em;
 }
 .word-list .word-row .wr-pos {
-  grid-column: 2; grid-row: 1;
-  align-self: baseline;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--pink-deep);
   letter-spacing: .06em;
-  opacity: .9;
+  opacity: .92;
   white-space: nowrap;
-  justify-self: start;        /* HUGS the word on the left */
 }
 .word-list .word-row .wr-zh {
-  grid-column: 1 / span 2;
-  grid-row: 2;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11.5px;
-  color: #b89edd;             /* muted lilac — readable on the purple bg */
+  font-size: 12.5px;
+  color: #b89edd;             /* muted lilac — sits on bg-note without glare */
   letter-spacing: .04em;
-  text-align: left !important;
+  text-align: right !important;
+  justify-self: end;
   opacity: .95;
   word-break: break-word;
-  margin-top: 1px;
 }
 
 /* tighten hub-screen side padding so the nav card can breathe */
