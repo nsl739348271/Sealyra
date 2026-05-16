@@ -471,6 +471,79 @@ function flipToCard(tile, word, from) {
   setTimeout(() => go('card', { word, from }), 340);
 }
 
+// v=26.2 — index-style listing wrapped in the page panel (0511DE6F
+// frame).  Used by both the full index and the note-bucket page so
+// they share one visual.  Renders title (in the inner dome frame)
+// + search input + A-Z bar + alpha-sectioned word rows.
+function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'index' }) {
+  const groups = {};
+  words.forEach(h => {
+    const k = h[0].toUpperCase();
+    (groups[k] = groups[k] || []).push(h);
+  });
+  const letters = Object.keys(groups).sort();
+  el.innerHTML = `
+    <div class="page-panel">
+      <div class="panel-head">
+        ${pageTitle(title)}
+        <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
+      </div>
+      <div class="panel-body" id="panel-body-${fromKey}">
+        ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
+      </div>
+    </div>
+  `;
+  el.prepend(moonCorner());
+  el.appendChild(closeCorner({ to: backTo }));
+
+  $$('.alpha-bar a', el).forEach(a => {
+    a.addEventListener('click', () => {
+      const L = a.getAttribute('data-letter');
+      const target = $(`#letter-${L}-${fromKey}`, el);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  const body = $(`#panel-body-${fromKey}`, el);
+  letters.forEach(L => {
+    body.insertAdjacentHTML('beforeend',
+      `<div class="alpha-section-title" id="letter-${L}-${fromKey}">${L}</div>`);
+    groups[L].forEach(h => {
+      const c = CARDS[h];
+      const row = document.createElement('div');
+      row.className = 'word-row';
+      row.dataset.word = c.h.toLowerCase();
+      row.dataset.zh = (c.zh || '').toLowerCase();
+      row.innerHTML = `
+        <span class="wr-word">${escapeHtml(c.h)}</span>
+        <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
+        <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
+      `;
+      row.addEventListener('click', () => flipToCard(row, h, fromKey));
+      body.appendChild(row);
+    });
+  });
+
+  $('.index-search', el).addEventListener('input', e => {
+    const q = (e.target.value || '').toLowerCase().trim();
+    $$('.word-row', el).forEach(row => {
+      const hit = !q ||
+        row.dataset.word.includes(q) ||
+        row.dataset.zh.includes(q);
+      row.style.display = hit ? '' : 'none';
+    });
+    $$('.alpha-section-title', el).forEach(h => {
+      let n = h.nextElementSibling, alive = false;
+      while (n && !n.classList.contains('alpha-section-title')) {
+        if (n.style.display !== 'none') { alive = true; break; }
+        n = n.nextElementSibling;
+      }
+      h.style.display = alive ? '' : 'none';
+    });
+  });
+}
+
 function sprinkleStars(container, count = 18) {
   if (!container || container.querySelector('.deco-stars')) return;
   const wrap = document.createElement('div');
@@ -1231,9 +1304,9 @@ const Screens = {
   },
 
   /* ---------- NOTE hub (cover-side, NOT in game flow) ----------
-     v=26 — collapsed to 2 horizontal bucket buttons, framed by the
-     score frame.  Tapping a bucket → 'note-bucket' screen which
-     shows the actual word tiles. */
+     v=26.2 — page panel (0511DE6F frame) wraps the inner dome title
+     + 2 horizontal bucket buttons.  Clicking a bucket lands on
+     screen-note-bucket which now reuses the index list format.    */
   note: {
     onEnter() {
       const el = $('#screen-note');
@@ -1242,20 +1315,22 @@ const Screens = {
       const soft  = entries.filter(([_, c]) => c >= 1 && c <= 2).map(([w]) => w);
       const haunt = entries.filter(([_, c]) => c >= 3).map(([w]) => w);
       el.innerHTML = `
-        ${pageTitle('her little note')}
-        <div class="bucket-row">
-          <button class="bucket-card" data-bucket="soft" ${soft.length  ? '' : 'disabled'}>
-            <div class="bk-hint">words that slipped once</div>
-            <div class="bk-value">${soft.length}</div>
-            <div class="bk-label">soft slips</div>
-          </button>
-          <button class="bucket-card" data-bucket="haunt" ${haunt.length ? '' : 'disabled'}>
-            <div class="bk-hint">words that return</div>
-            <div class="bk-value">${haunt.length}</div>
-            <div class="bk-label">haunting words</div>
-          </button>
+        <div class="page-panel page-panel--short">
+          ${pageTitle('her little note')}
+          <div class="bucket-row">
+            <button class="bucket-card" data-bucket="soft" ${soft.length  ? '' : 'disabled'}>
+              <div class="bk-hint">words that slipped once</div>
+              <div class="bk-value">${soft.length}</div>
+              <div class="bk-label">soft slips</div>
+            </button>
+            <button class="bucket-card" data-bucket="haunt" ${haunt.length ? '' : 'disabled'}>
+              <div class="bk-hint">words that return</div>
+              <div class="bk-value">${haunt.length}</div>
+              <div class="bk-label">haunting words</div>
+            </button>
+          </div>
+          ${entries.length ? '' : `<div class="note-empty">no slips yet · the page is still pristine</div>`}
         </div>
-        ${entries.length ? '' : `<div class="note-empty">no slips yet · the page is still pristine</div>`}
       `;
       el.prepend(moonCorner());
       el.appendChild(closeCorner());
@@ -1268,13 +1343,12 @@ const Screens = {
     }
   },
 
-  /* ---------- NOTE BUCKET (collection grid for a chosen bucket) ----
-     New in v=26. Shows the bucket's words as small click-tile
-     thumbnails (the v19 transparent style).  Tap → flip + page-turn
-     SFX → single-page parchment study (screen-card). */
+  /* ---------- NOTE BUCKET — index-style filtered list -----------
+     v=26.2 — user simplification: bucket page now reuses the same
+     panel/search/A-Z/list UI as the index, just with the bucket's
+     filtered word set.  One layout instead of a separate grid. */
   'note-bucket': {
     onEnter({ bucket } = {}) {
-      const el = $('#screen-note-bucket');
       const m = saved.mistakes;
       const words = Object.entries(m)
         .filter(([_, c]) => bucket === 'haunt' ? c >= 3 : (c >= 1 && c <= 2))
@@ -1282,99 +1356,18 @@ const Screens = {
         .filter(w => CARDS[w])
         .sort();
       const title = bucket === 'haunt' ? 'haunting words' : 'soft slips';
-      el.innerHTML = `
-        ${pageTitle(title)}
-        <div class="bucket-grid"></div>
-        ${words.length ? '' : `<div class="note-empty">nothing here · turn back to the note</div>`}
-      `;
-      el.prepend(moonCorner());
-      el.appendChild(closeCorner({ to: 'note' }));
-
-      const grid = $('.bucket-grid', el);
-      words.forEach(w => {
-        const c = CARDS[w];
-        const tile = document.createElement('button');
-        tile.className = 'card--bucket';
-        tile.innerHTML = `
-          <span class="bt-word">${escapeHtml(c.h)}</span>
-          <span class="bt-pos">${escapeHtml(c.pos || '')}</span>
-          <span class="bt-zh">${escapeHtml(c.zh || '')}</span>
-        `;
-        tile.addEventListener('click', () => flipToCard(tile, w, 'note-bucket'));
-        grid.appendChild(tile);
-      });
+      renderIndexLikePage($('#screen-note-bucket'),
+        { title, words, backTo: 'note', fromKey: 'note-bucket' });
     }
   },
 
-  /* ---------- INDEX (cover-side, A-Z) ---------- */
+  /* ---------- INDEX (cover-side, A-Z) ----------
+     v=26.2 — same panel UI as note-bucket via renderIndexLikePage. */
   index: {
     onEnter() {
-      const el = $('#screen-index');
       const heads = Object.keys(CARDS).sort();
-      // group by first letter
-      const groups = {};
-      heads.forEach(h => {
-        const k = h[0].toUpperCase();
-        (groups[k] = groups[k] || []).push(h);
-      });
-      const letters = Object.keys(groups).sort();
-      el.innerHTML = `
-        <div class="screen-stickyhead">
-          ${pageTitle('the index')}
-          <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-          <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
-        </div>
-        <div id="index-body"></div>
-      `;
-      el.prepend(moonCorner());
-      el.appendChild(closeCorner());
-
-      $$('.alpha-bar a', el).forEach(a => {
-        a.addEventListener('click', () => {
-          const L = a.getAttribute('data-letter');
-          const target = $(`#letter-${L}`, el);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-
-      const body = $('#index-body', el);
-      letters.forEach(L => {
-        body.insertAdjacentHTML('beforeend', `<div class="alpha-section-title" id="letter-${L}">${L}</div>`);
-        groups[L].forEach(h => {
-          const c = CARDS[h];
-          const row = document.createElement('div');
-          row.className = 'word-row';
-          row.dataset.word = c.h.toLowerCase();
-          row.dataset.zh = (c.zh || '').toLowerCase();
-          row.innerHTML = `
-            <span class="wr-word">${escapeHtml(c.h)}</span>
-            <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
-            <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
-          `;
-          row.addEventListener('click', () => flipToCard(row, h, 'index'));
-          body.appendChild(row);
-        });
-      });
-
-      // Live filter — matches both the head and its chinese gloss.
-      $('.index-search', el).addEventListener('input', e => {
-        const q = (e.target.value || '').toLowerCase().trim();
-        $$('.word-row', el).forEach(row => {
-          const hit = !q ||
-            row.dataset.word.includes(q) ||
-            row.dataset.zh.includes(q);
-          row.style.display = hit ? '' : 'none';
-        });
-        // hide section labels whose section now has no visible rows
-        $$('.alpha-section-title', el).forEach(h => {
-          let n = h.nextElementSibling, alive = false;
-          while (n && !n.classList.contains('alpha-section-title')) {
-            if (n.style.display !== 'none') { alive = true; break; }
-            n = n.nextElementSibling;
-          }
-          h.style.display = alive ? '' : 'none';
-        });
-      });
+      renderIndexLikePage($('#screen-index'),
+        { title: 'the index', words: heads, backTo: 'cover', fromKey: 'index' });
     }
   },
 
