@@ -377,7 +377,7 @@ function refreshSidebarList() {
       a.addEventListener('click', () => {
         closeSidebar();
         SFX.pageTurn();
-        go('card', { word: w, from: state.screen });
+        go('card', { word: w, from: state.screen === 'card' ? (state._cardFrom || 'cover') : state.screen });
       });
       list.appendChild(a);
     });
@@ -480,13 +480,14 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
   box.className = 'ex-card'
     + (mark === true ? ' is-correct' : mark === false ? ' is-wrong' : '');
 
-  /* top-right "close the page" + bottom-right "fold this page".
-     Close exits back to wherever the card was opened from.
-     Fold collapses every revealed segment back to its veiled state.  */
+  // The reveal queue — items unfold in order on each tap of the card.
+  // Tap anywhere on .ex-card (except on a ♪ button / neighbour link /
+  // close pill / input) → shift the first item out, drop its is-veiled
+  // class, speak its audio.
+  const queue = [];
+
   if (withControls) {
-    box.insertAdjacentHTML('beforeend', `
-      <button class="ex-card-close">close the page</button>
-    `);
+    box.insertAdjacentHTML('beforeend', `<button class="ex-card-close">close the page</button>`);
     box.querySelector('.ex-card-close').addEventListener('click', e => {
       e.stopPropagation();
       SFX.tap();
@@ -495,7 +496,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
     });
   }
 
-  /* HEAD — always visible.  Headword + chinese live on one row. */
+  /* HEAD — always visible.  Headword + chinese on one row. */
   const head = document.createElement('div');
   head.className = 'ex-head';
   head.innerHTML = `
@@ -506,8 +507,8 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
   `;
   box.appendChild(head);
 
-  /* HER FAMILY — each entry is its own veiled reveal.  Tap the
-     headword row → its collocation slides in below + auto-plays.    */
+  /* HER FAMILY — heads always visible, each collocation is its own
+     queued reveal.                                                   */
   if (c.family && c.family.length) {
     const fam = document.createElement('div');
     fam.className = 'ex-section ex-family';
@@ -515,26 +516,20 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
     c.family.forEach(line => {
       const [w, pos, ex, ezh] = line.split('|').map(s => s.trim());
       const row = document.createElement('div');
-      row.className = 'fam-row is-veiled';
+      row.className = 'fam-row';
       row.innerHTML = `
-        <button class="fam-trigger">
+        <div class="fam-head">
           <span class="fam-word">${escapeHtml(w)}</span>
           <span class="fam-pos">${escapeHtml(pos)}</span>
-        </button>
-        <div class="fam-reveal">
+        </div>
+        <div class="fam-reveal is-veiled">
           <button class="ex-speak" data-sp="${escapeAttr(ex || '')}" aria-label="play">♪</button>
           <span class="fam-ex">${escapeHtml(ex || '')}</span>
           <span class="fam-ex-zh">${escapeHtml(ezh || '')}</span>
         </div>
       `;
-      row.querySelector('.fam-trigger').addEventListener('click', e => {
-        e.stopPropagation();
-        if (row.classList.contains('is-veiled')) {
-          row.classList.remove('is-veiled');
-          if (ex) speak(ex);
-        }
-      });
       fam.appendChild(row);
+      if (ex) queue.push({ el: row.querySelector('.fam-reveal'), audio: ex });
     });
     box.appendChild(fam);
   }
@@ -543,66 +538,47 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
   div1.className = 'ex-divider';
   box.appendChild(div1);
 
-  /* HER FRIEND — section-level veil.  Tap "tap to reveal" → every
-     collocation row slides in and the first one is spoken aloud.    */
+  /* HER FRIEND — section label always visible, every collocation row
+     is queued individually so each tap reveals + speaks ONE colloc.  */
   if (c.colloc && c.colloc.length) {
     const fr = document.createElement('div');
-    fr.className = 'ex-section ex-friend is-veiled';
-    fr.innerHTML = `<div class="ex-label">her friend</div>
-                    <button class="veil-hint friend-veil">— tap to reveal —</button>
-                    <div class="friend-reveal"></div>`;
-    const reveal = fr.querySelector('.friend-reveal');
+    fr.className = 'ex-section ex-friend';
+    fr.innerHTML = `<div class="ex-label">her friend</div>`;
     c.colloc.forEach(line => {
       const [phrase, zh] = line.split('|').map(s => s.trim());
       const row = document.createElement('div');
-      row.className = 'colloc-row';
+      row.className = 'colloc-row is-veiled';
       row.innerHTML = `
         <button class="ex-speak" data-sp="${escapeAttr(phrase)}" aria-label="play">♪</button>
         <span class="colloc-en">${escapeHtml(phrase)}</span>
         <span class="colloc-zh">${escapeHtml(zh || '')}</span>
       `;
-      reveal.appendChild(row);
-    });
-    fr.querySelector('.friend-veil').addEventListener('click', e => {
-      e.stopPropagation();
-      if (fr.classList.contains('is-veiled')) {
-        fr.classList.remove('is-veiled');
-        const first = c.colloc[0] && c.colloc[0].split('|')[0].trim();
-        if (first) speak(first);
-      }
+      fr.appendChild(row);
+      queue.push({ el: row, audio: phrase });
     });
     box.appendChild(fr);
-  }
-
-  /* EXAMPLE — section-level veil.  Tap → sentence appears, spoken. */
-  if (c.example) {
-    const ex = document.createElement('div');
-    ex.className = 'ex-section ex-example is-veiled';
-    ex.innerHTML = `
-      <button class="veil-hint example-veil">— tap to reveal —</button>
-      <div class="example-reveal">
-        <button class="ex-speak" data-sp="${escapeAttr(c.example)}" aria-label="play">♪</button>
-        <div class="ex-example-text">
-          <div class="ex-example-en">${escapeHtml(c.example)}</div>
-          <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>
-        </div>
-      </div>
-    `;
-    ex.querySelector('.example-veil').addEventListener('click', e => {
-      e.stopPropagation();
-      if (ex.classList.contains('is-veiled')) {
-        ex.classList.remove('is-veiled');
-        speak(c.example);
-      }
-    });
-    box.appendChild(ex);
   }
 
   const div2 = document.createElement('div');
   div2.className = 'ex-divider';
   box.appendChild(div2);
 
-  /* HER NEIGHBOR — always visible, click → jump to the partner's card. */
+  /* EXAMPLE — the full sentence sits at the end of the queue.        */
+  if (c.example) {
+    const ex = document.createElement('div');
+    ex.className = 'ex-section ex-example is-veiled';
+    ex.innerHTML = `
+      <button class="ex-speak" data-sp="${escapeAttr(c.example)}" aria-label="play">♪</button>
+      <div class="ex-example-text">
+        <div class="ex-example-en">${escapeHtml(c.example)}</div>
+        <div class="ex-example-zh">${escapeHtml(c.example_zh || '')}</div>
+      </div>
+    `;
+    box.appendChild(ex);
+    queue.push({ el: ex, audio: c.example });
+  }
+
+  /* HER NEIGHBOR — always visible. */
   if (c.partner) {
     const nb = document.createElement('div');
     nb.className = 'ex-section ex-neighbor';
@@ -611,7 +587,7 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
     nb.querySelector('.ex-neighbor-link').addEventListener('click', e => {
       e.stopPropagation();
       SFX.pageTurn();
-      go('card', { word: c.partner, from: state.screen });
+      go('card', { word: c.partner, from: state.screen === 'card' ? (state._cardFrom || 'cover') : state.screen });
     });
     box.appendChild(nb);
   }
@@ -624,25 +600,66 @@ function renderExCard(headWord, mark = null, { rewrite = false, withControls = t
     box.appendChild(rw);
   }
 
-  /* fold this page — re-veils every revealed segment of THIS card. */
+  /* The tap hint — visible while the queue still has items. */
+  const tapHint = document.createElement('div');
+  tapHint.className = 'ex-tap-hint';
+  tapHint.textContent = '— tap to reveal more —';
+  box.appendChild(tapHint);
+  if (queue.length === 0) tapHint.style.display = 'none';
+
   if (withControls) {
-    box.insertAdjacentHTML('beforeend', `
-      <button class="ex-card-fold">fold this page</button>
-    `);
+    box.insertAdjacentHTML('beforeend', `<button class="ex-card-fold">fold this page</button>`);
     box.querySelector('.ex-card-fold').addEventListener('click', e => {
       e.stopPropagation();
       SFX.tap();
-      box.querySelectorAll('.fam-row, .ex-friend, .ex-example').forEach(s => s.classList.add('is-veiled'));
+      // Re-veil every reveal target AND rebuild the queue from scratch.
+      queue.length = 0;
+      box.querySelectorAll('.fam-reveal').forEach((rv, i) => {
+        rv.classList.add('is-veiled');
+        const audio = rv.querySelector('.fam-ex')?.textContent || '';
+        if (audio) queue.push({ el: rv, audio });
+      });
+      box.querySelectorAll('.colloc-row').forEach(row => {
+        row.classList.add('is-veiled');
+        const audio = row.querySelector('.colloc-en')?.textContent || '';
+        queue.push({ el: row, audio });
+      });
+      const exNode = box.querySelector('.ex-example');
+      if (exNode) {
+        exNode.classList.add('is-veiled');
+        const audio = exNode.querySelector('.ex-example-en')?.textContent || '';
+        queue.push({ el: exNode, audio });
+      }
+      tapHint.textContent = '— tap to reveal more —';
+      tapHint.style.display = '';
+      tapHint.style.opacity = '';
     });
   }
 
-  /* every ♪ speaks its own segment without bubbling up. */
+  /* Per-segment ♪ play buttons replay one piece of audio without
+     touching the reveal queue.  e.stopPropagation prevents the
+     card-wide click from also firing on the same tap.                */
   box.querySelectorAll('.ex-speak').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
       const sp = b.getAttribute('data-sp');
       if (sp) speak(sp);
     });
+  });
+
+  /* THE CARD-WIDE LINEAR REVEAL — tap anywhere on .ex-card and the
+     next item in the queue unfolds with its audio.                   */
+  box.addEventListener('click', e => {
+    if (e.target.closest('.ex-speak, .ex-neighbor-link, .ex-card-close, .ex-card-fold, .ex-rewrite, input, button')) return;
+    if (queue.length === 0) return;
+    const next = queue.shift();
+    next.el.classList.remove('is-veiled');
+    SFX.pageTurn();
+    if (next.audio) speak(next.audio);
+    if (queue.length === 0) {
+      tapHint.textContent = '— page complete —';
+      tapHint.style.opacity = '.45';
+    }
   });
 
   return box;
@@ -1282,7 +1299,10 @@ const Screens = {
     onEnter(opts) {
       const el = $('#screen-card');
       const word = opts.word;
-      const from = opts.from || 'index';
+      // default to 'cover' when no caller passed an explicit from —
+      // never to 'index', which created the dead-end where pressing
+      // close on the card jumped to the word list instead of home.
+      const from = opts.from || 'cover';
       state._cardFrom = from;
       el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
 
