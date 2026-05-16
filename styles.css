@@ -2412,6 +2412,155 @@ body { background: transparent !important; }
 .stage-head { margin-top: 12px !important; }
 
 
+/* ============================================================
+   35. .card — UNIFIED CARD FAMILY  ("卡牌")
+   ============================================================
+   One base class, three modifiers:
+     .card               — the rose-outlined italic pill, the spine
+                           of every clickable word in the game
+     .card.tag-0..tag-3  — the four match colours
+     .card--match        — sized for the matching grid (a 4×2 block
+                           of square-ish word cards)
+     .card--option       — sized for the oracle's 4-choice column
+   States .is-correct / .is-wrong / .is-picking / .picked-right /
+   .picked-wrong / .reveal-right are shared.
+   .match-card / .match-tile / .oracle-option / .oracle-options are
+   retired in JS; their old CSS just doesn't bind anymore.          */
+
+.card {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8,4,18,.42);
+  border: 1.5px solid rgba(244,181,200,.42);
+  border-radius: 12px;
+  padding: 12px 14px;                /* less fat — was 22px */
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--cream);
+  text-align: center;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, transform .14s, box-shadow .25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.card:hover  { border-color: var(--rose); color: var(--rose); }
+.card:active { transform: translateY(1px); }
+.card[disabled] { cursor: default; }
+
+/* Top-right marker (✓ / ✗) */
+.card .tile-mark {
+  position: absolute;
+  top: 6px; right: 10px;
+  font-size: 11px;
+  letter-spacing: 0;
+  opacity: .85;
+  font-style: normal;
+}
+.card .tile-text { display: block; }
+
+/* Tag colours — softened so text reads on dark bg even unhovered */
+.card.tag-0 { border-color: rgba(232,200,130,.65); color: #F0D9A4; }
+.card.tag-1 { border-color: rgba(244,181,200,.65); color: #FBD2DD; }
+.card.tag-2 { border-color: rgba(165,200,228,.65); color: #C6DCEE; }
+.card.tag-3 { border-color: rgba(165,216,197,.65); color: #C6E5D5; }
+.card.tag-0:hover, .card.tag-1:hover,
+.card.tag-2:hover, .card.tag-3:hover { color: var(--cream); }
+
+/* Result states */
+.card.is-correct {
+  background: linear-gradient(180deg, rgba(244,181,200,.20), rgba(199,122,149,.20)) !important;
+  border-color: var(--rose) !important;
+  color: var(--cream) !important;
+  box-shadow: 0 0 18px rgba(237,184,158,.42);
+}
+.card.is-correct .tile-mark { color: var(--rose); }
+.card.is-wrong               { opacity: .58; }
+.card.is-wrong .tile-mark    { color: rgba(244,181,200,.55); }
+
+/* Match grid layout — slimmer cells */
+.match-grid,
+.match-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+  padding: 6px 14px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.match-grid > .card,
+.match-result-grid > .card {
+  width: 100%;
+  font-size: 16px;
+  padding: 14px 8px;
+  display: flex;
+}
+
+/* Oracle option — full-width row, slightly taller */
+.card--option {
+  display: flex !important;
+  width: 100%;
+  margin: 8px 0;
+  padding: 14px 18px;
+  font-size: 15px;
+}
+.oracle-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 540px;
+  margin: 12px auto 0;
+}
+
+/* Oracle interaction states (re-attached to the new class name) */
+.card--option.is-picking {
+  border-color: var(--pink-deep) !important;
+  color: var(--pink-soft) !important;
+  background: rgba(244,181,200,.16) !important;
+  box-shadow: 0 0 18px rgba(199,122,149,.55), inset 0 0 12px rgba(244,181,200,.35);
+}
+.card--option.picked-right {
+  border-color: var(--rose) !important;
+  color: var(--rose) !important;
+  background: rgba(237,184,158,.10) !important;
+  box-shadow: var(--rose-glow);
+}
+.card--option.picked-wrong {
+  border-color: rgba(245,239,227,.16) !important;
+  color: rgba(245,239,227,.32) !important;
+  background: rgba(6,3,15,.32) !important;
+  opacity: .55;
+}
+.card--option.reveal-right {
+  border-color: var(--pink) !important;
+  color: var(--pink-soft) !important;
+  background: rgba(244,181,200,.14) !important;
+  box-shadow: var(--pink-glow);
+}
+
+
+/* ============================================================
+   36. ENGAGED-GLOW  ("next" buttons light up like Tonight's Reading)
+   ============================================================ */
+.next-door.is-engaged {
+  color: var(--rose) !important;
+  text-shadow: 0 0 22px rgba(237,184,158,.95) !important;
+}
+.next-door.is-engaged::before {
+  background: linear-gradient(90deg, transparent, var(--rose)) !important;
+}
+.next-door.is-engaged::after {
+  background: linear-gradient(90deg, var(--rose), transparent) !important;
+}
+.main-cta.is-engaged .cta-text {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+  text-shadow: 0 0 26px rgba(237,184,158,.95) !important;
+}
+
+
 
 
 
