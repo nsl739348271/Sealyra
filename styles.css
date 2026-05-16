@@ -3630,7 +3630,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
      ui-page-title  — her note / the index page-title frame (with key)
      ui-word        — every game word tile (.card.card--match / --option)
      ui-chapter     — stage-head "chapter · N — name" strip
-     ui-parchment   — study card detail screen
+     ui-parchment   — DELETED (user removed)
      ui-modal       — confirm-ready / confirm-leave / finish modal
      ui-score       — score-block result badge (horizontal w/ bow)
      ui-medallion   — circular badge, role TBD, unbound for now
@@ -3905,7 +3905,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
 
 /* ----- 50.6  Study card parchment ----- */
 #screen-card .ex-card {
-  background: url("assets/ui-parchment.png?v=29") center/100% 100% no-repeat !important;
+  background: none !important;
   border: none !important;
   box-shadow: none !important;
   padding: 80px 56px 110px !important;          /* room for the ribbon top + scroll bottom */
@@ -4256,7 +4256,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=29") !imp
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: url("assets/ui-parchment.png?v=29") center/100% 100% no-repeat;
+  background: none;
   pointer-events: none;
   z-index: 0;
 }
