@@ -1310,16 +1310,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=22"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=25"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=22"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=25"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=22"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=25"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=22"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=25"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1345,7 +1345,7 @@ body {
   content: "";
   display: block;
   width: 22px; height: 64px;
-  background: url("assets/icon-key.png?v=22") center/contain no-repeat;
+  background: url("assets/icon-key.png?v=25") center/contain no-repeat;
   filter: drop-shadow(0 0 6px rgba(218,168,104,.45));
 }
 .main-cta .cta-key-l::before { transform: rotate(-12deg); }
@@ -1355,7 +1355,7 @@ body {
   content: "";
   display: block;
   width: 14px; height: 40px;
-  background: url("assets/icon-key.png?v=22") center/contain no-repeat;
+  background: url("assets/icon-key.png?v=25") center/contain no-repeat;
 }
 .next-door .nd-key:first-child::before { transform: rotate(-12deg); }
 .next-door .nd-key:last-child::before  { transform: rotate( 12deg); }
@@ -1367,7 +1367,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=22") center/contain no-repeat;
+  background: url("assets/icon-moon.png?v=25") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1378,7 +1378,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=22") center/contain no-repeat;
+  background: url("assets/icon-bow.png?v=25") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1395,10 +1395,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=22"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=22"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=22"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=22"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=25"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=25"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=25"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=25"); width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1447,10 +1447,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=22"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=22"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=22"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=22"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=25"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=25"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=25"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=25"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3593,4 +3593,116 @@ body { background: transparent !important; }
   min-height: 78px !important;
   font-size: 18px !important;
   padding: 0 12px !important;
+}
+
+/* ============================================================
+   47. ink-writing reveal — the parchment unfurl
+   ============================================================
+   the user wanted the row to feel like a strip of parchment
+   unfurling (paper extending) AND the text being inked in left
+   to right.  achieved with three transitions on the same row:
+     - max-height 0→300  → the row's vertical extent grows
+     - opacity 0→1       → the ink fades in
+     - clip-path inset(0 100% 0 0) → inset(0 0 0 0)
+                          → a wipe that reveals from left to right
+   the previous brick-wall display:none veil is replaced with the
+   same set of "collapsed" properties so the transition is animable.
+   ============================================================ */
+
+.fam-reveal,
+.colloc-row,
+.ex-example {
+  max-height: 320px;
+  opacity: 1;
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+  transition:
+    max-height .55s cubic-bezier(.2,.7,.2,1),
+    opacity   .45s ease,
+    padding   .40s ease,
+    margin    .40s ease,
+    clip-path .75s ease-out;
+}
+
+/* The veil is now a SET of transition-friendly zero-values, no
+   display:none — that's what makes the unfurl animate.            */
+.ex-card .fam-reveal.is-veiled,
+.ex-card .colloc-row.is-veiled,
+.ex-card .ex-example.is-veiled,
+.fam-reveal.is-veiled,
+.colloc-row.is-veiled,
+.ex-example.is-veiled {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  clip-path: inset(0 100% 0 0) !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  /* display stays flex — that's what the transition needs.          */
+  display: flex !important;
+  /* override the earlier brick-wall display:none + visibility hidden */
+  visibility: visible !important;
+  height: auto !important;
+}
+
+/* ============================================================
+   48. final cleanup — kill the old ::before keys, hard-pin grids
+   ============================================================
+   1. Older sheets had .main-cta .cta-key::before painting a SECOND
+      key (background-image PNG, with a drop-shadow) right on top of
+      our real <img>.  on iOS Safari the pseudo-element's empty box
+      bled a faint rectangle of bg colour around the actual key.
+      kill those ::before / ::after rules outright.
+   2. The user keeps seeing the old grid widths because some earlier
+      sheet still wins.  bump specificity with body.bg-stage and
+      body.bg-result prefixes so nothing can outrun the rule.       */
+
+.main-cta .cta-key::before,
+.main-cta .cta-key::after,
+.main-cta .cta-fleur,
+.main-cta .cta-rule,
+.next-door .nd-key::before,
+.next-door .nd-key::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  filter: none !important;
+}
+
+/* Plain <img> styling — no border / box / outline / bg can creep in. */
+.main-cta img.cta-key,
+.dict-quill,
+.modal-card .m-spark {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+body.bg-stage  .match-grid,
+body.bg-result .match-result-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+  padding: 0 !important;
+  max-width: 480px !important;
+  width: 100% !important;
+  margin: 14px auto !important;
+  box-sizing: border-box !important;
+}
+body.bg-stage  .match-grid > .card,
+body.bg-result .match-result-grid > .card {
+  width: 100% !important;
+  aspect-ratio: 9 / 4 !important;
+  min-height: 78px !important;
+  padding: 0 12px !important;
+  font-size: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
 }
