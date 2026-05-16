@@ -232,12 +232,18 @@ function keyIconHtml() {
 function mainCTA(label, onClick) {
   const a = document.createElement('button');
   a.className = 'main-cta';
-  a.innerHTML = `<span class="cta-text">${escapeHtml(label)}</span>`;
+  // Keys come back as <img> tags this time — iOS Safari renders the
+  // PNG alpha cleanly for img elements but tofu-tiled it when we
+  // tried the same png via a ::before background.
+  a.innerHTML = `
+    <span class="cta-inner">
+      <img class="cta-key cta-key-l" src="assets/icon-key.png" alt="">
+      <span class="cta-text">${escapeHtml(label)}</span>
+      <img class="cta-key cta-key-r" src="assets/icon-key.png" alt="">
+    </span>
+  `;
   a.addEventListener('click', () => {
     if (a.classList.contains('is-engaged')) return;
-    // Audio MUST be unlocked synchronously inside the gesture
-    // handler — calling unlock() any later (after a setTimeout)
-    // means iOS Safari will refuse to start BGM.
     LanBGM.unlock();
     a.classList.add('is-engaged');
     SFX.bling();
