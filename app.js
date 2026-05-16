@@ -457,7 +457,13 @@ function stageHeader(chapterN, name) {
   `;
 }
 function pageTitle(name) {
-  return `<div class="page-title">${escapeHtml(name)}</div>`;
+  /* Use the same "top-header frame" structure as chapter pages so
+     every screen has the same ui-chapter band at the top.              */
+  return `
+    <div class="stage-head page-head">
+      <div class="stage-name">${escapeHtml(name)}</div>
+    </div>
+  `;
 }
 
 function sprinkleStars() { /* removed — never called; PNGs were deleted */ }
@@ -1258,8 +1264,8 @@ const Screens = {
         haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
       };
       el.innerHTML = `
+        ${pageTitle('her little note')}
         <div class="screen-stickyhead">
-          ${pageTitle('her little note')}
           <div class="page-subtitle">pages she returns to</div>
           <div class="note-stats">
             <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
@@ -1307,8 +1313,8 @@ const Screens = {
       });
       const letters = Object.keys(groups).sort();
       el.innerHTML = `
+        ${pageTitle('the index')}
         <div class="screen-stickyhead">
-          <div class="page-title">the index</div>
           <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
           <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
         </div>

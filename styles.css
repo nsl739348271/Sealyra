@@ -3703,10 +3703,10 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   color: var(--cream) !important;
   font-family: var(--f-italic) !important;
   font-style: italic !important;
-  padding: 0 16px !important;
-  height: 52px !important;
-  min-height: 52px !important;
-  max-height: 52px !important;
+  padding: 0 14px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -3741,21 +3741,33 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   grid-template-rows: none !important;
-  grid-auto-rows: 52px !important;
+  grid-auto-rows: 42px !important;
   gap: 8px !important;
   max-width: 320px !important;
   margin: 10px auto 0 !important;
   align-content: start !important;
+  flex: 0 0 auto !important;       /* don't grow — confirm sits right below */
+  height: auto !important;
+  min-height: 0 !important;
 }
 #screen-stage1-result .match-result-grid {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   grid-template-rows: none !important;
-  grid-auto-rows: 52px !important;
+  grid-auto-rows: 42px !important;
   gap: 8px !important;
   max-width: 320px !important;
   margin: 6px auto !important;
   align-content: start !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+/* Confirm button on stage1: sit right under the grid, not at the
+   viewport floor.                                                       */
+#screen-stage1 .match-actions {
+  margin: 12px auto 0 !important;
+  flex: 0 0 auto !important;
 }
 .oracle-options {
   max-width: 320px !important;
@@ -3884,7 +3896,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
    Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
 #screen-note .page-title,
 #screen-index .page-title {
-  background: url("assets/ui-page-title.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 360px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -3943,7 +3955,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
    ui-score is a wide horizontal frame (1448x1086) with pink bow.
    Trim to ~240px wide so it doesn't dominate the result page.          */
 .score-block {
-  background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
+  background: url("assets/ui-page-title.png?v=30") center/100% 100% no-repeat !important;
   width: 100% !important;
   max-width: 260px !important;
   aspect-ratio: 1448 / 1086 !important;
@@ -4565,12 +4577,20 @@ html, body {
    alphabet) for index, title + (subtitle + stats) for note.            */
 #screen-note .screen-stickyhead,
 #screen-index .screen-stickyhead {
-  background: url("assets/ui-page-title.png?v=30") center/100% 100% no-repeat !important;
-  padding: 56px 30px 36px !important;
-  margin: 8px auto 12px !important;
+  /* Reset the old §39 fixed-top positioning — we're using this as a
+     flow content frame now.                                              */
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: auto !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
+  padding: 36px 30px 30px !important;
+  margin: 0 auto !important;
   width: 100% !important;
   max-width: 360px !important;
-  position: relative !important;
 }
 #screen-note .page-title,
 #screen-index .page-title {
@@ -4863,32 +4883,39 @@ html, body {
   animation: hint-breathe 2.6s ease-in-out infinite !important;
 }
 
-/* ----- 55.A  Chapter strip — ornate ui-chapter frame, small, at top -----
-   User: chapter再小一点再靠上一点和三和x同高度.  Keep the decorative
-   ui-chapter.png frame but at the same row as the corner pins.         */
+/* ----- 55.A  顶头框 — ui-chapter ornate band, on EVERY page -----
+   User: chapter那个框叫定头框 居中 每个页面都有这个 里面的字稍微大一点.
+   Stage screens get the chapter + name pair.  note / index / card get
+   just a single name (rendered via pageTitle()).                        */
+.stage-head,
 #screen-stage1 .stage-head,
 #screen-stage1-result .stage-head,
 #screen-stage2 .stage-head,
 #screen-stage2-result .stage-head,
 #screen-stage3 .stage-head,
-#screen-stage3-result .stage-head {
+#screen-stage3-result .stage-head,
+#screen-note .page-head,
+#screen-index .page-head,
+#screen-card .page-head {
   background: url("assets/ui-chapter.png?v=30") center/100% 100% no-repeat !important;
   position: static !important;
-  width: 200px !important;
+  width: 220px !important;
   aspect-ratio: 1916 / 821 !important;
   height: auto !important;
   padding: 0 !important;
-  margin: 0 auto 8px !important;
-  min-height: 0 !important;
-  max-width: 200px !important;
+  margin: 0 auto 10px !important;
+  min-height: 94px !important;
+  max-width: 220px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 0 !important;
+  gap: 1px !important;
   overflow: hidden !important;
   text-align: center !important;
+  flex: 0 0 auto !important;        /* don't shrink to 0 on scrollable screens */
 }
+.stage-head .stage-chapter,
 #screen-stage1 .stage-head .stage-chapter,
 #screen-stage1-result .stage-head .stage-chapter,
 #screen-stage2 .stage-head .stage-chapter,
@@ -4897,30 +4924,34 @@ html, body {
 #screen-stage3-result .stage-head .stage-chapter {
   font-family: var(--f-italic) !important;
   font-style: italic !important;
-  font-size: 7px !important;
-  letter-spacing: .24em !important;
+  font-size: 8px !important;
+  letter-spacing: .26em !important;
   text-transform: lowercase !important;
-  color: rgba(244, 226, 200, .68) !important;
-  -webkit-text-fill-color: rgba(244, 226, 200, .68) !important;
+  color: rgba(244, 226, 200, .72) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .72) !important;
   margin: 0 !important;
   line-height: 1 !important;
   opacity: 1 !important;
 }
+.stage-head .stage-name,
 #screen-stage1 .stage-head .stage-name,
 #screen-stage1-result .stage-head .stage-name,
 #screen-stage2 .stage-head .stage-name,
 #screen-stage2-result .stage-head .stage-name,
 #screen-stage3 .stage-head .stage-name,
-#screen-stage3-result .stage-head .stage-name {
+#screen-stage3-result .stage-head .stage-name,
+#screen-note .page-head .stage-name,
+#screen-index .page-head .stage-name,
+#screen-card .page-head .stage-name {
   font-family: var(--f-display) !important;
   font-style: italic !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   letter-spacing: .03em !important;
   color: var(--cream) !important;
   -webkit-text-fill-color: var(--cream) !important;
   line-height: 1.15 !important;
   margin: 1px 0 0 !important;
-  text-shadow: 0 0 6px rgba(232,200,130,.35) !important;
+  text-shadow: 0 0 6px rgba(232,200,130,.45) !important;
 }
 /* Kill the stage-rule div emitted by stageHeader (the ratty strike-
    through line that was bleeding through the chapter text).            */
