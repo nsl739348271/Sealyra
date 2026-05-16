@@ -244,9 +244,9 @@ function mainCTA(label, onClick) {
   // tried the same png via a ::before background.
   a.innerHTML = `
     <span class="cta-inner">
-      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=22" alt="">
+      <img class="cta-key cta-key-l" src="assets/icon-key.png?v=25" alt="">
       <span class="cta-text">${escapeHtml(label)}</span>
-      <img class="cta-key cta-key-r" src="assets/icon-key.png?v=22" alt="">
+      <img class="cta-key cta-key-r" src="assets/icon-key.png?v=25" alt="">
     </span>
   `;
   a.addEventListener('click', () => {
@@ -719,10 +719,10 @@ function showModal({ title, body = '', score = null, actions = [], variant = '' 
   // into white pluses.
   veil.innerHTML = `
     <div class="${cls}">
-      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=22" alt="">
-      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=22" alt="">
-      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=22" alt="">
-      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=22" alt="">
+      <img class="m-spark m-spark-tl" src="assets/icon-spark-s.png?v=25" alt="">
+      <img class="m-spark m-spark-tr" src="assets/icon-spark-s.png?v=25" alt="">
+      <img class="m-spark m-spark-bl" src="assets/icon-spark-s.png?v=25" alt="">
+      <img class="m-spark m-spark-br" src="assets/icon-spark-s.png?v=25" alt="">
       <div class="modal-title">${escapeHtml(title)}</div>
       ${body  ? `<div class="modal-body">${escapeHtml(body)}</div>` : ''}
       ${score ? `<div class="modal-score">${score.value}<small> / ${score.total}</small></div>` : ''}
@@ -1097,7 +1097,7 @@ const Screens = {
           <div class="dict-prompt-zh">${escapeHtml(q.prompt_zh)}</div>
           <div class="dict-input-row">
             <input class="dict-input" id="dict-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${escapeAttr(q.hint)}…">
-            <img class="dict-quill" src="assets/icon-quill.png?v=22" alt="">
+            <img class="dict-quill" src="assets/icon-quill.png?v=25" alt="">
           </div>
           <div class="dict-feedback" id="dict-feedback"></div>
           <div class="dict-actions" id="dict-actions"></div>
