@@ -3570,3 +3570,27 @@ body { background: transparent !important; }
   overflow: hidden !important;
   pointer-events: none !important;
 }
+
+/* ============================================================
+   46. design system v1.5 — middle ground for the match grid
+   ============================================================
+   v1.4 pinned both grids to 560px which made them feel cavernous
+   on the game page.  drop to 480px max + 12px gap + a slightly
+   squatter aspect (9 / 4 instead of 17 / 8).  same numbers on
+   both grids so they stay identical to each other.               */
+
+.match-result-grid,
+.match-grid {
+  max-width: 480px !important;
+  gap: 12px !important;
+  margin: 12px auto !important;
+}
+.match-result-grid > .card,
+.match-grid > .card,
+.match-result-grid > .card.card--match,
+.match-grid > .card.card--match {
+  aspect-ratio: 9 / 4 !important;
+  min-height: 78px !important;
+  font-size: 18px !important;
+  padding: 0 12px !important;
+}
