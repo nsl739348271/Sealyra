@@ -518,6 +518,7 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
       row.innerHTML = `
         <span class="wr-word">${escapeHtml(c.h)}</span>
         <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
+        <span class="wr-leader" aria-hidden="true"></span>
         <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
       `;
       row.addEventListener('click', () => flipToCard(row, h, fromKey));

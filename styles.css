@@ -4110,42 +4110,44 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
   position: relative;
-  width: min(96vw, 560px);
+  width: min(98vw, 600px);            /* taller nav per user request */
   aspect-ratio: 1000 / 750;
-  margin: 4px auto -10px;       /* negative pulls the word list up so it
-                                    hugs the nav-card's bottom edge */
+  margin: -8px auto -16px;            /* hug the banner above + list below */
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
 }
 
-/* --- 47.2  corner buttons pinned to top corners of the card --- */
+/* --- 47.2  corner buttons pinned HIGH in the top corners --- */
 .nav-card .moon-corner,
 .nav-card .close-corner {
   position: absolute !important;
-  top: 4.5% !important;
-  width: 40px !important;
-  height: 40px !important;
+  top: 1% !important;                  /* moved higher per design owner */
+  width: 38px !important;
+  height: 38px !important;
   bottom: auto !important;
   filter: drop-shadow(0 2px 6px rgba(8,4,18,.55));
 }
-.nav-card .moon-corner  { left: 5% !important; right: auto !important; }
+.nav-card .moon-corner  { left: 4% !important; right: auto !important; }
 .nav-card .close-corner {
-  right: 5% !important;
+  right: 4% !important;
   left: auto !important;
   transform: rotate(90deg);              /* key reads as a horizontal button */
   transform-origin: 50% 50%;
 }
 
-/* --- 47.3  title plaque — bigger dome + bigger text, matching
-   the banner's display serif so the two reads as one set. --- */
+/* --- 47.3  title plaque — position matches the reference image:
+   the dome sits in the upper third of the 0511 frame (NOT pinned
+   to its very top), generous text size, fits cleanly inside. --- */
 .nav-card .title-plaque {
   position: absolute;
-  top: 0%;
+  top: 13%;                       /* drops the dome into its proper place
+                                     so it stops crashing into the
+                                     0511 frame's top floral curve     */
   left: 50%;
   transform: translateX(-50%);
-  width: 72%;
-  height: 36%;                /* bigger dome */
+  width: 56%;
+  height: 26%;
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
     center/100% 100% no-repeat;
@@ -4155,26 +4157,26 @@ body.bg-result .match-result-grid > .card {
   left: 50%;
   top: 56%;                       /* lands in the dome's text band */
   transform: translate(-50%, -50%);
-  width: 72%;
+  width: 76%;
   text-align: center;
   font-family: var(--f-display), 'Bodoni 72', 'Didot', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(18px, 4.6vw, 24px);
+  font-size: clamp(15px, 3.6vw, 19px);
   line-height: 1.05;
   letter-spacing: .03em;
   color: #f3d99a;
   text-shadow:
     0 0 10px rgba(243,217,154,.6),
-    0 0 22px rgba(218,168,104,.4);
+    0 0 20px rgba(218,168,104,.4);
   text-transform: lowercase;
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — sits below the bigger title plaque ---- */
+/* --- 47.4  body area — sits below the plaque, above the bow --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 40%;
+  top: 44%;
   left: 13%;
   right: 13%;
   bottom: 22%;
@@ -4182,7 +4184,7 @@ body.bg-result .match-result-grid > .card {
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4294,15 +4296,23 @@ body.bg-result .match-result-grid > .card {
 .word-list {
   width: min(94vw, 540px);
   margin: 0 auto 32px;
-  padding: 6px 12px 10px;
+  padding: 4px 14px 10px;
   box-sizing: border-box;
-  /* slight dark wash so the soft-coloured text reads against the
-     busy bg-note scene without needing a full opaque card.        */
-  background: linear-gradient(180deg,
-              rgba(8,4,18,.45) 0%,
-              rgba(8,4,18,.35) 60%,
-              rgba(8,4,18,.25) 100%);
-  border-radius: 12px;
+  /* NO BACKGROUND — the bg-note scenery shows through unhindered.
+     Keeping the vintage paper feel.                                */
+}
+.word-list .alpha-section-title {
+  font-family: var(--f-display), 'Bodoni 72', 'Didot', Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 6px rgba(232,200,130,.3);
+  margin: 12px 4px 4px;
+  padding-bottom: 3px;
+  border-bottom: none;
+  text-align: center;
+  letter-spacing: .06em;
+  opacity: .9;
 }
 .word-list .alpha-section-title:first-child { margin-top: 2px; }
 .word-list .alpha-section-title {
@@ -4315,58 +4325,67 @@ body.bg-result .match-result-grid > .card {
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(244,181,200,.22);
 }
-/* --- word row — back to the initial 3-column single-line layout
-   that reads like an old vellum index.  Chinese sits on the right
-   in a soft muted lilac so it doesn't fight the EN word. --- */
+/* --- word row — old-vellum TOC layout:
+       EN  v.  · · · · · · · · · · ·  CN
+   the .wr-leader is a flex spacer drawn as a dotted gold line
+   sitting on the baseline, joining the two sides.            --- */
 .word-list .word-row {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
+  display: flex;
   align-items: baseline;
-  column-gap: 10px;
-  padding: 10px 4px 11px;
-  border-bottom: 1px dashed rgba(244,181,200,.12);
+  gap: 6px;
+  padding: 5px 4px 6px;
   cursor: pointer;
   transition: background-color .18s;
 }
 .word-list .word-row:hover { background: rgba(237,184,158,.05); }
 .word-list .word-row .wr-word {
+  flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 19px;
+  font-size: 14px;
   color: var(--gold-warm);
-  text-shadow:
-    0 0 8px rgba(243,217,154,.5),
-    0 0 18px rgba(218,168,104,.3);
+  text-shadow: 0 0 6px rgba(243,217,154,.4);
   letter-spacing: .01em;
 }
 .word-list .word-row .wr-pos {
+  flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--pink-deep);
   letter-spacing: .06em;
-  opacity: .92;
+  opacity: .85;
   white-space: nowrap;
 }
+.word-list .word-row .wr-leader {
+  flex: 1 1 auto;
+  min-width: 16px;
+  height: 0;
+  align-self: end;
+  margin-bottom: 4px;
+  border-bottom: 1px dotted rgba(218,168,104,.55);
+}
 .word-list .word-row .wr-zh {
+  flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 12.5px;
-  color: #b89edd;             /* muted lilac — sits on bg-note without glare */
+  font-size: 11.5px;
+  color: #b89edd;
   letter-spacing: .04em;
-  text-align: right !important;
-  justify-self: end;
   opacity: .95;
-  word-break: break-word;
+  text-align: right;
+  word-break: keep-all;
 }
 
-/* tighten hub-screen side padding so the nav card can breathe */
+/* tighten hub-screen padding so the nav card sits right under the
+   banner with no big empty gap between them */
 #screen-note,
 #screen-note-bucket,
 #screen-index {
-  padding-left: 6px !important;
-  padding-right: 6px !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+  padding-top: 2px !important;
 }
 
 /* hide previous (old) page-panel rules so nothing leftover renders */
