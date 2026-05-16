@@ -4109,42 +4109,61 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  position: relative;
-  width: min(98vw, 600px);            /* taller nav per user request */
+  /* Fixed below the banner; only the word list scrolls under it.
+     This restores the original "sticky header" behaviour. */
+  position: fixed;
+  top: calc(100vw * 821 / 1916);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width: min(98vw, 600px);
   aspect-ratio: 1000 / 750;
-  margin: -8px auto -16px;            /* hug the banner above + list below */
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
 }
+/* Word list must start BELOW the fixed nav-card.
+   nav-card height = width × 0.75 (4:3 aspect).
+   Mobile width ≈ 98vw → height ≈ 73.5vw, capped at 450 px. */
+.word-list {
+  margin-top: min(73.5vw, 450px) !important;
+}
 
-/* --- 47.2  corner buttons pinned HIGH in the top corners --- */
+/* --- 47.2  corner buttons "hanging" on the top of the nav-card.
+   Moon medallion grows bigger per user request (it's the showpiece);
+   the key stays compact as a small horizontal button. --- */
 .nav-card .moon-corner,
 .nav-card .close-corner {
   position: absolute !important;
-  top: 1% !important;                  /* moved higher per design owner */
-  width: 38px !important;
-  height: 38px !important;
   bottom: auto !important;
-  filter: drop-shadow(0 2px 6px rgba(8,4,18,.55));
+  filter: drop-shadow(0 2px 8px rgba(8,4,18,.6));
 }
-.nav-card .moon-corner  { left: 4% !important; right: auto !important; }
+.nav-card .moon-corner {
+  top: -4% !important;                  /* hangs over the top edge */
+  left: 2% !important;
+  right: auto !important;
+  width: 58px !important;
+  height: 58px !important;
+}
 .nav-card .close-corner {
+  top: 1% !important;
   right: 4% !important;
   left: auto !important;
-  transform: rotate(90deg);              /* key reads as a horizontal button */
+  width: 40px !important;
+  height: 40px !important;
+  transform: rotate(90deg);              /* horizontal key */
   transform-origin: 50% 50%;
 }
 
-/* --- 47.3  title plaque — LOCKED to the dome PNG's natural ratio
-   (1200×675 ≈ 1.78:1).  Width = ALL we set; height follows.
-   Text size matches the reference (much bigger than before). --- */
+/* --- 47.3  title plaque — sits ASTRIDE the inner frame's top edge
+   the way the reference image shows.  top:-2 % so the upper spike
+   of the dome breaches the gold border slightly. Aspect locked. --- */
 .nav-card .title-plaque {
   position: absolute;
-  top: 5%;
+  top: -2%;
   left: 50%;
   transform: translateX(-50%);
-  width: 70%;
+  width: 64%;
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4172,14 +4191,15 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — pushed down for the bigger title plaque,
-   tight bottom margin so the bow at the very bottom still shows --- */
+/* --- 47.4  body area — moved UP per user (chars were falling
+   out the bottom of the nav-card).  Top accounts for plaque
+   ending around 50 % of the card; bottom leaves the bow visible. --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 58%;
+  top: 46%;
   left: 13%;
   right: 13%;
-  bottom: 11%;
+  bottom: 12%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -4318,16 +4338,6 @@ body.bg-result .match-result-grid > .card {
   opacity: .9;
 }
 .word-list .alpha-section-title:first-child { margin-top: 2px; }
-.word-list .alpha-section-title {
-  font-family: var(--f-display);
-  font-style: italic;
-  font-size: 22px;
-  color: var(--gold-warm);
-  text-shadow: 0 0 8px rgba(232,200,130,.35);
-  margin: 14px 4px 4px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(244,181,200,.22);
-}
 /* --- word row — vellum TOC layout per the reference:
        ✦  EN  v.  · · · · · · · ·  CN  ✦
    one dotted leader (NO row border), a four-point star on each
@@ -4356,7 +4366,7 @@ body.bg-result .match-result-grid > .card {
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 17px;
+  font-size: 14px;
   color: var(--gold-warm);
   text-shadow: 0 0 6px rgba(243,217,154,.4);
   letter-spacing: .01em;
@@ -4365,7 +4375,7 @@ body.bg-result .match-result-grid > .card {
   flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--pink-deep);
   letter-spacing: .04em;
   opacity: .9;
@@ -4376,15 +4386,15 @@ body.bg-result .match-result-grid > .card {
   min-width: 16px;
   height: 0;
   align-self: end;
-  margin-bottom: 5px;
-  border-bottom: 1px dotted rgba(218,168,104,.55);
+  margin-bottom: 4px;
+  border-bottom: 1px dotted rgba(218,168,104,.5);
 }
 .word-list .word-row .wr-zh {
   flex: 0 0 auto;
   font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 12px;
-  color: #8d6fb0;             /* darker purple per user request */
+  font-size: 10px;
+  color: #8d6fb0;
   letter-spacing: .04em;
   opacity: .95;
   text-align: right;
