@@ -4137,45 +4137,53 @@ body.bg-result .match-result-grid > .card {
   transform-origin: 50% 50%;
 }
 
-/* --- 47.3  title plaque centred at the top — gold italic
-   instead of default white, sized to sit in the dome's purple band --- */
+/* --- 47.3  title plaque — the dome PNG is the picture, the .tp-text
+   inside is absolutely positioned so it always lands in the purple
+   band of the dome regardless of plaque size. --- */
 .nav-card .title-plaque {
   position: absolute;
-  top: 3%;
+  top: 2%;
   left: 50%;
   transform: translateX(-50%);
-  width: 54%;
-  height: 18%;
+  width: 60%;
+  height: 28%;
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
     center/100% 100% no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--f-display);
-  font-style: italic;
-  font-size: clamp(13px, 3.4vw, 18px);
-  letter-spacing: .06em;
-  color: var(--gold-warm);
-  text-shadow: 0 0 8px rgba(218,168,104,.45);
-  padding: 0 13% 7%;
+}
+.nav-card .title-plaque .tp-text {
+  position: absolute;
+  left: 50%;
+  top: 58%;                       /* the dome's text band centre */
+  transform: translate(-50%, -50%);
+  width: 70%;
   text-align: center;
-  white-space: nowrap;
+  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(13px, 3.2vw, 17px);
+  line-height: 1.05;
+  letter-spacing: .06em;
+  color: #f3d99a;
+  text-shadow:
+    0 0 8px rgba(243,217,154,.55),
+    0 0 16px rgba(218,168,104,.35);
   text-transform: lowercase;
+  white-space: nowrap;
 }
 
-/* --- 47.4  the body area inside the card --- */
+/* --- 47.4  body area — sits below the title plaque, clears bow --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 30%;
+  top: 34%;
   left: 13%;
   right: 13%;
-  bottom: 22%;                            /* clear the bow at the bottom */
+  bottom: 22%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4287,12 +4295,17 @@ body.bg-result .match-result-grid > .card {
 .word-list {
   width: min(94vw, 540px);
   margin: 0 auto 32px;
-  padding: 0 12px 0;
+  padding: 6px 12px 10px;
   box-sizing: border-box;
-  /* the first alpha section title gets the air it needs without
-     creating the giant empty gap the user kept calling out. */
+  /* slight dark wash so the soft-coloured text reads against the
+     busy bg-note scene without needing a full opaque card.        */
+  background: linear-gradient(180deg,
+              rgba(8,4,18,.45) 0%,
+              rgba(8,4,18,.35) 60%,
+              rgba(8,4,18,.25) 100%);
+  border-radius: 12px;
 }
-.word-list .alpha-section-title:first-child { margin-top: 6px; }
+.word-list .alpha-section-title:first-child { margin-top: 2px; }
 .word-list .alpha-section-title {
   font-family: var(--f-display);
   font-style: italic;
@@ -4303,41 +4316,59 @@ body.bg-result .match-result-grid > .card {
   padding-bottom: 4px;
   border-bottom: 1px solid rgba(244,181,200,.22);
 }
+/* --- word row — two-row grid, EN+pos on top, Chinese left-aligned
+   on its own line below.  Colours per the design owner:
+     EN word  = warm gold + glow
+     POS      = small italic dark pink, hugs the word
+     ZH       = small italic dark purple, left-aligned new line --- */
 .word-list .word-row {
   display: grid;
-  grid-template-columns: 1fr auto 1.2fr;
-  align-items: baseline;
-  gap: 10px;
-  padding: 8px 6px;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 1px;
+  padding: 9px 6px 10px;
   border-bottom: 1px dashed rgba(244,181,200,.15);
   cursor: pointer;
   transition: background-color .18s;
 }
-.word-list .word-row:hover { background: rgba(237,184,158,.08); }
+.word-list .word-row:hover { background: rgba(237,184,158,.06); }
 .word-list .word-row .wr-word {
-  font-family: var(--f-italic);
+  grid-column: 1; grid-row: 1;
+  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 16px;
-  color: var(--rose);
-  text-shadow: var(--rose-glow);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--gold-warm);
+  text-shadow:
+    0 0 8px rgba(243,217,154,.55),
+    0 0 18px rgba(218,168,104,.32);
+  letter-spacing: .01em;
 }
 .word-list .word-row .wr-pos {
-  font-family: var(--f-italic);
+  grid-column: 2; grid-row: 1;
+  align-self: baseline;
+  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
   font-size: 11px;
-  color: var(--gold-warm);
+  color: var(--pink-deep);
   letter-spacing: .06em;
-  opacity: .85;
+  opacity: .9;
   white-space: nowrap;
+  justify-self: start;        /* HUGS the word on the left */
 }
 .word-list .word-row .wr-zh {
-  font-family: var(--f-zh);
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  font-family: var(--f-italic), 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 13px;
-  color: var(--pink-soft);
-  opacity: .85;
-  text-align: right;
+  font-size: 11.5px;
+  color: #b89edd;             /* muted lilac — readable on the purple bg */
+  letter-spacing: .04em;
+  text-align: left !important;
+  opacity: .95;
   word-break: break-word;
+  margin-top: 1px;
 }
 
 /* tighten hub-screen side padding so the nav card can breathe */

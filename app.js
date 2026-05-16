@@ -442,10 +442,12 @@ function stageHeader(chapterN, name) {
     </div>
   `;
 }
-// Title plaque-only fragment (used by the cover-side hubs that build
-// their own .nav-card and want the centred 3C68C8E6 dome inside it).
+// Title plaque-only fragment.  The text lives inside an inner span
+// that we position absolutely so it lands in the dome's purple band
+// regardless of how tall the plaque rectangle is.
 function pageTitle(name) {
-  return `<div class="title-plaque">${escapeHtml(name)}</div>`;
+  const html = escapeHtml(name).replace(/\n/g, '<br>');
+  return `<div class="title-plaque"><span class="tp-text">${html}</span></div>`;
 }
 // Visual writing-line at the bottom of the single-word parchment.
 // NOT an input — pure cue that says "copy this word once".
