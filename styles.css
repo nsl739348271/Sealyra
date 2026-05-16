@@ -4232,21 +4232,24 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   overflow-y: auto;
   overflow-x: hidden;
   /* New parchment art (1FFF1701) — portrait scroll with curls top and
-     bottom + a quill at the lower right.  Anchor to top so the curl
-     and the quill stay in the visible upper half; the body's lower
-     extension is intentional per user spec.                             */
+     bottom + a quill at the lower right.  Anchor to top, sized 132%
+     so the actual cream paper area (which sits inside the asset's
+     transparent torn-paper margins) fills nearly the full viewport
+     width.  The decorative edges spill off-screen left/right, which
+     the user OK'd: 屁股不重要 被遮就被遮.                              */
   background-image: url("assets/ui-parchment.png?v=30") !important;
   background-repeat: no-repeat !important;
   background-position: top center !important;
-  background-size: 100% auto !important;
+  background-size: 132% auto !important;
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* User: 字不要放纸外. The new parchment has thicker torn-edge margins
-     than the previous one — bump side padding so text stays well inside
-     the cream paper area.  Top padding clears the scroll's curl.        */
-  padding: 22vw 18vw 12vw !important;
+  /* With bg-size 132%, the image is wider than the card so its proportions
+     re-scale.  At 132% × ~390 = ~515 px wide, the ribbon-bottom sits
+     around 38vw from card top; torn edges now extend BEYOND the card
+     bounds so side padding can drop a little.                           */
+  padding: 38vw 11vw 14vw !important;
   color: #3A2E22 !important;
   -webkit-text-fill-color: #3A2E22 !important;
 }
@@ -4587,10 +4590,14 @@ html, body {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
-  /* User: 内容不要放框边图案上.  Heavy padding so content sits in the
-     clear central area — extra at the bottom because the pink bow eats
-     ~25% of the frame's height.                                          */
-  padding: 42px 44px 80px !important;
+  /* ui-score frame anatomy (from sampling the asset):
+     - top:    small moon + stars decoration extends ~22% down
+     - sides:  ornate flourish ~16% wide each side
+     - bottom: large pink bow + stems extends ~28% up
+     At max-width 340 px the frame is ~340 × 340 (square-ish), so
+     padding-top 78 px clears the moon, padding-sides 60 px clears the
+     flourish, padding-bottom 105 px clears the bow.                      */
+  padding: 78px 60px 105px !important;
   margin: 0 auto !important;
   width: 100% !important;
   max-width: 340px !important;
