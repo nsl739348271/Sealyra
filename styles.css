@@ -1310,16 +1310,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=22"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=22"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=22"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=22"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1345,7 +1345,7 @@ body {
   content: "";
   display: block;
   width: 22px; height: 64px;
-  background: url("assets/icon-key.png") center/contain no-repeat;
+  background: url("assets/icon-key.png?v=22") center/contain no-repeat;
   filter: drop-shadow(0 0 6px rgba(218,168,104,.45));
 }
 .main-cta .cta-key-l::before { transform: rotate(-12deg); }
@@ -1355,7 +1355,7 @@ body {
   content: "";
   display: block;
   width: 14px; height: 40px;
-  background: url("assets/icon-key.png") center/contain no-repeat;
+  background: url("assets/icon-key.png?v=22") center/contain no-repeat;
 }
 .next-door .nd-key:first-child::before { transform: rotate(-12deg); }
 .next-door .nd-key:last-child::before  { transform: rotate( 12deg); }
@@ -1367,7 +1367,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png") center/contain no-repeat;
+  background: url("assets/icon-moon.png?v=22") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1378,7 +1378,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png") center/contain no-repeat;
+  background: url("assets/icon-bow.png?v=22") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1395,10 +1395,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=22"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=22"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=22"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=22"); width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1447,10 +1447,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=22"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=22"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=22"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=22"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3487,3 +3487,33 @@ body { background: transparent !important; }
     0 0 38px rgba(244,181,200,.6) !important;
 }
 
+
+/* ============================================================
+   44. design system v1.3 — bigger result tiles + hard veil
+   ============================================================
+   Result-page cards were still squashed.  Force a proper card
+   shape with explicit min-height and tighter aspect.  Also stamp
+   the linear-reveal hide rule one more time with even higher
+   specificity in case an older sheet was winning on cache.       */
+
+.match-result-grid > .card,
+.match-grid > .card,
+.match-result-grid .card.card--match,
+.match-grid .card.card--match {
+  width: 100% !important;
+  min-height: 90px !important;
+  font-size: 19px !important;
+  padding: 24px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Belt-and-braces — every .is-veiled row stays hidden, with the
+   ex-card selector prefix bumping specificity over anything else. */
+.ex-card .fam-reveal.is-veiled,
+.ex-card .colloc-row.is-veiled,
+.ex-card .ex-example.is-veiled {
+  display: none !important;
+  visibility: hidden !important;
+}
