@@ -2668,6 +2668,120 @@ body { background: transparent !important; }
 }
 
 
+/* ============================================================
+   38. CORNER BUTTONS PINNED TO THE VIEWPORT
+   ============================================================
+   They were absolute-positioned relative to .screen, which meant
+   they scrolled away with the rest of the content on long pages
+   (the index, mainly).  Switching to position:fixed keeps them
+   under the banner no matter how far the user scrolls.            */
+.moon-corner {
+  position: fixed !important;
+  top: calc(100vw * 821 / 1916 + 12px) !important;
+  left: 14px !important;
+  z-index: 100 !important;
+}
+.close-corner {
+  position: fixed !important;
+  top: calc(100vw * 821 / 1916 + 12px) !important;
+  right: 14px !important;
+  z-index: 100 !important;
+}
+
+
+/* ============================================================
+   39. STICKY HEADER ON LONG PAGES  (.screen-stickyhead)
+   ============================================================
+   The index page (and any other long list) needs its title +
+   search + jump-bar to stay visible while the user scrolls the
+   word list.  Wrap them in .screen-stickyhead and the block
+   sticks just below the banner.                                  */
+.screen-stickyhead {
+  position: sticky;
+  top: calc(100vw * 821 / 1916);     /* below the banner */
+  z-index: 60;
+  margin: 0 -18px;                   /* extend through .screen padding */
+  padding: 14px 18px 14px;
+  background: linear-gradient(180deg,
+    rgba(20,15,40,.95) 80%,
+    rgba(20,15,40,0) 100%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.screen-stickyhead .page-title {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+/* The search input */
+.index-search {
+  width: 100%;
+  background: rgba(6,3,15,.45);
+  border: 1px solid rgba(244,181,200,.22);
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: var(--cream);
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: .04em;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  margin-bottom: 8px;
+}
+.index-search::placeholder { color: var(--muted); }
+.index-search:focus {
+  border-color: var(--rose);
+  box-shadow: 0 0 12px rgba(237,184,158,.28);
+}
+
+/* Alpha jump bar — single row, scrollable horizontally if needed */
+.alpha-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 10px;
+  padding: 4px 0;
+}
+.alpha-bar a {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--gold-deep);
+  cursor: pointer;
+  letter-spacing: .04em;
+  padding: 2px 4px;
+  transition: color .15s;
+}
+.alpha-bar a:hover { color: var(--rose); }
+
+/* word-row spacing now that the header is sticky */
+#index-body { padding-top: 6px; }
+.alpha-section-title {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--gold-deep);
+  letter-spacing: .22em;
+  text-align: center;
+  margin: 14px 0 6px;
+  opacity: .8;
+}
+.word-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto 2fr;
+  gap: 10px;
+  padding: 8px 8px;
+  border-bottom: 1px dashed rgba(244,181,200,.14);
+  cursor: pointer;
+  transition: background .15s;
+}
+.word-row:hover { background: rgba(244,181,200,.06); }
+.wr-word { font-family: var(--f-italic); font-style: italic; color: var(--cream); }
+.wr-pos  { font-family: var(--f-italic); font-style: italic; color: var(--soft); font-size: 12px; }
+.wr-zh   { font-family: var(--f-zh);     font-style: italic; color: var(--pink-soft); text-align: right; }
+
+
 
 
 
