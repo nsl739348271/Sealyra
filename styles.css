@@ -4232,23 +4232,24 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   overflow-y: auto;
   overflow-x: hidden;
   /* New parchment art (1FFF1701) — portrait scroll with curls top and
-     bottom + a quill at the lower right.  Anchor to top.  100% width
-     keeps the quill visible inside the card; the actual cream paper
-     fills ~80% of the card width once you account for the asset's
-     transparent torn-paper margins.  Padding inside compresses to
-     match.                                                              */
+     bottom + a quill at the lower-RIGHT.  Trick to enlarge the paper
+     without clipping the quill: anchor the bg to top-RIGHT and scale
+     to 130%.  Right edge of image sticks at right edge of card → the
+     quill stays in view.  Excess width pours off the LEFT (torn edge)
+     which is acceptable per 屁股不重要 被遮就被遮.                       */
   background-image: url("assets/ui-parchment.png?v=30") !important;
   background-repeat: no-repeat !important;
-  background-position: top center !important;
-  background-size: 100% auto !important;
+  background-position: top right !important;
+  background-size: 130% auto !important;
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* 100% bg-size: torn edges stay inside the card, so side padding has
-     to clear ~15% of card width each side.  Ribbon at top extends to
-     ~26vw down → top padding 28vw.                                       */
-  padding: 28vw 15vw 12vw !important;
+  /* With bg-size 130% + position top-right, left edge of image is
+     OFF-screen (acceptable).  Cream paper starts ~5vw in from card
+     left (was 15vw at center 100%) but extends almost to card-right.
+     Asymmetric padding: more on the right where the quill sits.       */
+  padding: 36vw 22vw 14vw 8vw !important;
   color: #3A2E22 !important;
   -webkit-text-fill-color: #3A2E22 !important;
 }
@@ -4691,43 +4692,49 @@ html, body {
    Everything sized small so nothing pushes off the visible paper.       */
 
 #screen-card .ex-card .ex-head {
-  display: grid !important;
-  grid-template-columns: auto auto 1fr !important;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: baseline !important;
-  gap: 0 6px !important;
-  padding: 0 0 8px !important;
+  gap: 6px !important;
+  padding: 0 0 6px !important;
   border-bottom: 1px solid rgba(140, 100, 60, .25) !important;
   margin-bottom: 8px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
 }
 #screen-card .ex-card .ex-head .ex-speak-head {
-  grid-row: 1;
-  align-self: center;
-  font-size: 11px !important;
+  flex: 0 0 auto !important;
+  font-size: 10px !important;
   color: #8C6A4D !important;
   padding: 0 !important;
   background: transparent !important;
   border: none !important;
 }
 #screen-card .ex-card .ex-headword {
+  flex: 0 0 auto !important;
   font-family: var(--f-display) !important;
   font-style: italic !important;
-  font-size: 18px !important;
+  font-size: 17px !important;
   color: #2A1F18 !important;
   -webkit-text-fill-color: #2A1F18 !important;
 }
 #screen-card .ex-card .ex-pos {
+  flex: 0 0 auto !important;
   font-style: italic;
   color: #8C6A4D !important;
   -webkit-text-fill-color: #8C6A4D !important;
-  font-size: 10px !important;
+  font-size: 9px !important;
 }
 #screen-card .ex-card .ex-headword-zh {
-  grid-column: 1 / -1;
-  font-size: 11px !important;
+  flex: 1 1 auto !important;
+  font-style: italic !important;
+  font-size: 9px !important;
   color: #6B5341 !important;
   -webkit-text-fill-color: #6B5341 !important;
-  padding-left: 22px;
-  margin-top: 2px;
+  padding-left: 6px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* Section box — slim border, tight padding */
@@ -4757,20 +4764,24 @@ html, body {
 }
 #screen-card .ex-card .ex-divider { display: none !important; }
 
-/* Family row — single compact line: word + pos | Chinese gloss */
+/* Family row: word + pos + Chinese on a SINGLE line.
+   Chinese stays italic + small + tucked next to the word.              */
 #screen-card .ex-card .fam-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  column-gap: 8px !important;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: baseline !important;
-  padding: 3px 0 !important;
+  gap: 6px !important;
+  padding: 2px 0 !important;
   border-bottom: 1px dashed rgba(140, 100, 60, .12) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
 }
 #screen-card .ex-card .fam-row:last-child { border-bottom: none !important; }
 #screen-card .ex-card .fam-head {
   display: flex;
   align-items: baseline;
   gap: 4px;
+  flex: 0 0 auto;
 }
 #screen-card .ex-card .fam-word {
   font-family: var(--f-display) !important;
@@ -4780,34 +4791,58 @@ html, body {
   -webkit-text-fill-color: #2A1F18 !important;
 }
 #screen-card .ex-card .fam-pos {
-  font-size: 9px;
+  font-size: 8px;
   color: #8C6A4D !important;
   -webkit-text-fill-color: #8C6A4D !important;
 }
 #screen-card .ex-card .fam-reveal {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
-  font-size: 10px;
-  line-height: 1.35;
+  flex-direction: row;
+  gap: 4px;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #screen-card .ex-card .fam-reveal .ex-speak { display: none !important; }
-#screen-card .ex-card .fam-ex     { color: #4A3A2A !important; -webkit-text-fill-color: #4A3A2A !important; font-size: 9px !important; }
-#screen-card .ex-card .fam-ex-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 9px !important; }
+#screen-card .ex-card .fam-ex     { display: none !important; }   /* don't show fam example on the head row */
+#screen-card .ex-card .fam-ex-zh  {
+  font-style: italic !important;
+  font-size: 9px !important;
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-/* Friend colloc row */
+/* Friend colloc row — also single-line English | Chinese */
 #screen-card .ex-card .colloc-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  column-gap: 8px !important;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: baseline !important;
-  padding: 3px 0 !important;
+  gap: 6px !important;
+  padding: 2px 0 !important;
   border-bottom: 1px dashed rgba(140, 100, 60, .12) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
 }
 #screen-card .ex-card .colloc-row:last-child { border-bottom: none !important; }
 #screen-card .ex-card .colloc-row .ex-speak { display: none !important; }
-#screen-card .ex-card .colloc-en  { color: #2A1F18 !important; -webkit-text-fill-color: #2A1F18 !important; font-style: italic; font-size: 11px !important; }
-#screen-card .ex-card .colloc-zh  { color: #6B5341 !important; -webkit-text-fill-color: #6B5341 !important; font-size: 10px !important; }
+#screen-card .ex-card .colloc-en  {
+  flex: 0 0 auto;
+  color: #2A1F18 !important;
+  -webkit-text-fill-color: #2A1F18 !important;
+  font-style: italic;
+  font-size: 10px !important;
+}
+#screen-card .ex-card .colloc-zh  {
+  flex: 1 1 auto;
+  color: #6B5341 !important;
+  -webkit-text-fill-color: #6B5341 !important;
+  font-style: italic !important;
+  font-size: 9px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Example sentence: compact, English then Chinese under */
 #screen-card .ex-card .ex-example {
@@ -4920,30 +4955,31 @@ html, body {
 #screen-index .page-head,
 #screen-card .page-head {
   background: url("assets/ui-chapter.png?v=30") center/100% 100% no-repeat !important;
-  position: static !important;
-  /* Kill the old transform: translateX(-50%) that paired with the
-     pre-absolute left: 50% positioning.  margin: auto handles centering
-     now.                                                                 */
-  transform: none !important;
-  top: auto !important;
-  left: auto !important;
-  /* User: 顶头框再小一点.  Drop from 220 → 170 px.                       */
-  width: 170px !important;
-  max-width: 170px !important;
-  min-width: 170px !important;
-  aspect-ratio: 1916 / 821 !important;
-  height: auto !important;
+  /* Absolute-position the band on the corner-pin row so ≡, frame, ×
+     are STRICTLY on the same horizontal line (user: 严格的同一行).      */
+  position: absolute !important;
+  top: 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* User: 缩小压扁.  Compress to 32 px tall — same band height as the
+     corner pins.  Width 160 keeps the ornate moons readable.            */
+  width: 160px !important;
+  max-width: 160px !important;
+  min-width: 160px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  aspect-ratio: auto !important;
   padding: 0 !important;
-  margin: 4px auto 8px !important;
-  min-height: 73px !important;       /* = 170 × 821/1916 */
+  margin: 0 !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 1px !important;
+  gap: 0 !important;
   overflow: hidden !important;
   text-align: center !important;
-  flex: 0 0 auto !important;
+  z-index: 50 !important;
 }
 .stage-head .stage-chapter,
 #screen-stage1 .stage-head .stage-chapter,
@@ -4954,11 +4990,11 @@ html, body {
 #screen-stage3-result .stage-head .stage-chapter {
   font-family: var(--f-italic) !important;
   font-style: italic !important;
-  font-size: 8px !important;
-  letter-spacing: .26em !important;
+  font-size: 6px !important;
+  letter-spacing: .22em !important;
   text-transform: lowercase !important;
-  color: rgba(244, 226, 200, .72) !important;
-  -webkit-text-fill-color: rgba(244, 226, 200, .72) !important;
+  color: rgba(244, 226, 200, .55) !important;
+  -webkit-text-fill-color: rgba(244, 226, 200, .55) !important;
   margin: 0 !important;
   line-height: 1 !important;
   opacity: 1 !important;
@@ -4975,11 +5011,11 @@ html, body {
 #screen-card .page-head .stage-name {
   font-family: var(--f-display) !important;
   font-style: italic !important;
-  font-size: 13px !important;
-  letter-spacing: .03em !important;
+  font-size: 11px !important;
+  letter-spacing: .02em !important;
   color: var(--cream) !important;
   -webkit-text-fill-color: var(--cream) !important;
-  line-height: 1.15 !important;
+  line-height: 1 !important;
   margin: 1px 0 0 !important;
   text-shadow: 0 0 6px rgba(232,200,130,.45) !important;
 }
@@ -5004,11 +5040,32 @@ html, body {
   display: none !important;
   content: none !important;
 }
-/* Stage screens use the default 14px top padding from §53.  The chapter
-   (now in flow) sits at the top, between the corner pins.              */
+/* All screens get 60 px top padding so the absolute-positioned 顶头框
+   (which sits at top: 12) doesn't overlap the flow content below.      */
+#screen-stage1, #screen-stage1-result,
+#screen-stage2, #screen-stage2-result,
+#screen-stage3, #screen-stage3-result,
+#screen-note, #screen-index, #screen-card {
+  padding-top: 60px !important;
+}
 #screen-stage1 .q-progress {
   margin: 0 0 8px !important;
   font-size: 12px !important;
+}
+
+/* Note stats — no box around each number, just floating glowing val.
+   User: 蓝色框内不要用那四个透明框 怪怪的 就发光的数字就行.            */
+#screen-note .note-stat,
+#screen-note .note-stat.warn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 4px !important;
+}
+#screen-note .note-stats {
+  background: transparent !important;
+  border: none !important;
+  gap: 12px 22px !important;
 }
 
 /* ----- 55.7  Result-page cards: tap to open the study card detail -----
