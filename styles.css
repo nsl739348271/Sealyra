@@ -3704,9 +3704,9 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   font-family: var(--f-italic) !important;
   font-style: italic !important;
   padding: 0 14px !important;
-  height: 42px !important;
-  min-height: 42px !important;
-  max-height: 42px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -3741,7 +3741,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   grid-template-rows: none !important;
-  grid-auto-rows: 42px !important;
+  grid-auto-rows: 48px !important;
   gap: 8px !important;
   max-width: 320px !important;
   margin: 10px auto 0 !important;
@@ -3754,7 +3754,7 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   grid-template-rows: none !important;
-  grid-auto-rows: 42px !important;
+  grid-auto-rows: 48px !important;
   gap: 8px !important;
   max-width: 320px !important;
   margin: 6px auto !important;
@@ -4243,10 +4243,10 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=30") !imp
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  /* Top padding clears the scroll's top curl.  Side padding keeps the
-     content inside the visible parchment area (the art's edges have
-     ~10% torn-paper margin each side).                                  */
-  padding: 22vw 12vw 10vw !important;
+  /* User: 字不要放纸外. The new parchment has thicker torn-edge margins
+     than the previous one — bump side padding so text stays well inside
+     the cream paper area.  Top padding clears the scroll's curl.        */
+  padding: 22vw 18vw 12vw !important;
   color: #3A2E22 !important;
   -webkit-text-fill-color: #3A2E22 !important;
 }
@@ -4587,10 +4587,13 @@ html, body {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   background: url("assets/ui-score.png?v=30") center/100% 100% no-repeat !important;
-  padding: 36px 30px 30px !important;
+  /* User: 内容不要放框边图案上.  Heavy padding so content sits in the
+     clear central area — extra at the bottom because the pink bow eats
+     ~25% of the frame's height.                                          */
+  padding: 42px 44px 80px !important;
   margin: 0 auto !important;
   width: 100% !important;
-  max-width: 360px !important;
+  max-width: 340px !important;
 }
 #screen-note .page-title,
 #screen-index .page-title {
@@ -4899,13 +4902,21 @@ html, body {
 #screen-card .page-head {
   background: url("assets/ui-chapter.png?v=30") center/100% 100% no-repeat !important;
   position: static !important;
-  width: 220px !important;
+  /* Kill the old transform: translateX(-50%) that paired with the
+     pre-absolute left: 50% positioning.  margin: auto handles centering
+     now.                                                                 */
+  transform: none !important;
+  top: auto !important;
+  left: auto !important;
+  /* User: 顶头框再小一点.  Drop from 220 → 170 px.                       */
+  width: 170px !important;
+  max-width: 170px !important;
+  min-width: 170px !important;
   aspect-ratio: 1916 / 821 !important;
   height: auto !important;
   padding: 0 !important;
-  margin: 0 auto 10px !important;
-  min-height: 94px !important;
-  max-width: 220px !important;
+  margin: 4px auto 8px !important;
+  min-height: 73px !important;       /* = 170 × 821/1916 */
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -4913,7 +4924,7 @@ html, body {
   gap: 1px !important;
   overflow: hidden !important;
   text-align: center !important;
-  flex: 0 0 auto !important;        /* don't shrink to 0 on scrollable screens */
+  flex: 0 0 auto !important;
 }
 .stage-head .stage-chapter,
 #screen-stage1 .stage-head .stage-chapter,
