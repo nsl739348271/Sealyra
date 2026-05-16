@@ -1269,16 +1269,16 @@ body:not(.cover-pending) .cover-stage > * { visibility: visible; animation: cove
   background-repeat: no-repeat;
   background-attachment: scroll;
 }
-#screen-cover.active        { background-image: url("assets/bg-cover.png?v=26"); }
+#screen-cover.active        { background-image: url("assets/bg-cover.png?v=27"); }
 #screen-stage1.active,
 #screen-stage2.active,
-#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=26"); }
+#screen-stage3.active       { background-image: url("assets/bg-stage.png?v=27"); }
 #screen-stage1-result.active,
 #screen-stage2-result.active,
-#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=26"); }
+#screen-stage3-result.active{ background-image: url("assets/bg-result.png?v=27"); }
 #screen-note.active,
 #screen-index.active,
-#screen-card.active         { background-image: url("assets/bg-note.png?v=26"); }
+#screen-card.active         { background-image: url("assets/bg-note.png?v=27"); }
 
 /* The body fallback colour matches the artwork's deep violet,
    so any over-scroll just shows the same hue.                  */
@@ -1307,7 +1307,7 @@ body {
   content: "";
   display: block;
   width: 100%; height: 100%;
-  background: url("assets/icon-moon.png?v=26") center/contain no-repeat;
+  background: url("assets/icon-moon.png?v=27") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.45));
 }
 
@@ -1318,7 +1318,7 @@ body {
   display: block;
   width: 64px; height: 40px;
   margin: 14px auto 0;
-  background: url("assets/icon-bow.png?v=26") center/contain no-repeat;
+  background: url("assets/icon-bow.png?v=27") center/contain no-repeat;
   filter: drop-shadow(0 0 5px rgba(218,168,104,.35));
 }
 /* Don't double-up — hide the old fleuron-rule divider underneath */
@@ -1335,10 +1335,10 @@ body {
   width: 14px; height: 14px;
   text-shadow: none;
 }
-.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=26"); }
-.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=26"); }
-.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=26"); }
-.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=26"); width: 22px; height: 22px; }
+.deco-stars .s:nth-child(3n)   { background-image: url("assets/icon-spark-s.png?v=27"); }
+.deco-stars .s:nth-child(3n+1) { background-image: url("assets/icon-spark-m.png?v=27"); }
+.deco-stars .s:nth-child(3n+2) { background-image: url("assets/icon-spark-l.png?v=27"); }
+.deco-stars .s:nth-child(7n)   { background-image: url("assets/icon-star8.png?v=27"); width: 22px; height: 22px; }
 
 @keyframes star-breathe {
   0%, 100% { opacity: .22; filter: drop-shadow(0 0 2px rgba(237,184,158,.4)); }
@@ -1387,10 +1387,10 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #banner-top   { z-index: 200; }
 .drawer       { z-index: 500; }
 .modal-veil   { z-index: 700; }
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=26"); }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=26"); }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=26"); }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=26"); }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=27"); }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=27"); }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=27"); }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27"); }
 
 /* Screens themselves no longer paint backgrounds — they live on top
    of the fixed layer.  Older per-screen background-image rules are
@@ -3614,11 +3614,372 @@ body { background: transparent !important; }
 }
 
 /* ----- 49.3  Cache-bust the background URLs to v=26 ----- */
-body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=26") !important; }
-body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=26") !important; }
-body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=26") !important; }
-body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=26") !important; }
-#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=26") !important; }
-#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=26") !important; }
-#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=26") !important; }
-#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=26") !important; }
+body.bg-cover  #bg-layer { background-image: url("assets/bg-cover.png?v=27") !important; }
+body.bg-stage  #bg-layer { background-image: url("assets/bg-stage.png?v=27") !important; }
+body.bg-result #bg-layer { background-image: url("assets/bg-result.png?v=27") !important; }
+body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !important; }
+#screen-cover.active                                       { background-image: url("assets/bg-cover.png?v=27") !important; }
+#screen-stage1.active, #screen-stage2.active, #screen-stage3.active                  { background-image: url("assets/bg-stage.png?v=27") !important; }
+#screen-stage1-result.active, #screen-stage2-result.active, #screen-stage3-result.active { background-image: url("assets/bg-result.png?v=27") !important; }
+#screen-note.active, #screen-index.active                  { background-image: url("assets/bg-note.png?v=27") !important; }
+
+/* ============================================================
+   50. v=27 — UI art binding (the 7 new container frames)
+   ============================================================
+   Seven container frames + one icon now live in /assets:
+     ui-page-title  — her note / the index page-title frame (with key)
+     ui-word        — every game word tile (.card.card--match / --option)
+     ui-chapter     — stage-head "chapter · N — name" strip
+     ui-parchment   — study card detail screen
+     ui-modal       — confirm-ready / confirm-leave / finish modal
+     ui-score       — score-block result badge (horizontal w/ bow)
+     ui-medallion   — circular badge, role TBD, unbound for now
+     icon-quill     — dictation pen (replaces old icon-quill silhouette)
+   ============================================================ */
+
+/* ----- 50.1  Tonight's Reading — restyled per spec ----------
+   ・font: banner-style display serif (Bodoni 72)
+   ・color: solid gold (no pink mixed)
+   ・underline: 110px wide, gap 2px (was 220px, gap 8px — felt detached)
+   ・default state: gentle gold breathing glow
+   No frame — text floats on the night sky background per user spec.   */
+@keyframes cta-breathe {
+  0%, 100% { text-shadow: 0 0 6px rgba(232,200,130,.40), 0 0 14px rgba(218,168,104,.18); }
+  50%      { text-shadow: 0 0 10px rgba(255,225,170,.85), 0 0 28px rgba(232,200,130,.55); }
+}
+.main-cta .cta-text {
+  font-family: var(--f-display) !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 28px !important;
+  letter-spacing: .05em !important;
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  background: linear-gradient(180deg, #F5D9A4 0%, #E8B57A 35%, #DAA868 70%, #F0CB94 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 0 6px rgba(232,200,130,.40), 0 0 14px rgba(218,168,104,.18) !important;
+  animation: cta-breathe 3.2s ease-in-out infinite !important;
+}
+.main-cta::after {
+  width: 110px !important;
+  margin-top: 2px !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(232,200,130,.95) 50%, transparent 100%) !important;
+}
+
+/* ----- 50.2  Cover-bottom buttons (her note / the index) -----
+   No frame asset for these — user clarified ② was actually score.
+   Keep the existing rose-pink outline pill from §41.D.                */
+
+/* ----- 50.3  Game word tiles ----- */
+#screen-stage1 .card.card--match,
+#screen-stage1-result .card.card--match,
+.card.card--option {
+  background: url("assets/ui-word.png?v=27") center/100% 100% no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--cream) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+}
+#screen-stage1 .card.card--match,
+#screen-stage1-result .card.card--match {
+  padding: 8px 18px !important;
+  /* the ui-word frame has decorative margin — pull text slightly inside */
+}
+.card.card--option {
+  padding: 16px 22px !important;
+}
+/* keep the tag-colour cues but as gentle glow on the frame, not a recolour */
+.card.card--match.tag-0 { filter: drop-shadow(0 0 10px rgba(244,181,200,.55)); }
+.card.card--match.tag-1 { filter: drop-shadow(0 0 10px rgba(238,192,180,.55)); }
+.card.card--match.tag-2 { filter: drop-shadow(0 0 10px rgba(176,180,228,.55)); }
+.card.card--match.tag-3 { filter: drop-shadow(0 0 10px rgba(196,200,196,.55)); }
+.card.card--match.is-correct { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
+.card.card--match.is-wrong   { opacity: .55; filter: none; }
+.card.card--option.picked-right  { filter: drop-shadow(0 0 16px rgba(232,200,130,.85)); }
+.card.card--option.picked-wrong  { opacity: .55; }
+.card.card--option.reveal-right  { filter: drop-shadow(0 0 14px rgba(232,200,130,.7)); }
+
+/* ----- 50.4  Chapter strip -----
+   Lock the box to the asset's native 1916:821 ratio so the
+   decorative moons stay readable.  Push the strip down so it clears
+   the corner-pin buttons (≡ / ×) which sit at top:14px.              */
+.stage-head {
+  background: url("assets/ui-chapter.png?v=27") center/100% 100% no-repeat !important;
+  width: 100% !important;
+  max-width: 320px !important;
+  aspect-ratio: 1916 / 821 !important;
+  margin: 44px auto 6px !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+.stage-head::after { display: none !important; }   /* the frame already has art */
+.stage-head .stage-chapter {
+  font-size: 9px !important;
+  letter-spacing: .3em !important;
+  opacity: .82 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+.stage-head .stage-name {
+  font-size: 14px !important;
+  letter-spacing: .04em !important;
+  line-height: 1.1 !important;
+  margin-top: 2px !important;
+}
+
+/* ----- 50.5  Page titles on her-note + the-index -----
+   Lock to native asset ratio.  Top-margin clears the corner-pin × / ≡.  */
+#screen-note .page-title,
+#screen-index .page-title {
+  background: url("assets/ui-page-title.png?v=27") center/100% 100% no-repeat !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  aspect-ratio: 1448 / 1086 !important;
+  padding: 0 !important;
+  margin: 44px auto 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  text-shadow: 0 0 10px rgba(232,200,130,.55) !important;
+}
+#screen-note .page-title::after,
+#screen-index .page-title::after { display: none !important; }
+
+/* ----- 50.6  Study card parchment ----- */
+#screen-card .ex-card {
+  background: url("assets/ui-parchment.png?v=27") center/100% 100% no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 80px 56px 110px !important;          /* room for the ribbon top + scroll bottom */
+  color: #3A2E22 !important;                    /* dark ink-brown text on cream parchment */
+  -webkit-text-fill-color: #3A2E22 !important;
+}
+#screen-card .ex-card * {
+  color: #3A2E22 !important;
+  -webkit-text-fill-color: #3A2E22 !important;
+}
+
+/* ----- 50.7  Modal panel ----- */
+.modal-card {
+  background: url("assets/ui-modal.png?v=27") center/100% 100% no-repeat !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 64px 46px !important;
+  max-width: 360px !important;
+  min-height: 380px !important;
+}
+.modal-card .m-spark { display: none !important; }   /* frame has its own decoration */
+.modal-card .modal-title {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  color: var(--cream) !important;
+  text-shadow: 0 0 10px rgba(232,200,130,.55) !important;
+}
+.modal-card .modal-body {
+  color: rgba(245,239,227,.85) !important;
+  font-style: italic !important;
+}
+
+/* ----- 50.8  Result score badge -----
+   ui-score is a wide horizontal frame (1448x1086) with pink bow.
+   Trim to ~240px wide so it doesn't dominate the result page.          */
+.score-block {
+  background: url("assets/ui-score.png?v=27") center/100% 100% no-repeat !important;
+  width: 100% !important;
+  max-width: 260px !important;
+  aspect-ratio: 1448 / 1086 !important;
+  margin: 12px auto !important;
+  padding: 14% 18% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.score-block .score-num,
+.score-block .score-value,
+.score-block .score-big {
+  font-family: var(--f-display) !important;
+  font-size: 48px !important;
+  line-height: 1 !important;
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  text-shadow: 0 0 12px rgba(232,200,130,.7) !important;
+}
+.score-block .score-label,
+.score-block .score-stage {
+  font-family: var(--f-display) !important;
+  font-style: italic !important;
+  font-size: 11px !important;
+  letter-spacing: .16em !important;
+  color: var(--cream) !important;
+  -webkit-text-fill-color: var(--cream) !important;
+  opacity: .9 !important;
+}
+
+/* ----- 50.9  Cache-bust new UI assets ----- */
+/* (already inlined above as ?v=27 — keep older asset refs at v=26)    */
+
+
+/* ============================================================
+   51. Quiet UI — anything not a "hero" gets a single left-rule
+   ============================================================
+   Per user spec: cover side-links, corner close/menu pins, and modal
+   actions all "need lower presence — just a single horizontal line on
+   the left is enough."  Replace the pink-pill / outlined-circle styles
+   with a minimalist accent line + small italic text.
+   ============================================================ */
+
+/* ----- 51.1  Cover bottom buttons (her note / the index) -----
+   Lose the pill outline; show a 24px gold fade-rule before the text.
+   .lil-row sits at the bottom of the cover; both items use the same
+   look, so the user reads them as quiet navigation, not as buttons.    */
+.lil-row .lil-ghost {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 6px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  color: rgba(245,239,227,.78) !important;
+  -webkit-text-fill-color: rgba(245,239,227,.78) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .12em !important;
+  text-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.lil-row .lil-ghost::before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 22px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(232,200,130,.72)) !important;
+}
+.lil-row .lil-ghost:hover {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+  filter: none !important;
+}
+.lil-row .lil-ghost:hover::before {
+  background: linear-gradient(90deg, transparent, rgba(244,181,200,.9)) !important;
+}
+.lil-row {
+  gap: 22px !important;
+}
+
+/* ----- 51.2  Top corner pins (close / moon) -----
+   Were pretty 36px rounded buttons.  Drop the border + bg; let the icon
+   itself sit on the page as a thin glyph.                              */
+.corner-pin,
+.close-corner,
+.moon-corner {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  opacity: .72 !important;
+  filter: drop-shadow(0 0 4px rgba(232,200,130,.32)) !important;
+}
+.corner-pin:hover,
+.close-corner:hover,
+.moon-corner:hover {
+  opacity: 1 !important;
+}
+/* close-corner's × — render as two thin gold strokes, no circle */
+.close-corner .cp-x {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+.close-corner .cp-x::before,
+.close-corner .cp-x::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 1px !important;
+  background: rgba(232,200,130,.78) !important;
+  transform-origin: center !important;
+}
+.close-corner .cp-x::before { transform: rotate( 45deg); }
+.close-corner .cp-x::after  { transform: rotate(-45deg); }
+/* moon-corner's three bars — keep but make hair-thin gold */
+.moon-corner .mc-bar,
+.moon-corner .mc-bar::before,
+.moon-corner .mc-bar::after {
+  background: rgba(232,200,130,.78) !important;
+  height: 1px !important;
+}
+
+/* ----- 51.3  Modal action buttons (yes / stay) -----
+   Were rose-pink outlined pills.  Match the cover-bottom style: small
+   italic text with a fade-rule accent.                                 */
+.modal-card .modal-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+.modal-card .modal-actions .btn,
+.modal-card .modal-actions .whisper-pill {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 10px !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+  color: rgba(245,239,227,.82) !important;
+  -webkit-text-fill-color: rgba(245,239,227,.82) !important;
+  font-family: var(--f-italic) !important;
+  font-style: italic !important;
+  font-size: 14px !important;
+  letter-spacing: .14em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.modal-card .modal-actions .btn::before,
+.modal-card .modal-actions .whisper-pill::before {
+  content: '' !important;
+  display: inline-block !important;
+  width: 22px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(232,200,130,.72)) !important;
+}
+.modal-card .modal-actions .btn:hover,
+.modal-card .modal-actions .whisper-pill:hover {
+  color: var(--rose) !important;
+  -webkit-text-fill-color: var(--rose) !important;
+}
+.modal-card .modal-actions .btn.primary {
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+}
+
+/* ----- 51.4  (chapter strip rules now consolidated in §50.4) ----- */
