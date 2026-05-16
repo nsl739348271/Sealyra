@@ -3517,3 +3517,56 @@ body { background: transparent !important; }
   display: none !important;
   visibility: hidden !important;
 }
+
+/* ============================================================
+   45. design system v1.4 — IDENTICAL grids + indestructible veil
+   ============================================================
+   the result page tiles were narrower than the matching grid cards
+   because older sheets pinned .match-result-grid to padding:18px+16
+   and max-width:540, while .match-grid sat at full width.  force
+   both grids to one shape with !important, use aspect-ratio so
+   cells stay proportional regardless of viewport, and brick-wall
+   the .is-veiled hide so no later cascade can revive it.          */
+
+.match-result-grid,
+.match-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 560px !important;
+  margin: 14px auto !important;
+  box-sizing: border-box !important;
+}
+.match-result-grid > .card,
+.match-grid > .card,
+.match-result-grid > .card.card--match,
+.match-grid > .card.card--match {
+  width: 100% !important;
+  aspect-ratio: 17 / 8 !important;       /* same shape on both pages */
+  min-height: 96px !important;
+  padding: 0 12px !important;            /* aspect-ratio handles height */
+  font-size: 19px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;             /* never let flex column squash cards */
+}
+
+/* brick-wall hide: 5 properties so absolutely no later override
+   can make a veiled colloc / family reveal / example show up.    */
+.ex-card .fam-reveal.is-veiled,
+.ex-card .colloc-row.is-veiled,
+.ex-card .ex-example.is-veiled,
+.fam-reveal.is-veiled,
+.colloc-row.is-veiled,
+.ex-example.is-veiled {
+  display: none !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
