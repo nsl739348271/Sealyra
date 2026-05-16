@@ -232,11 +232,13 @@ function keyIconHtml() {
 function mainCTA(label, onClick) {
   const a = document.createElement('button');
   a.className = 'main-cta';
-  // No flanking keys — they kept iOS-Safari'ing into white tiles.
-  // The gradient gold rule beneath the text carries the ornament alone.
   a.innerHTML = `<span class="cta-text">${escapeHtml(label)}</span>`;
   a.addEventListener('click', () => {
     if (a.classList.contains('is-engaged')) return;
+    // Audio MUST be unlocked synchronously inside the gesture
+    // handler — calling unlock() any later (after a setTimeout)
+    // means iOS Safari will refuse to start BGM.
+    LanBGM.unlock();
     a.classList.add('is-engaged');
     SFX.bling();
     setTimeout(() => onClick && onClick(), 700);
@@ -253,13 +255,15 @@ function nextDoor(label, onClick, { confirm = false } = {}) {
   a.innerHTML = `<span class="nd-text">${escapeHtml(label)}</span>`;
   a.addEventListener('click', () => {
     if (a.classList.contains('is-engaged')) return;
+    LanBGM.unlock();                  // safe to repeat-call
+    a.classList.add('is-engaged');     // glow always — same beat as Tonight's Reading
+    SFX.tap();
     if (confirm) {
-      SFX.tap();
       confirmReady(label, () => { onClick && onClick(); });
+      // After the modal closes, allow another tap if the user picks "stay".
+      setTimeout(() => a.classList.remove('is-engaged'), 900);
     } else {
-      a.classList.add('is-engaged');
-      SFX.tap();
-      setTimeout(() => onClick && onClick(), 300);
+      setTimeout(() => onClick && onClick(), 320);
     }
   });
   return a;
@@ -752,7 +756,7 @@ const Screens = {
       const grid = $('.match-grid', el);
       shuffled.forEach((c, idx) => {
         const card = document.createElement('div');
-        card.className = 'match-card';
+        card.className = 'card card--match';
         card.textContent = c.text;
         card.addEventListener('click', () => paint(idx, card));
         grid.appendChild(card);
@@ -770,7 +774,7 @@ const Screens = {
           tagOf[idx] = currentTag;
         }
         // recolor every card from tagOf
-        $$('.match-card', grid).forEach((node, i) => {
+        $$('.card--match', grid).forEach((node, i) => {
           for (let k = 0; k < 4; k++) node.classList.remove('tag-' + k);
           if (tagOf[i] !== null) node.classList.add('tag-' + tagOf[i]);
         });
@@ -852,7 +856,7 @@ const Screens = {
       const grid = $('.match-result-grid', el);
       result.forEach(r => {
         const tile = document.createElement('button');
-        tile.className = `match-tile tag-${r.tag} ${r.correct ? 'is-correct' : 'is-wrong'}`;
+        tile.className = `card card--match tag-${r.tag} ${r.correct ? 'is-correct' : 'is-wrong'}`;
         tile.innerHTML = `
           <span class="tile-mark">${r.correct ? '✓' : '✗'}</span>
           <span class="tile-text">${escapeHtml(r.text)}</span>
@@ -892,7 +896,7 @@ const Screens = {
         const opts = $('.oracle-options', stage);
         q.options.forEach((opt, oi) => {
           const b = document.createElement('button');
-          b.className = 'oracle-option';
+          b.className = 'card card--option';
           b.textContent = opt;
           b.addEventListener('click', () => pick(oi, b));
           opts.appendChild(b);
@@ -901,7 +905,7 @@ const Screens = {
 
       function pick(oi, button) {
         const q = state.oracleQs[state.oracleIdx];
-        const all = $$('.oracle-option');
+        const all = $$('.card--option');
         all.forEach(b => b.disabled = true);
 
         // tiny "thinking" beat — the deep-pink inner glow on the chosen option
@@ -1107,7 +1111,6 @@ const Screens = {
         haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
       };
       el.innerHTML = `
-        ${titleStrip()}
         ${pageTitle('her little note')}
         <div class="page-subtitle">pages she returns to</div>
         <div class="note-stats">
@@ -1118,6 +1121,8 @@ const Screens = {
         </div>
         <div id="note-body"></div>
       `;
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner());
 
 
       const body = $('#note-body', el);
@@ -1153,12 +1158,13 @@ const Screens = {
       });
       const letters = Object.keys(groups).sort();
       el.innerHTML = `
-        ${titleStrip()}
         ${pageTitle('the index')}
         <div class="page-subtitle">every word she has named</div>
         <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
         <div id="index-body"></div>
       `;
+      el.prepend(moonCorner());
+      el.appendChild(closeCorner());
 
       $$('.alpha-bar a', el).forEach(a => {
         a.addEventListener('click', () => {
