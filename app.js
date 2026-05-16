@@ -442,15 +442,10 @@ function stageHeader(chapterN, name) {
     </div>
   `;
 }
+// Title plaque-only fragment (used by the cover-side hubs that build
+// their own .nav-card and want the centred 3C68C8E6 dome inside it).
 function pageTitle(name) {
-  // v=26.3: the page title now lives in the centred title plaque of the
-  // nav-zone (3C68C8E6 dome).  Corner buttons (moon, key) flank it.
-  // The plaque is a single horizontal bar — NEVER a full-page panel.
-  return `
-    <div class="nav-zone">
-      <div class="title-plaque">${escapeHtml(name)}</div>
-    </div>
-  `;
+  return `<div class="title-plaque">${escapeHtml(name)}</div>`;
 }
 // Visual writing-line at the bottom of the single-word parchment.
 // NOT an input — pure cue that says "copy this word once".
@@ -484,18 +479,20 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
   });
   const letters = Object.keys(groups).sort();
   el.innerHTML = `
-    ${pageTitle(title)}
-    <div class="page-panel">
-      <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
-      <div class="panel-body" id="panel-body-${fromKey}">
-        ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
+    <div class="nav-card">
+      ${pageTitle(title)}
+      <div class="nav-card-body">
+        <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
       </div>
     </div>
+    <div class="word-list" id="word-list-${fromKey}">
+      ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
+    </div>
   `;
-  // Corner buttons live inside the nav-zone (the plaque + key bar)
-  const nav = $('.nav-zone', el);
-  nav.prepend(moonCorner());
+  // Corner buttons pin to the nav-card corners.
+  const nav = $('.nav-card', el);
+  nav.appendChild(moonCorner());
   nav.appendChild(closeCorner({ to: backTo }));
 
   $$('.alpha-bar a', el).forEach(a => {
@@ -506,7 +503,7 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
     });
   });
 
-  const body = $(`#panel-body-${fromKey}`, el);
+  const body = $(`#word-list-${fromKey}`, el);
   letters.forEach(L => {
     body.insertAdjacentHTML('beforeend',
       `<div class="alpha-section-title" id="letter-${L}-${fromKey}">${L}</div>`);
@@ -1316,26 +1313,27 @@ const Screens = {
       const soft  = entries.filter(([_, c]) => c >= 1 && c <= 2).map(([w]) => w);
       const haunt = entries.filter(([_, c]) => c >= 3).map(([w]) => w);
       el.innerHTML = `
-        ${pageTitle('her little note')}
-        <div class="page-panel page-panel--short">
-          <div class="bucket-row">
-            <button class="bucket-card" data-bucket="soft" ${soft.length  ? '' : 'disabled'}>
-              <div class="bk-hint">words that slipped once</div>
-              <div class="bk-value">${soft.length}</div>
-              <div class="bk-label">soft slips</div>
-            </button>
-            <button class="bucket-card" data-bucket="haunt" ${haunt.length ? '' : 'disabled'}>
-              <div class="bk-hint">words that return</div>
-              <div class="bk-value">${haunt.length}</div>
-              <div class="bk-label">haunting words</div>
-            </button>
+        <div class="nav-card">
+          ${pageTitle('her little note')}
+          <div class="nav-card-body">
+            <div class="counter-row">
+              <button class="bucket-card" data-bucket="soft"  ${soft.length  ? '' : 'disabled'}>
+                <div class="bk-hint">words that slipped once</div>
+                <div class="bk-value">${soft.length}</div>
+                <div class="bk-label">soft slips</div>
+              </button>
+              <button class="bucket-card" data-bucket="haunt" ${haunt.length ? '' : 'disabled'}>
+                <div class="bk-hint">words that return</div>
+                <div class="bk-value">${haunt.length}</div>
+                <div class="bk-label">haunting words</div>
+              </button>
+            </div>
           </div>
-          ${entries.length ? '' : `<div class="note-empty">no slips yet · the page is still pristine</div>`}
         </div>
       `;
-      // Corner buttons go INSIDE the nav-zone so they flank the plaque.
-      const nav = $('.nav-zone', el);
-      nav.prepend(moonCorner());
+      // Corner buttons pin to the top corners of the nav-card.
+      const nav = $('.nav-card', el);
+      nav.appendChild(moonCorner());
       nav.appendChild(closeCorner());
 
       $$('.bucket-card', el).forEach(b => b.addEventListener('click', () => {
