@@ -110,7 +110,36 @@ const SFX = (() => {
     pop:     () => tone([784, 1175, 1568],               0.06, 0.22, 'triangle', 0.12),
     right:   () => tone([880, 1175, 1568],               0.05, 0.22, 'sine',     0.16),
     wrong:   () => tone([311, 207],                      0.07, 0.20, 'square',   0.06),
-    finish:  () => tone([523, 659, 784, 988, 1175, 1318],0.08, 0.26, 'sine',     0.14)
+    finish:  () => tone([523, 659, 784, 988, 1175, 1318],0.08, 0.26, 'sine',     0.14),
+    // The wax-seal cracks open: a low square thump for the snap,
+    // then a high noise-pop for the shards.
+    seal: () => {
+      tone([200], 0.0, 0.10, 'square', 0.18);
+      setTimeout(() => noise(0.08, 0.07, 1200), 60);
+    },
+    // The quill scratching paper: low-passed white noise for ~600ms,
+    // gain kept very low so it whispers under whatever is on top.
+    write: (dur = 0.6) => {
+      const c = ensure();
+      const t0 = c.currentTime;
+      const bufferSize = Math.floor(c.sampleRate * dur);
+      const buf = c.createBuffer(1, bufferSize, c.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // light amplitude wobble so it feels like a moving nib
+        const env = 1 - Math.pow(i / bufferSize, 1.4);
+        data[i] = (Math.random() * 2 - 1) * env;
+      }
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      const lp = c.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 800;
+      const g = c.createGain();
+      g.gain.value = 0.04;
+      src.connect(lp); lp.connect(g); g.connect(c.destination);
+      src.start(t0);
+    }
   };
 })();
 
@@ -1316,21 +1345,85 @@ const Screens = {
     }
   },
 
-  /* ---------- CARD detail (opened from sidebar, index, tiles) ---------- */
+  /* ---------- CARD detail (opened from sidebar, index, tiles) ----------
+     The opening ceremony has three beats:
+       1. Wax seal sits centred on the night sky.  Tap it.
+       2. Seal cracks (sfxSeal), scales out, fades.
+       3. Card scale-fades in (500ms).  Each line — head, family
+          heads, friend label, neighbour — gets written by a mask
+          sweep, staggered 180ms, with sfxWrite per line.
+       4. After the last line + 600ms, the "tap anywhere · 任意处继续"
+          breathing hint appears at the bottom.                          */
   card: {
     onEnter(opts) {
       const el = $('#screen-card');
       const word = opts.word;
-      // default to 'cover' when no caller passed an explicit from —
-      // never to 'index', which created the dead-end where pressing
-      // close on the card jumped to the word list instead of home.
       const from = opts.from || 'cover';
       state._cardFrom = from;
-      el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
 
+      el.innerHTML = '';
       el.prepend(moonCorner());
       el.appendChild(closeCorner({ to: from }));
-      $('#card-host', el).appendChild(renderExCard(word, null, { withControls: true }));
+
+      // --- Beat 1: the wax seal -----------------------------------
+      const seal = document.createElement('button');
+      seal.className = 'wax-seal';
+      seal.setAttribute('aria-label', 'open the page');
+      seal.innerHTML = `<span class="wax-emblem">✦</span>`;
+      el.appendChild(seal);
+
+      const openCard = () => {
+        seal.disabled = true;
+        SFX.seal();
+        seal.classList.add('is-breaking');
+        // --- Beat 2: seal animation ends, build the card stage ---
+        setTimeout(() => {
+          seal.remove();
+          const host = document.createElement('div');
+          host.className = 'card-host';
+          host.id = 'card-host';
+          el.appendChild(host);
+
+          const card = renderExCard(word, null, { withControls: true });
+          card.classList.add('is-entering');
+          host.appendChild(card);
+
+          // --- Beat 3: line-by-line write reveal ------------------
+          // Pick logical "lines" that are visible at entrance.  The
+          // .is-veiled targets (fam-reveal / colloc-row / example)
+          // stay veiled — they unfold on tap as before.
+          const lines = Array.from(card.querySelectorAll(
+            '.ex-head, .ex-family > .ex-label, .ex-family > .fam-row > .fam-head, ' +
+            '.ex-friend > .ex-label, .ex-neighbor, .ex-rewrite'
+          ));
+          lines.forEach((line, i) => {
+            line.classList.add('write-line');
+            line.style.animationDelay = (300 + i * 180) + 'ms';
+            setTimeout(() => SFX.write(0.45), 300 + i * 180);
+          });
+
+          // --- Beat 4: bottom breathing hint ----------------------
+          const lastLineEnd = 300 + (lines.length - 1) * 180 + 700;
+          setTimeout(() => {
+            const hint = document.createElement('div');
+            hint.className = 'card-tap-hint';
+            hint.innerHTML = `<span>tap anywhere · 任意处继续</span>`;
+            el.appendChild(hint);
+            // First tap on the screen dismisses the hint (the user
+            // can keep tapping the card to walk through the queue).
+            const dismiss = () => {
+              hint.classList.add('is-fading');
+              setTimeout(() => hint.remove(), 320);
+              el.removeEventListener('click', dismiss, true);
+            };
+            // Defer one tick so the click that summoned the hint
+            // doesn't immediately dismiss it.
+            setTimeout(() => el.addEventListener('click', dismiss, true), 50);
+          }, lastLineEnd + 600);
+        }, 320);
+      };
+
+      seal.addEventListener('click', openCard);
     }
   }
 };

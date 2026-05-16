@@ -3983,3 +3983,214 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=27") !imp
 }
 
 /* ----- 51.4  (chapter strip rules now consolidated in §50.4) ----- */
+
+
+/* ============================================================
+   52. Study-card opening ceremony — wax seal + write reveal
+   ============================================================
+   Spec from neighbour-window design pass.  Sequence:
+     a. Wax seal sits centred.  Tap.
+     b. Seal cracks (300ms), fades out.
+     c. Card scale-fades in (500ms).  Lines are written by a mask
+        sweep, 180ms stagger, sfxWrite per line.
+     d. "tap anywhere · 任意处继续" breathing hint appears.
+   The card itself is fixed-height (78vh, scrolls when needed) so
+   the page never reflows mid-ceremony.
+   ============================================================ */
+
+/* ----- 52.1  Wax seal (CSS-drawn, no asset) ----- */
+.wax-seal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 148px;
+  height: 148px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 50;
+  background:
+    radial-gradient(circle at 32% 28%, #d8442e 0%, #b32820 42%, #7e1612 74%, #4a0a08 100%);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, .55),
+    0 0 38px rgba(216, 68, 46, .35),
+    inset 0 0 30px rgba(0, 0, 0, .4),
+    inset 4px 6px 14px rgba(255, 220, 200, .22),
+    inset -4px -6px 14px rgba(0, 0, 0, .35);
+  opacity: 0.95;
+  animation: seal-breathe 3.2s ease-in-out infinite;
+}
+.wax-seal::before {
+  /* inner gold ring */
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border: 1.5px solid rgba(232, 200, 130, .42);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.wax-seal::after {
+  /* outer drip-shadow ring for waxy depth */
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 62%, rgba(0, 0, 0, .4) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+.wax-seal .wax-emblem {
+  display: block;
+  font-family: var(--f-display, serif);
+  font-size: 56px;
+  color: rgba(232, 200, 130, .92);
+  text-shadow:
+    0 0 8px rgba(232, 200, 130, .6),
+    0 1px 2px rgba(0, 0, 0, .6);
+  line-height: 148px;
+  text-align: center;
+}
+@keyframes seal-breathe {
+  0%, 100% { box-shadow: 0 10px 24px rgba(0,0,0,.55), 0 0 38px rgba(216,68,46,.35), inset 0 0 30px rgba(0,0,0,.4), inset 4px 6px 14px rgba(255,220,200,.22), inset -4px -6px 14px rgba(0,0,0,.35); }
+  50%      { box-shadow: 0 10px 24px rgba(0,0,0,.55), 0 0 48px rgba(216,68,46,.55), inset 0 0 30px rgba(0,0,0,.4), inset 4px 6px 14px rgba(255,220,200,.28), inset -4px -6px 14px rgba(0,0,0,.35); }
+}
+.wax-seal.is-breaking {
+  animation: seal-break 300ms ease-out forwards;
+  pointer-events: none;
+}
+@keyframes seal-break {
+  0%   { transform: translate(-50%, -50%) scale(1)   rotate(0deg);  opacity: .95; }
+  60%  { transform: translate(-50%, -50%) scale(1.32) rotate(10deg); opacity: .7;  }
+  100% { transform: translate(-50%, -50%) scale(1.45) rotate(15deg); opacity: 0;   }
+}
+
+/* ----- 52.2  Card container — fixed height, scroll inside ----- */
+#screen-card .card-host {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+}
+#screen-card .ex-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 78vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* fallback bg so the card has body if the parchment image fails  */
+  background-color: #1a1235 !important;
+  background-image: none !important;
+  border: 1px solid rgba(232, 200, 130, .22) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 0 28px rgba(0, 0, 0, .55),
+    inset 0 0 60px rgba(244, 226, 200, 0.08) !important;
+  padding: 44px 26px 56px !important;
+  color: #f4e6c8 !important;
+  -webkit-text-fill-color: #f4e6c8 !important;
+}
+/* Restore cream-on-dark text inside the card (the §50.6 rule had set
+   everything to dark ink-brown, which only suited the parchment-only
+   bg.  Now the bg is dark + parchment overlay, so we want cream).      */
+#screen-card .ex-card * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+/* Paper-warmth overlay — the ui-parchment.png asset has a decorative
+   scroll shape baked into it, so stretching it as a full-card texture
+   produced a tilted-scroll silhouette.  Instead, render a subtle
+   radial warm-cream glow that suggests paper without any silhouette.  */
+#screen-card .ex-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(244, 226, 200, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 85%, rgba(244, 226, 200, 0.04) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+#screen-card .ex-card > * {
+  position: relative;
+  z-index: 1;
+}
+/* Custom slim scrollbar for when content overflows */
+#screen-card .ex-card::-webkit-scrollbar { width: 4px; }
+#screen-card .ex-card::-webkit-scrollbar-thumb {
+  background: rgba(232, 200, 130, .3);
+  border-radius: 2px;
+}
+
+/* ----- 52.3  Card entrance (scale-fade) ----- */
+.ex-card.is-entering {
+  opacity: 0;
+  transform: scale(.94);
+  animation: card-enter 500ms cubic-bezier(.4, 0, .2, 1) forwards;
+}
+@keyframes card-enter {
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ----- 52.4  Per-line write reveal -----
+   Mask geometry (the previous attempt had the math wrong and clipped
+   the first letters off every word):
+     - mask image: linear-gradient black on the LEFT half, fading to
+       transparent on the right half.  So wherever the mask sits, the
+       LEFT side is opaque (= content visible) and the RIGHT side is
+       transparent (= content hidden).
+     - mask-size 200% × 100%: mask is twice as wide as the line.
+     - start mask-position: right
+         → mask's right edge aligns with the line's right edge.
+         → the line is covered entirely by the mask's TRANSPARENT half
+           (left of the mask is off-screen left).  Line is fully hidden.
+     - end mask-position: left
+         → mask's left edge aligns with the line's left edge.
+         → the line sits under the mask's OPAQUE half.  Line is visible.
+     - In between, the soft transition sweeps left-to-right, mimicking
+       a quill writing across the page.                                 */
+.write-line {
+  -webkit-mask: linear-gradient(90deg, #000 50%, transparent 100%) right / 200% 100% no-repeat;
+          mask: linear-gradient(90deg, #000 50%, transparent 100%) right / 200% 100% no-repeat;
+  animation: write-reveal 700ms cubic-bezier(.5, 0, .25, 1) both;
+}
+@keyframes write-reveal {
+  0%   { -webkit-mask-position: right; mask-position: right; }
+  100% { -webkit-mask-position: left;  mask-position: left;  }
+}
+
+/* ----- 52.5  Bottom breathing tap-hint ----- */
+.card-tap-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 40;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .14em;
+  color: rgba(244, 226, 200, .72);
+  text-shadow: 0 0 8px rgba(0, 0, 0, .6);
+  animation: hint-fade-in 320ms ease-out both, hint-breathe 2.6s ease-in-out 320ms infinite;
+}
+.card-tap-hint.is-fading {
+  animation: hint-fade-out 320ms ease-in forwards;
+}
+@keyframes hint-fade-in {
+  0%   { opacity: 0; transform: translate(-50%, 8px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes hint-breathe {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: .85; }
+}
+@keyframes hint-fade-out {
+  to { opacity: 0; transform: translate(-50%, 8px); }
+}
