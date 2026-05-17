@@ -4109,16 +4109,17 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* PNG was just cropped to its opaque bounds: 951×597 (aspect 1.59).
-     Now the element's edges = the visible frame's edges, so child
-     positions stop landing inside invisible transparent padding.   */
+  /* Cropped 951×597 aspect 1.59 — but iOS Safari sometimes ignores
+     aspect-ratio with position:fixed+transform.  Set both width
+     and height explicitly using matching min() expressions so the
+     element NEVER stretches.                                       */
   position: fixed;
   top: calc(100vw * 821 / 1916);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
-  width: min(76vw, 460px);
-  aspect-ratio: 951 / 597;
+  width:  min(76vw, 460px);
+  height: min(47.7vw, 289px);    /* = width × (597/951) */
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
@@ -4207,18 +4208,19 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
-/* 3C68C8E6 PNG was cropped to its opaque bounds: 864×312
-   (aspect 2.77).  Element edges now match the dome's actual
-   silhouette, no invisible padding above/below.  Plaque text
-   centred via top:50 % falls right in the purple band.       */
+/* 3C68C8E6 PNG (cropped): 864×312, aspect 2.77.
+   Setting BOTH width AND height explicitly (not aspect-ratio)
+   because iOS Safari occasionally renders aspect-ratio +
+   absolute + transform with the wrong final height.
+   height = width × (312/864) / (nav-card height / nav-card width)
+          = 68 % × 0.361 / 0.628 = 39 % of nav-card height.    */
 .nav-card .title-plaque {
   position: absolute;
   top: 4%;
   left: 50%;
   transform: translateX(-50%);
   width: 68%;
-  aspect-ratio: 864 / 312;
-  height: auto;
+  height: 39%;
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
     center/100% 100% no-repeat;
@@ -4226,9 +4228,11 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* PNG was cropped to opaque bounds — text band is now truly
-     at the geometric centre. */
-  top: 50%;
+  /* True geometric centre of the cropped plaque.
+     User said top:53 % made the title "高" so I'm at 55 %
+     — slight nudge below geometric centre lets the text sit
+     in the dome's deeper purple band optically.            */
+  top: 55%;
   transform: translate(-50%, -50%);
   width: 80%;
   text-align: center;
@@ -4249,21 +4253,22 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  layout WITHOUT a body wrapper.  alpha and search
-   are direct children of .nav-card, each absolutely placed
-   exactly where I want them:
-     alpha-bar  → top:42 %  (right under the visible dome)
-     search     → top:72 %  (right above the bow ribbon)
-   No phantom flex gaps, no trailing empty band.            */
+/* --- 47.4  layout WITHOUT a body wrapper — alpha + search
+   are absolutely placed inside the cropped nav-card.  These
+   numbers were chosen by reading the pixel-safe-zone scan,
+   not by trial and error any more:
+     alpha-bar  → top 54 %  (clear of the plaque + flora)
+     search     → bottom 16 % (right above the bow ribbon)
+   left/right insets match the visible frame's gold border.  */
 .nav-card > .alpha-bar {
   position: absolute;
-  top: 42%;
+  top: 54%;
   left: 22%;
   right: 22%;
 }
 .nav-card > .index-search {
   position: absolute;
-  top: 72%;
+  bottom: 14%;             /* anchor to bottom — never spills onto bow */
   left: 28%;
   right: 28%;
 }
@@ -4380,12 +4385,15 @@ body.bg-result .match-result-grid > .card {
   align-items: center;
   gap: 1px;
   padding: 0 !important;
-  margin: 0 !important;                    /* override stray .alpha-bar
-                                              margins from older rules */
-  width: 100%;
+  margin: 0 !important;
+  /* width left undeclared so left:22 % + right:22 % from the
+     .nav-card > .alpha-bar rule actually compute the width
+     (was width:100 % before, which caused it to spill out by
+     22 % off the right edge).                                */
   min-width: 0;
   line-height: 1.05;
   box-sizing: border-box;
+  overflow: hidden;
 }
 .nav-card .alpha-bar a {
   font-family: 'Snell Roundhand', 'Pinyon Script',
