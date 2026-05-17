@@ -4223,9 +4223,7 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* SPEC: 58 % drops the title to the optical middle of the
-     dome (the spire pushes the visual centre downward).  */
-  top: 58%;
+  top: 62%;            /* dropped further — user still saw it "high" */
   transform: translate(-50%, -50%);
   width: 80%;
   text-align: center;
@@ -4246,22 +4244,22 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* SPEC: alpha at top:53 %  (13 % breathing room from plaque
-   bottom at 40 %), insets 30 % each side so the 13-wide grid
-   stays cleanly INSIDE the gold border (was 22 % — K/L kept
-   landing on the corner floral curl).
-   Search anchored to bottom:11 % (just above the bow).        */
+/* alpha BAR wider so letters aren't squished + breathe inside.
+   Search input has min-width:0 so iOS Safari's default
+   text-input min-width doesn't push it past the right edge.   */
 .nav-card > .alpha-bar {
   position: absolute;
   top: 53%;
-  left: 30%;
-  right: 30%;
+  left: 18%;
+  right: 18%;
 }
 .nav-card > .index-search {
   position: absolute;
   bottom: 11%;
-  left: 32%;
-  right: 32%;
+  left: 22%;
+  right: 22%;
+  min-width: 0;          /* override the browser default */
+  width: auto;
 }
 /* Note hub still uses .nav-card-body to host its 2 counter cards;
    restore the absolute positioning so the counter row sits in the
@@ -4341,7 +4339,9 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.6  search box — sized to fit the narrow central column --- */
 .nav-card .index-search {
   display: block;
-  width: 100%;
+  /* width left auto so the .nav-card > .index-search rule's
+     left:22 % + right:22 % can compute the width (was 100 %,
+     which broke containment).                                  */
   margin: 0 auto;
   padding: 2px 6px;
   background: rgba(8,4,18,.30);
@@ -4371,17 +4371,14 @@ body.bg-result .match-result-grid > .card {
    so it doesn't push the search bar out of the body bounds.   */
 .nav-card .alpha-bar {
   display: grid;
-  /* minmax(0, 1fr) lets tracks shrink below content size —
-     fixes the "grid expands past container, K/L/M+ get
-     clipped" bug from earlier versions. */
   grid-template-columns: repeat(13, minmax(0, 1fr));
   justify-items: center;
   align-items: center;
-  gap: 1px;
+  gap: 2px 4px;                  /* more breathing room between letters */
   padding: 0 !important;
   margin: 0 !important;
   min-width: 0;
-  line-height: 1.05;
+  line-height: 1.1;
   box-sizing: border-box;
   overflow: visible;
 }
@@ -4390,7 +4387,7 @@ body.bg-result .match-result-grid > .card {
                'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
   font-style: italic;
   font-weight: 500;
-  font-size: 7px;                          /* sized for 9 px-wide cells */
+  font-size: 9px;                          /* bigger letters per user */
   letter-spacing: 0;
   color: #d6a464;
   text-shadow:
@@ -4412,9 +4409,8 @@ body.bg-result .match-result-grid > .card {
   text-decoration-color: rgba(232,196,138,.9);
 }
 .nav-card .alpha-bar a.ab-disabled {
-  color: rgba(214,164,100,.28);
-  text-decoration-color: rgba(184,138,58,.18);
-  text-shadow: none;
+  /* same colour as the rest — user found the muted distinction
+     visually noisy.  click is a no-op via pointer-events.       */
   pointer-events: none;
   cursor: default;
 }
