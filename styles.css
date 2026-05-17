@@ -1430,17 +1430,27 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
    and we just swap its image via a body class.  Content scrolls
    over a steady artwork — what the brief actually asks for.       */
 #bg-layer {
+  /* extend BELOW the viewport's visible bottom (iOS Safari URL bar
+     + home-indicator area).  Without this, position:fixed inset:0
+     stops at the "small viewport" boundary and leaves a dark band
+     beneath, between the bg and the physical screen edge.         */
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -200px;
+  height: auto;
   z-index: 0;
-  background-color: #1A1530;
+  background-color: #2a1f3a;          /* matches the scene tone if
+                                          anything still peeks past */
   background-size: cover;
-  background-position: center bottom;       /* anchor scene to viewport
-                                                bottom so no purple band
-                                                appears under the books */
+  background-position: center bottom;
   background-repeat: no-repeat;
   pointer-events: none;
 }
+/* Also make BODY itself the same colour so anything past the
+   fixed layer (overscroll bounce, safe-area) blends in.         */
+html, body { background-color: #2a1f3a; }
 /* Only bump z-indexes here — don't touch the position properties
    that the original rules already set (banner = fixed top, drawer
    and modal = fixed full-viewport).  Overriding them to "relative"
