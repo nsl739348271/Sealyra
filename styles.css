@@ -4194,14 +4194,14 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
-/* Plaque tucked into the inner safe field, sized so search + A-Z
-   have room beneath it inside the frame. */
+/* Plaque sits in the cleanest part of the 0511 frame
+   (y=15-30 % is the widest decoration-free band — 70 %+ wide). */
 .nav-card .title-plaque {
   position: absolute;
-  top: 7%;
+  top: 5%;
   left: 50%;
   transform: translateX(-50%);
-  width: 50%;                     /* smaller so body has more room */
+  width: 70%;                    /* BIGGER per user request */
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4233,20 +4233,25 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — under the smaller plaque, generous
-   vertical room so search + alpha-bar fit cleanly             --- */
+/* --- 47.4  body area — narrow centred column.  No backing layer
+   per user.  Content sized to fit the truly clean center band
+   (only 44 % wide because the flora pinches in from both sides). */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 45%;                 /* just below the (smaller) plaque */
-  left: 20%;                /* clears the side flora */
-  right: 20%;
-  bottom: 20%;              /* clears the bow */
+  top: 48%;
+  left: 28%;                /* sit inside the central decoration-free
+                                column (x=28-72 % is mostly clean)   */
+  right: 28%;
+  bottom: 22%;              /* clear of the bow */
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 4px;
-  padding-top: 1px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4308,10 +4313,10 @@ body.bg-result .match-result-grid > .card {
   margin-top: 2px;
 }
 
-/* --- 47.6  search box — small, square, hairline gold edge --- */
+/* --- 47.6  search box — sized to fit the narrow central column --- */
 .nav-card .index-search {
   display: block;
-  width: 90%;                              /* fits in tight body */
+  width: 100%;
   margin: 0 auto;
   padding: 2px 6px;
   background: rgba(8,4,18,.30);
@@ -4320,12 +4325,12 @@ body.bg-result .match-result-grid > .card {
   color: var(--cream);
   font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: .04em;
   outline: none;
   text-align: center;
   box-sizing: border-box;
-  height: 18px;
+  height: 16px;
 }
 .nav-card .index-search:focus { border-color: rgba(218,168,104,.75); }
 .nav-card .index-search::placeholder {
@@ -4340,8 +4345,8 @@ body.bg-result .match-result-grid > .card {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 4px;
-  line-height: 1.35;
+  gap: 0 3px;
+  line-height: 1.25;
   padding: 0;
 }
 .nav-card .alpha-bar a {
@@ -4349,12 +4354,13 @@ body.bg-result .match-result-grid > .card {
                'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
   font-style: italic;
   font-weight: 500;
-  font-size: 10.5px;                       /* fits the tight body */
-  letter-spacing: .02em;
+  font-size: 9px;                          /* tighter to fit the
+                                              narrow central column */
+  letter-spacing: .01em;
   color: #d6a464;
   text-shadow:
-    0 0 5px  rgba(232,196,138,.55),
-    0 0 11px rgba(218,168,104,.32);
+    0 0 4px  rgba(232,196,138,.55),
+    0 0 9px  rgba(218,168,104,.32);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: rgba(184,138,58,.5);
