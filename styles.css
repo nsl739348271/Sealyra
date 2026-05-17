@@ -4727,15 +4727,16 @@ body.bg-result .match-result-grid > .card {
 
 .parchment-card {
   position: relative;
-  /* explicit width + height (NOT aspect-ratio + auto, which iOS
-     Safari occasionally drops on absolute children).             */
-  width:  min(86vw, 380px);
-  height: min(129vw, 570px);              /* 86vw × 1350/900 = 129vw */
+  /* bigger + locked to the PNG's natural 900/1350 aspect */
+  width:  min(94vw, 440px);
+  height: min(141vw, 660px);              /* 94vw × 1350/900 = 141vw */
   background:
     url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
     center/100% 100% no-repeat;
-  /* Padding = pixel-measured safe zone of the scroll PNG. */
-  padding: 15% 16% 16% 17%;
+  /* Padding tucks content inside the SCROLL's faint rounded
+     rectangle border (not just the cream paper bounds).  Top
+     pushed to 19 % so the headword lands BELOW that border line. */
+  padding: 19% 18% 22% 18%;
   box-sizing: border-box;
   cursor: default;
   animation: parch-card-in 0.42s cubic-bezier(.2,.7,.2,1);
