@@ -4109,37 +4109,33 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Nav-card sits exactly half-a-plaque below the banner so the
-     plaque (top:-25 %) straddles the nav-card outer edge while
-     its upper half lands right under the banner.
-     plaque_half ≈ nav-card-width × 0.197 = 17.3 vw (mobile),
-     capped 95 px on wider screens.                              */
+  /* Smaller + pushed higher per user request.
+     plaque_half = nav-card-width × 0.65 / 1.78 / 2 = nav-card-width × 0.1826
+     With nav-card-width = 82vw (mobile) → 14.97 vw (cap 95 px) */
   position: fixed;
-  top: calc(100vw * 821 / 1916 + 17.3vw);
+  top: calc(100vw * 821 / 1916 + 15vw);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
-  width: min(88vw, 520px);                  /* smaller per user */
+  width: min(82vw, 480px);
   aspect-ratio: 1000 / 750;
-  /* DARK SOLID FILL + frame image on top.  Without the fill the
-     PNG's transparent rounded corners would let scrolling word
-     rows show through behind the nav-card.                       */
+  /* SOLID DARK FILL behind the frame PNG — without this, scrolled
+     word rows show through the PNG's transparent corners and outer
+     band.  Border-radius matches the frame's rounded shape so the
+     opaque fill doesn't poke past the visible frame edge.        */
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat,
-    radial-gradient(ellipse 70% 60% at center,
-                    rgba(20,12,38,.96) 0%,
-                    rgba(20,12,38,.88) 70%,
-                    rgba(20,12,38,0)   100%);
+    #120a20;                          /* fully opaque dark — no ghosts */
+  border-radius: 24px;
 }
-/* Word list starts after the nav-card (offset + height). */
+/* Word list starts AFTER the nav-card bottom (= banner + 15vw + height) */
 .word-list {
-  margin-top: calc(min(66vw, 390px) + 17.3vw) !important;
+  margin-top: calc(min(61.5vw, 360px) + 15vw) !important;
 }
-/* Cap the offset on wider screens. */
 @media (min-width: 600px) {
-  .nav-card { top: calc(100vw * 821 / 1916 + 95px); }
-  .word-list { margin-top: calc(min(66vw, 390px) + 95px) !important; }
+  .nav-card { top: calc(100vw * 821 / 1916 + 88px); }
+  .word-list { margin-top: calc(min(61.5vw, 360px) + 88px) !important; }
 }
 
 /* --- 47.2  corner buttons "hanging" on the top of the nav-card.
@@ -4174,12 +4170,13 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque {
   position: absolute;
   /* Plaque middle = nav-card outer top edge.
-     width 70 % × aspect 1.78 → height ≈ 52 % of nav-card height
-     so top:-25 % puts midpoint at 0 %.                          */
-  top: -25%;
+     plaque height = nav-card-width × 0.65 / 1.78 = nav-card-w × 0.365
+     plaque height / nav-card height = 0.365 / 0.75 = 48.6 %
+     half = 24.3 %, so top: -24% puts midpoint at 0 %.            */
+  top: -24%;
   left: 50%;
   transform: translateX(-50%);
-  width: 70%;
+  width: 65%;                          /* smaller plaque, fits 82vw nav */
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
