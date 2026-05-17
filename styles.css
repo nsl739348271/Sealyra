@@ -4371,27 +4371,26 @@ body.bg-result .match-result-grid > .card {
    so it doesn't push the search bar out of the body bounds.   */
 .nav-card .alpha-bar {
   display: grid;
-  grid-template-columns: repeat(13, 1fr);
+  /* minmax(0, 1fr) lets tracks shrink below content size —
+     fixes the "grid expands past container, K/L/M+ get
+     clipped" bug from earlier versions. */
+  grid-template-columns: repeat(13, minmax(0, 1fr));
   justify-items: center;
   align-items: center;
   gap: 1px;
   padding: 0 !important;
   margin: 0 !important;
-  /* width left undeclared so left:22 % + right:22 % from the
-     .nav-card > .alpha-bar rule actually compute the width
-     (was width:100 % before, which caused it to spill out by
-     22 % off the right edge).                                */
   min-width: 0;
   line-height: 1.05;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
 }
 .nav-card .alpha-bar a {
   font-family: 'Snell Roundhand', 'Pinyon Script',
                'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
   font-style: italic;
   font-weight: 500;
-  font-size: 8px;                          /* fits 13-wide row */
+  font-size: 7px;                          /* sized for 9 px-wide cells */
   letter-spacing: 0;
   color: #d6a464;
   text-shadow:
@@ -4402,6 +4401,8 @@ body.bg-result .match-result-grid > .card {
   text-decoration-color: rgba(184,138,58,.5);
   text-decoration-thickness: 0.5px;
   text-underline-offset: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 .nav-card .alpha-bar a:hover {
   color: #ffeec5;
