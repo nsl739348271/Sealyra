@@ -4153,42 +4153,60 @@ body.bg-result .match-result-grid > .card {
   margin-top: calc(min(57vw, 345px) + 6px) !important;
 }
 
-/* --- 47.2  corner buttons — Moon + Star icons, pinned right under
-   the banner (NOT inside the nav-card).  Plain PNGs, no circle bg. */
-#screen-index > .moon-corner,
-#screen-index > .close-corner,
-#screen-note > .moon-corner,
-#screen-note > .close-corner,
-#screen-note-bucket > .moon-corner,
-#screen-note-bucket > .close-corner {
+/* --- 47.2  corner buttons — Moon (left) + Star (right) icons,
+   pinned right under the banner on EVERY screen.  Same position,
+   same size, same icons everywhere so the user always knows where
+   they are.  Soft breathing halo hints they're tappable.        */
+.moon-corner,
+.close-corner {
   position: fixed !important;
-  top: calc(100vw * 821 / 1916 + 6px) !important;   /* tight under banner */
+  top: calc(100vw * 821 / 1916 + 6px) !important;
   width: 38px !important;
   height: 38px !important;
   bottom: auto !important;
   z-index: 60;
-  filter: drop-shadow(0 2px 6px rgba(8,4,18,.55));
   background: transparent !important;
   border: 0 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  border-radius: 0 !important;
+  animation: corner-breathe 2.8s ease-in-out infinite;
 }
-#screen-index > .moon-corner,
-#screen-note > .moon-corner,
-#screen-note-bucket > .moon-corner {
+.moon-corner {
   left: 10px !important;
   right: auto !important;
   background:
     url("assets/icon-moon.png?v=26")
     center/contain no-repeat !important;
 }
-#screen-index > .close-corner,
-#screen-note > .close-corner,
-#screen-note-bucket > .close-corner {
+.close-corner {
   right: 10px !important;
   left: auto !important;
   background:
     url("assets/icon-star8.png?v=26")
     center/contain no-repeat !important;
-  transform: none;
+  transform: none !important;
+}
+/* Kill any leftover CSS-drawn icons inside the buttons */
+.moon-corner .mc-bar,
+.moon-corner::before,
+.moon-corner svg,
+.close-corner .cp-x,
+.close-corner::before,
+.close-corner::after {
+  display: none !important;
+}
+/* Breathing halo — gentle pulse hints these are tappable */
+@keyframes corner-breathe {
+  0%, 100% { filter: drop-shadow(0 0 4px  rgba(232,196,138,.42))
+                     drop-shadow(0 2px 6px rgba(8,4,18,.55)); }
+  50%      { filter: drop-shadow(0 0 14px rgba(232,196,138,.85))
+                     drop-shadow(0 2px 6px rgba(8,4,18,.55)); }
+}
+.moon-corner:hover, .close-corner:hover {
+  animation-duration: 1.4s;
 }
 
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
@@ -4211,9 +4229,9 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* Optical centre of the dome's text band sits at ~56 % of
-     plaque height (the spire takes some of the upper area). */
-  top: 56%;
+  /* Geometric centre of the plaque — gives equal margin above and
+     below the title inside the dome's purple text band. */
+  top: 50%;
   transform: translate(-50%, -50%);
   width: 78%;
   text-align: center;
@@ -4233,21 +4251,20 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — narrow centred column.  No backing layer
-   per user.  Content sized to fit the truly clean center band
-   (only 44 % wide because the flora pinches in from both sides). */
+/* --- 47.4  body area — search pinned to top, alpha-bar pinned
+   to bottom via justify-content:space-between.  Moving search
+   "down" only changes top:%, alpha stays at the bottom edge.   */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 48%;
-  left: 28%;                /* sit inside the central decoration-free
-                                column (x=28-72 % is mostly clean)   */
+  top: 53%;                  /* search lives at this y (down from 48%) */
+  left: 28%;
   right: 28%;
-  bottom: 22%;              /* clear of the bow */
+  bottom: 22%;               /* alpha-bar bottom edge stays here */
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: center;
-  gap: 4px;
+  justify-content: space-between;
+  gap: 0;
   padding: 0;
   background: none;
   border: 0;
