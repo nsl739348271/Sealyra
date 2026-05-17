@@ -4727,16 +4727,15 @@ body.bg-result .match-result-grid > .card {
 
 .parchment-card {
   position: relative;
-  /* bigger + locked to the PNG's natural 900/1350 aspect */
-  width:  min(94vw, 440px);
-  height: min(141vw, 660px);              /* 94vw × 1350/900 = 141vw */
+  /* Larger again per design owner */
+  width:  min(96vw, 460px);
+  height: min(144vw, 690px);              /* 96vw × 1350/900 = 144vw */
   background:
     url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
     center/100% 100% no-repeat;
-  /* Padding tucks content inside the SCROLL's faint rounded
-     rectangle border (not just the cream paper bounds).  Top
-     pushed to 19 % so the headword lands BELOW that border line. */
-  padding: 19% 18% 22% 18%;
+  /* Top padding pushed deeper so the headword tucks well inside
+     the faint rounded-rectangle border drawn on the scroll.    */
+  padding: 24% 19% 22% 19%;
   box-sizing: border-box;
   cursor: default;
   animation: parch-card-in 0.42s cubic-bezier(.2,.7,.2,1);
@@ -4789,23 +4788,29 @@ body.bg-result .match-result-grid > .card {
   padding: 0;
 }
 .parchment-inner .pc-word {
-  font-family: 'Cormorant Garamond', 'EB Garamond', serif;
-  font-style: italic;
-  font-size: 22px;
-  font-weight: 600;
-  color: #5a3818;
+  /* Calligraphic / handwritten — readability sacrificed for
+     the antique-signature feel the user asked for.  Pinyon
+     Script falls back to Snell Roundhand (iOS) and Italianno. */
+  font-family: 'Pinyon Script', 'Snell Roundhand', 'Italianno',
+               'Apple Chancery', 'Cormorant Garamond', serif;
+  font-style: normal;
+  font-size: 28px;
+  font-weight: 400;
+  color: #4a2a0e;
   text-shadow: 0 1px 0 rgba(255,238,210,.4);
   letter-spacing: .01em;
+  line-height: 1;
 }
 .parchment-inner .pc-pos {
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
   font-size: 11px;
   color: #876239;
 }
 .parchment-inner .pc-zh {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: 10px;                         /* smaller — was hitting flora */
   color: #6a4626;
   margin-left: auto;
   text-align: right;
@@ -4831,19 +4836,25 @@ body.bg-result .match-result-grid > .card {
   flex-wrap: wrap;
 }
 .parchment-inner .pc-row-word {
-  font-family: 'EB Garamond', Georgia, serif;
+  /* Vintage serif italic for the entries — handwritten ledger feel
+     without sacrificing readability the way the headword script does. */
+  font-family: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
   font-style: italic;
   font-size: 13px;
+  font-weight: 500;
   color: #3e2812;
+  letter-spacing: .01em;
 }
 .parchment-inner .pc-row-pos {
+  font-family: 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 10px;
+  font-size: 9.5px;
   color: #876239;
 }
 .parchment-inner .pc-row-zh {
+  font-family: 'EB Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11px;
+  font-size: 10px;
   color: #6a4626;
 }
 
@@ -4856,18 +4867,18 @@ body.bg-result .match-result-grid > .card {
   gap: 8px;
 }
 .parchment-inner .pc-copy-label {
-  font-family: 'EB Garamond', Georgia, serif;
-  font-style: italic;
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-family: 'Pinyon Script', 'Snell Roundhand', 'Italianno',
+               'Cormorant Garamond', serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
   color: #876239;
-  text-transform: lowercase;
   white-space: nowrap;
 }
 .parchment-inner .pc-copy-rule {
   flex: 1;
   height: 0;
-  border-bottom: 1px dashed rgba(110, 63, 18, 0.4);
+  /* solid hairline ink, not dashed — feels like a real signature line */
+  border-bottom: 1px solid rgba(110, 63, 18, 0.55);
 }
 .parchment-inner .pc-copy-mark {
   color: #8a5a18;

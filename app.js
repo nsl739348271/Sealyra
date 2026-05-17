@@ -500,7 +500,7 @@ function showParchment(word) {
         </div>
         <div class="pc-body"></div>
         <div class="pc-copy">
-          <span class="pc-copy-label">copy this word softly</span>
+          <span class="pc-copy-label">signed</span>
           <span class="pc-copy-rule"></span>
           <span class="pc-copy-mark">✦</span>
         </div>
