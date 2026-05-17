@@ -4540,50 +4540,72 @@ body.bg-result .match-result-grid > .card {
      wrong      darkened, no glow, faded
    ============================================================ */
 
+/* ============================================================
+   v=26.45 — Alice-deck playing-card design for the match button
+   ============================================================
+   small enough to fit 4 rows + confirm in a single mobile screen;
+   double gold rule (outer + inset inner) for the classic playing-
+   card feel; ♠ corner marks nod at the bunny/Alice theme; subtle
+   radial paper texture so the card doesn't read as a flat block. */
+
 .card.card--match {
-  /* reset the base .card defaults that fight the new design */
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 3.4 / 1;
-  width: min(40vw, 220px);
-  min-height: 50px;
-  padding: 8px 28px;
+  aspect-ratio: 4.2 / 1;                /* flatter — fits 4 rows */
+  width: min(42vw, 200px);
+  min-height: 44px;
+  padding: 6px 24px;
   border: 1px solid rgba(232, 200, 130, 0.55) !important;
-  border-radius: 10px !important;
-  background: linear-gradient(180deg,
-      rgba(45, 31, 73, 0.92),
-      rgba(24, 17, 46, 0.96)) !important;
+  border-radius: 8px !important;
+  /* old-paper-on-dark base: subtle radial highlight + dark gradient */
+  background:
+    radial-gradient(ellipse 90% 70% at center,
+                    rgba(232, 200, 130, 0.06) 0%,
+                    transparent 60%),
+    linear-gradient(180deg,
+                    rgba(45, 31, 73, 0.94),
+                    rgba(22, 15, 42, 0.97)) !important;
   box-shadow:
-    inset 0 0 12px rgba(232, 200, 130, 0.08),
-    0 4px 12px rgba(10, 5, 22, 0.5) !important;
+    inset 0 0 10px rgba(232, 200, 130, 0.07),
+    0 3px 8px rgba(10, 5, 22, 0.55) !important;
   color: #f2dec0 !important;
   font-family: 'Cormorant Garamond', 'EB Garamond', 'Times New Roman', serif !important;
   font-style: italic;
   font-weight: 500;
-  font-size: 18px !important;
-  letter-spacing: 0.03em;
+  font-size: 15px !important;
+  letter-spacing: 0.02em;
   text-align: center;
   cursor: pointer;
   transition: transform 0.18s, border-color 0.25s, box-shadow 0.3s, filter 0.25s;
   -webkit-tap-highlight-color: transparent;
   overflow: visible;
 }
-/* Twin ✦ stars on both sides — echo the index alphabet decoration. */
+/* Inner gold rule — playing-card double border via .mc-frame span */
+.card.card--match .mc-frame {
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(232, 200, 130, 0.24);
+  border-radius: 5px;
+  pointer-events: none;
+}
+.card.card--match .mc-text {
+  position: relative;
+  z-index: 1;
+}
+/* ♠ in top-left + bottom-right corners — Alice / playing-card nod. */
 .card.card--match::before,
 .card.card--match::after {
-  content: "✦";
+  content: "♠";
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 11px;
-  color: rgba(232, 200, 130, 0.55);
+  font-size: 9px;
+  color: rgba(232, 200, 130, 0.6);
   pointer-events: none;
-  text-shadow: 0 0 4px rgba(232, 200, 130, 0.4);
+  line-height: 1;
 }
-.card.card--match::before { left: 12px; }
-.card.card--match::after  { right: 12px; }
+.card.card--match::before { top: 5px; left: 7px; }
+.card.card--match::after  { bottom: 5px; right: 7px; transform: rotate(180deg); }
 
 /* === SELECTED — only the halo + border picks up the pair colour.
    Body stays dark.  Soft breathing pulse hints "you've chosen me". */

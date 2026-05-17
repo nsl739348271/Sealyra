@@ -1028,7 +1028,9 @@ const Screens = {
       shuffled.forEach((c, idx) => {
         const card = document.createElement('div');
         card.className = 'card card--match' + (c.side === 'L' ? ' is-left' : ' is-right');
-        card.textContent = c.text;
+        // mc-frame is the inner gold rule (playing-card double border);
+        // mc-text holds the word so z-index keeps it above the frame.
+        card.innerHTML = `<span class="mc-frame"></span><span class="mc-text">${escapeHtml(c.text)}</span>`;
         card.addEventListener('click', () => paint(idx));
         grid.appendChild(card);
       });
@@ -1145,8 +1147,9 @@ const Screens = {
         const tile = document.createElement('button');
         tile.className = `card card--match tag-${r.tag} ${r.correct ? 'is-correct' : 'is-wrong'}`;
         tile.innerHTML = `
+          <span class="mc-frame"></span>
           <span class="tile-mark">${r.correct ? '✓' : '✗'}</span>
-          <span class="tile-text">${escapeHtml(r.text)}</span>
+          <span class="mc-text">${escapeHtml(r.text)}</span>
         `;
         tile.addEventListener('click', () => flipToCard(tile, r.text, 'stage1-result'));
         grid.appendChild(tile);
