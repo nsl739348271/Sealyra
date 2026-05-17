@@ -402,49 +402,9 @@ body.cover-pending .cover-gate     { visibility: visible; }
 }
 
 /* ---------- 7. Match stage ---------- */
-.match-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  max-width: 400px;
-  margin: 14px auto 18px;
-  width: 100%;
-  z-index: 1;
-}
-.match-card {
-  position: relative;
-  padding: 16px 14px;
-  min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-family: var(--f-card);
-  font-style: italic;
-  font-size: 16px;
-  letter-spacing: .045em;
-  color: var(--cream);
-  background: rgba(6,3,15,.44);
-  border: 1px solid rgba(245,239,227,.10);
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-  transition: border-color .25s, background .25s, color .25s, transform .15s;
-}
-.match-card:active { transform: translateY(1px); }
-.match-card.tag-0 { border-color: var(--p0); color: var(--p0); background: rgba(244,181,200,.10); box-shadow: 0 0 18px rgba(244,181,200,.16); }
-.match-card.tag-1 { border-color: var(--p1); color: var(--p1); background: rgba(238,192,180,.10); box-shadow: 0 0 18px rgba(238,192,180,.16); }
-.match-card.tag-2 { border-color: var(--p2); color: var(--p2); background: rgba(176,180,228,.10); box-shadow: 0 0 18px rgba(176,180,228,.16); }
-.match-card.tag-3 { border-color: var(--p3); color: var(--p3); background: rgba(196,200,196,.10); box-shadow: 0 0 18px rgba(196,200,196,.16); }
-.match-card.flipping { animation: tarotFlip .42s ease-out forwards; }
-@keyframes tarotFlip {
-  0%   { transform: scale(1)    rotateY(0); opacity: 1; box-shadow: 0 0 0 rgba(255,242,210,0); }
-  50%  { transform: scale(1.05) rotateY(90deg); opacity: .8; box-shadow: 0 0 24px rgba(255,242,210,.55); }
-  100% { transform: scale(1.05) rotateY(90deg); opacity: 0; }
-}
-
-.match-card.correct { border-color: var(--gold); color: var(--gold); background: rgba(240,200,148,.10); box-shadow: 0 0 22px rgba(240,200,148,.30); }
-.match-card.wrong   { opacity: .35; filter: grayscale(.5); }
+/* (The old .match-grid + .match-card block and tarotFlip keyframes
+   used to live here.  The grid is now declared in the v=26.46 block
+   at the bottom of the file, and JS uses .card.card--match.)        */
 
 .match-actions, .stage-actions {
   display: flex;
@@ -1222,15 +1182,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
   box-shadow: var(--pink-glow);
 }
 
-/* Stage-1 match: correct-pair glow recolored to rose.  Wrong cards
-   keep their 4-tag colour (no rule needed — they just don't gain
-   .correct).  Done in match-card. */
-.match-card.correct {
-  border-color: var(--rose);
-  color: var(--rose);
-  background: rgba(237,184,158,.10);
-  box-shadow: var(--rose-glow);
-}
+/* (Stage-1 match .match-card.correct lived here — class is dead.) */
 
 /* ex-card "is-correct" / "is-wrong" — re-skin the post-game ex-card
    marker to the unified rose, so result pages share the same warmth. */
@@ -1723,66 +1675,8 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=25"); }
 body { background: transparent !important; }
 
 
-/* ============================================================
-   25. STAGE 1 RESULT — match-tile grid
-   ============================================================
-   Echoes the matching board: 4 rows × 2 columns of word-name tiles,
-   each kept in the colour the user dyed it.  A correct pair switches
-   to a solid rose fill with a ✓; a wrong pair keeps its tag border
-   only with a ✗.  Tapping any tile opens that word's study card.   */
-.match-result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  padding: 18px 16px 4px;
-  max-width: 540px;
-  margin: 0 auto;
-}
-.match-tile {
-  position: relative;
-  background: rgba(6,3,15,.55);
-  border: 2px solid rgba(245,239,227,.18);
-  border-radius: 14px;
-  padding: 22px 12px;
-  cursor: pointer;
-  font-family: var(--f-italic);
-  font-style: italic;
-  font-size: 19px;
-  letter-spacing: .02em;
-  color: var(--cream);
-  text-align: center;
-  transition: transform .15s, box-shadow .25s, background .25s;
-}
-.match-tile:hover  { transform: translateY(-1px); }
-.match-tile:active { transform: translateY(1px); }
-
-.tile-mark {
-  position: absolute;
-  top: 8px; right: 12px;
-  font-size: 13px;
-  letter-spacing: 0;
-  opacity: .85;
-}
-.tile-text { display: block; }
-
-/* The four tag-colour borders — match the in-game match-card palette */
-.match-tile.tag-0 { border-color: #E8C882; color: #F0D9A4; }  /* yellow */
-.match-tile.tag-1 { border-color: #F4B5C8; color: #FBD2DD; }  /* pink   */
-.match-tile.tag-2 { border-color: #A5C8E4; color: #C6DCEE; }  /* blue   */
-.match-tile.tag-3 { border-color: #A5D8C5; color: #C6E5D5; }  /* mint   */
-
-/* The correct pair: solid rose wash, brighter type, glow */
-.match-tile.is-correct {
-  background: linear-gradient(180deg, rgba(244,181,200,.32), rgba(199,122,149,.28));
-  border-color: var(--rose);
-  color: var(--cream);
-  box-shadow: 0 0 18px rgba(237,184,158,.42);
-}
-.match-tile.is-correct .tile-mark { color: var(--rose); }
-
-/* The wrong tiles: keep the tag border, dim the type a little */
-.match-tile.is-wrong { opacity: .72; }
-.match-tile.is-wrong .tile-mark { color: rgba(244,181,200,.55); }
+/* (Stage-1 result tile block — class was renamed to .card.card--match
+   in JS.  Layout + colours live in the v=26.46 block at the bottom.) */
 
 /* The "touch any word" hint sits under the grid, faded italic */
 .match-result-hint {
@@ -2504,44 +2398,9 @@ body { background: transparent !important; }
 }
 .card .tile-text { display: block; }
 
-/* Tag colours — just the border + a hint of fill */
-.card.tag-0 { border-color: rgba(232,200,130,.85); color: #F0D9A4; }
-.card.tag-1 { border-color: rgba(244,181,200,.9);  color: #FBD2DD; }
-.card.tag-2 { border-color: rgba(165,200,228,.85); color: #C6DCEE; }
-.card.tag-3 { border-color: rgba(165,216,197,.85); color: #C6E5D5; }
-
-/* Result states */
-.card.is-correct {
-  background: linear-gradient(160deg,
-    rgba(244,181,200,.28) 0%,
-    rgba(199,122,149,.26) 100%) !important;
-  border-color: var(--rose) !important;
-  color: var(--cream) !important;
-  box-shadow:
-    inset 0 0 18px rgba(237,184,158,.26),
-    0 0 20px rgba(237,184,158,.42) !important;
-}
-.card.is-correct .tile-mark { color: var(--rose); }
-.card.is-wrong              { opacity: .56; }
-.card.is-wrong .tile-mark   { color: rgba(244,181,200,.55); }
-
-/* Match grid layout — slim cells */
-.match-grid,
-.match-result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 6px 14px;
-  max-width: 520px;
-  margin: 0 auto;
-}
-.match-grid > .card,
-.match-result-grid > .card {
-  width: 100%;
-  font-size: 16px;
-  padding: 12px 8px;
-  display: flex;
-}
+/* (.card.tag-N / .is-correct / .is-wrong and the .match-grid
+   layout used to live here.  They've been moved to the canonical
+   v=26.46 block at the bottom of this file.)                    */
 
 /* Oracle option — full-width row */
 .card--option {
@@ -2996,25 +2855,10 @@ body { background: transparent !important; }
   letter-spacing: 0;
   opacity: .85;
 }
-.card.tag-0 { border-color: rgba(232,200,130,.85) !important; color: #F0D9A4 !important; }
-.card.tag-1 { border-color: rgba(244,181,200,.90) !important; color: #FBD2DD !important; }
-.card.tag-2 { border-color: rgba(165,200,228,.85) !important; color: #C6DCEE !important; }
-.card.tag-3 { border-color: rgba(165,216,197,.85) !important; color: #C6E5D5 !important; }
-.card.is-correct {
-  background: linear-gradient(155deg,
-    rgba(244,181,200,.34) 0%,
-    rgba(199,122,149,.26) 100%) !important;
-  border-color: var(--rose) !important;
-  color: var(--cream) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,220,200,.28),
-    inset 0 0 24px rgba(237,184,158,.30),
-    0 0 22px rgba(237,184,158,.50),
-    0 5px 18px rgba(0,0,0,.40) !important;
-}
-.card.is-correct .tile-mark { color: var(--rose); }
-.card.is-wrong              { opacity: .55; }
-.card.is-wrong .tile-mark   { color: rgba(244,181,200,.55); }
+/* (the 2nd .card.tag-N + .is-correct/.is-wrong !important block
+   used to live here.  It fought every new design.  Match-card
+   tag/correct/wrong rules now live in the v=26.46 block at the
+   bottom of the file.  Other .card variants don't need these.)  */
 
 
 /* ---------- C. Chapter-rule button (next-door) ---------- */
@@ -3462,25 +3306,10 @@ body { background: transparent !important; }
   animation: tap-hint-breathe 2.4s ease-in-out infinite;
 }
 
-/* Result-page cards were getting squashed into a ~160px tall pill.
-   Widen the grid + open the cell breathing room so they read as
-   real cards instead of compressed labels.                          */
-.match-result-grid,
-.match-grid {
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 8px 6px !important;
-  max-width: 560px !important;
-  margin: 0 auto !important;
-}
-.match-grid > .card,
-.match-result-grid > .card {
-  width: 100% !important;
-  min-height: 64px;
-  font-size: 18px !important;
-  padding: 18px 12px !important;
-  display: flex !important;
-}
+/* (Old result-grid resizing block lived here — pinning the cards
+   to min-height:64 + padding 18px which also fights the v=26.46
+   slim playing-card design.  Grid sizing is owned by the bottom
+   v=26.46 block now.)                                              */
 
 /* Tonight's Reading + every .h-plaque — refined glow.  Was a single
    wide blur that looked muddy; now it's a layered glow:
@@ -3522,66 +3351,14 @@ body { background: transparent !important; }
    the linear-reveal hide rule one more time with even higher
    specificity in case an older sheet was winning on cache.       */
 
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid .card.card--match,
-.match-grid .card.card--match {
-  width: 100% !important;
-  min-height: 90px !important;
-  font-size: 19px !important;
-  padding: 24px 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
+/* (the old v1.4 / v1.5 match-grid !important blocks lived here —
+   they pinned the cards to a chunky 9:4 / 17:8 aspect with
+   min-height 78–96px and font-size 18–19px, which is exactly the
+   "big acrylic block" the user wanted gone.  The new v=26.46
+   block at the bottom of the file owns the grid sizing now.)
 
-/* Belt-and-braces — every .is-veiled row stays hidden, with the
-   ex-card selector prefix bumping specificity over anything else. */
-.ex-card .fam-reveal.is-veiled,
-.ex-card .colloc-row.is-veiled,
-.ex-card .ex-example.is-veiled {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* ============================================================
-   45. design system v1.4 — IDENTICAL grids + indestructible veil
-   ============================================================
-   the result page tiles were narrower than the matching grid cards
-   because older sheets pinned .match-result-grid to padding:18px+16
-   and max-width:540, while .match-grid sat at full width.  force
-   both grids to one shape with !important, use aspect-ratio so
-   cells stay proportional regardless of viewport, and brick-wall
-   the .is-veiled hide so no later cascade can revive it.          */
-
-.match-result-grid,
-.match-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 560px !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  width: 100% !important;
-  aspect-ratio: 17 / 8 !important;       /* same shape on both pages */
-  min-height: 96px !important;
-  padding: 0 12px !important;            /* aspect-ratio handles height */
-  font-size: 19px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;             /* never let flex column squash cards */
-}
-
-/* brick-wall hide: 5 properties so absolutely no later override
-   can make a veiled colloc / family reveal / example show up.    */
+   Belt-and-braces hide for veiled rows is still needed though —
+   keep it.                                                       */
 .ex-card .fam-reveal.is-veiled,
 .ex-card .colloc-row.is-veiled,
 .ex-card .ex-example.is-veiled,
@@ -3595,30 +3372,6 @@ body { background: transparent !important; }
   visibility: hidden !important;
   overflow: hidden !important;
   pointer-events: none !important;
-}
-
-/* ============================================================
-   46. design system v1.5 — middle ground for the match grid
-   ============================================================
-   v1.4 pinned both grids to 560px which made them feel cavernous
-   on the game page.  drop to 480px max + 12px gap + a slightly
-   squatter aspect (9 / 4 instead of 17 / 8).  same numbers on
-   both grids so they stay identical to each other.               */
-
-.match-result-grid,
-.match-grid {
-  max-width: 480px !important;
-  gap: 12px !important;
-  margin: 12px auto !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  font-size: 18px !important;
-  padding: 0 12px !important;
 }
 
 /* ============================================================
@@ -3709,29 +3462,10 @@ body { background: transparent !important; }
   filter: none !important;
 }
 
-body.bg-stage  .match-grid,
-body.bg-result .match-result-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-  padding: 0 !important;
-  max-width: 480px !important;
-  width: 100% !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
-}
-body.bg-stage  .match-grid > .card,
-body.bg-result .match-result-grid > .card {
-  width: 100% !important;
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  padding: 0 12px !important;
-  font-size: 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-}
+/* (yet another !important block lived here — pinning the cards to
+   aspect 9/4 + min-height 78px + font-size 18px via body.bg-stage
+   prefix, which was bumping its specificity high enough to beat
+   everything else.  Killed — v=26.46 block owns the sizing now.)  */
 
 /* ============================================================
    46. v=26 — UNIFIED FRAMES + PARCHMENT STUDY PAGE
@@ -4541,179 +4275,318 @@ body.bg-result .match-result-grid > .card {
    ============================================================ */
 
 /* ============================================================
-   v=26.45 — Alice-deck playing-card design for the match button
+   v=26.46 — playing-card matching button (the canonical block)
    ============================================================
-   small enough to fit 4 rows + confirm in a single mobile screen;
-   double gold rule (outer + inset inner) for the classic playing-
-   card feel; ♠ corner marks nod at the bunny/Alice theme; subtle
-   radial paper texture so the card doesn't read as a flat block. */
+   Goal: a slim "night-color playing card", not a glowing acrylic
+   block.  Mantra: 轻骨架 + 有主体感 (light skeleton + body presence).
 
+   Layered structure (matters!):
+     1. outer 1px gold border           ← the card edge
+     2. inner 1px gold border (.mc-frame, inset 3px)   ← the inner rule
+     3. mirrored corner ornaments       ← left + right end, NOT corners
+        default = ✦ (neutral)
+        tagged  = ♥ ♦ ♠ ♣ for pairs 0..3 (matches selection colors)
+     4. body: subtle center radial highlight + soft vignette edges
+        (paper/velvet feel, NOT a flat purple slab)
+
+   Four states (visually distinct, no overlap):
+     default    — quiet, double gold rule, dark body, mirrored ✦
+     selected   — a wash of pair-color fog through the body, brighter
+                  inner rule, mirrored suit (♥♦♠♣), breathing halo
+     correct    — body lights gold + inner rule glows gold + corner
+                  suits turn warm gold, but the OUTER border keeps the
+                  pair color so we still see which pair was the answer
+     wrong      — sunk: halo gone, body dimmed, gold dulled, suit fade
+                  (no red cross — keyword: 失效, not 挨骂)              */
+
+/* ---------- the grid that holds 8 cards (game + result both) -------- */
+.match-grid,
+.match-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 4px 18px;
+  max-width: 460px;
+  margin: 14px auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ---------- the card itself ----------------------------------------- */
+/* !important on the paint properties — earlier .card base in this file
+   stamps every card with !important background/border/color, and we
+   need to win cleanly without spraying specificity hacks. */
 .card.card--match {
   position: relative;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4.2 / 1;                /* flatter — fits 4 rows */
-  width: min(42vw, 200px);
-  min-height: 44px;
-  padding: 6px 24px;
-  border: 1px solid rgba(232, 200, 130, 0.55) !important;
-  border-radius: 8px !important;
-  /* old-paper-on-dark base: subtle radial highlight + dark gradient */
+  width: 100% !important;
+  height: 56px !important;
+  padding: 0 26px !important;
+  border: 1px solid rgba(232, 200, 130, 0.42) !important;
+  border-radius: 5px !important;
   background:
-    radial-gradient(ellipse 90% 70% at center,
-                    rgba(232, 200, 130, 0.06) 0%,
-                    transparent 60%),
-    linear-gradient(180deg,
-                    rgba(45, 31, 73, 0.94),
-                    rgba(22, 15, 42, 0.97)) !important;
+    radial-gradient(ellipse 110% 80% at 50% 50%,
+                    rgba(232, 200, 130, 0.045) 0%,
+                    rgba(232, 200, 130, 0.012) 38%,
+                    transparent 72%),
+    linear-gradient(155deg,
+                    rgba(38, 24, 60, 0.92) 0%,
+                    rgba(22, 13, 40, 0.96) 100%) !important;
   box-shadow:
-    inset 0 0 10px rgba(232, 200, 130, 0.07),
-    0 3px 8px rgba(10, 5, 22, 0.55) !important;
-  color: #f2dec0 !important;
-  font-family: 'Cormorant Garamond', 'EB Garamond', 'Times New Roman', serif !important;
-  font-style: italic;
-  font-weight: 500;
-  font-size: 15px !important;
-  letter-spacing: 0.02em;
+    inset 0 0 14px rgba(232, 200, 130, 0.05),
+    inset 0 0 22px rgba(0, 0, 0, 0.30),
+    0 2px 6px rgba(0, 0, 0, 0.40) !important;
+  color: #ecd6b0 !important;
+  font-family: 'Cormorant Garamond', 'EB Garamond', serif !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.025em !important;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.18s, border-color 0.25s, box-shadow 0.3s, filter 0.25s;
+  transition: transform 0.18s, border-color 0.3s, box-shadow 0.3s, color 0.25s !important;
   -webkit-tap-highlight-color: transparent;
-  overflow: visible;
 }
-/* Inner gold rule — playing-card double border via .mc-frame span */
+.card.card--match:hover:not(.is-correct):not(.is-wrong) {
+  border-color: rgba(232, 200, 130, 0.62) !important;
+  box-shadow:
+    inset 0 0 16px rgba(232, 200, 130, 0.07),
+    inset 0 0 22px rgba(0, 0, 0, 0.30),
+    0 2px 6px rgba(0, 0, 0, 0.40) !important;
+}
+.card.card--match:active:not(.is-correct):not(.is-wrong) {
+  transform: translateY(1px);
+}
+
+/* ---------- inner gold rule (the double-frame) ---------------------- */
 .card.card--match .mc-frame {
   position: absolute;
   inset: 3px;
-  border: 1px solid rgba(232, 200, 130, 0.24);
-  border-radius: 5px;
+  border: 1px solid rgba(232, 200, 130, 0.22);
+  border-radius: 3px;
   pointer-events: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 .card.card--match .mc-text {
   position: relative;
   z-index: 1;
 }
-/* ♠ in top-left + bottom-right corners — Alice / playing-card nod. */
+
+/* ---------- mirrored corner ornaments (left end + right end) -------- */
 .card.card--match::before,
 .card.card--match::after {
-  content: "♠";
+  content: '✦';
   position: absolute;
-  font-size: 9px;
-  color: rgba(232, 200, 130, 0.6);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-style: normal;
+  font-family: serif;
+  color: rgba(232, 200, 130, 0.55);
   pointer-events: none;
   line-height: 1;
+  transition: color 0.3s, text-shadow 0.3s;
 }
-.card.card--match::before { top: 5px; left: 7px; }
-.card.card--match::after  { bottom: 5px; right: 7px; transform: rotate(180deg); }
+.card.card--match::before { left: 11px; }
+.card.card--match::after  { right: 11px; }
 
-/* === SELECTED — only the halo + border picks up the pair colour.
-   Body stays dark.  Soft breathing pulse hints "you've chosen me". */
+/* ============= SELECTED — wash of pair color ============= */
 .card.card--match.tag-0,
 .card.card--match.tag-1,
 .card.card--match.tag-2,
 .card.card--match.tag-3 {
-  transform: scale(1.02);
   animation: match-halo 2.6s ease-in-out infinite;
 }
-.card.card--match.tag-0 {
-  --halo:      rgba(199, 122, 149, 0.55);
-  --halo-deep: rgba(199, 122, 149, 0.32);
-  border-color: rgba(199, 122, 149, 0.9) !important;
-  color: #f5d4dc !important;
-}
-.card.card--match.tag-1 {
-  --halo:      rgba(184, 137, 99, 0.55);
-  --halo-deep: rgba(184, 137, 99, 0.32);
-  border-color: rgba(214, 165, 100, 0.9) !important;
-  color: #f4dfb8 !important;
-}
-.card.card--match.tag-2 {
-  --halo:      rgba(155, 132, 220, 0.55);
-  --halo-deep: rgba(155, 132, 220, 0.32);
-  border-color: rgba(170, 145, 220, 0.9) !important;
-  color: #ddd1f5 !important;
-}
-.card.card--match.tag-3 {
-  --halo:      rgba(123, 178, 162, 0.55);
-  --halo-deep: rgba(123, 178, 162, 0.32);
-  border-color: rgba(140, 192, 175, 0.9) !important;
-  color: #d2ead9 !important;
-}
-@keyframes match-halo {
-  0%, 100% { box-shadow:
-    inset 0 0 12px rgba(232, 200, 130, 0.05),
-    0 0 10px var(--halo-deep),
-    0 4px 12px rgba(10, 5, 22, 0.5) !important; }
-  50%      { box-shadow:
-    inset 0 0 12px rgba(232, 200, 130, 0.06),
-    0 0 18px var(--halo),
-    0 0 32px var(--halo-deep),
-    0 4px 12px rgba(10, 5, 22, 0.5) !important; }
+.card.card--match.tag-0 .mc-frame,
+.card.card--match.tag-1 .mc-frame,
+.card.card--match.tag-2 .mc-frame,
+.card.card--match.tag-3 .mc-frame {
+  border-color: rgba(255, 235, 180, 0.55);
 }
 
-/* === CORRECT — warm gold fill + double gold halo (matches index gold).
-   Border KEEPS its pair colour so the user can read which pair the
-   answer belonged to.                                                 */
+/* tag-0 → ♥ on rose */
+.card.card--match.tag-0 {
+  --halo:      rgba(199, 122, 149, 0.62);
+  --halo-deep: rgba(199, 122, 149, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(220, 145, 170, 0.40) 0%,
+                    rgba(199, 122, 149, 0.18) 50%,
+                    rgba(199, 122, 149, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(58, 30, 50, 0.92) 0%,
+                    rgba(32, 14, 28, 0.96) 100%) !important;
+  border-color: rgba(230, 158, 180, 0.90) !important;
+  color: #fadce4 !important;
+}
+.card.card--match.tag-0::before,
+.card.card--match.tag-0::after {
+  content: '\2665';   /* ♥ */
+  color: rgba(252, 208, 222, 0.95);
+  text-shadow: 0 0 5px rgba(220, 145, 170, 0.65);
+}
+
+/* tag-1 → ♦ on cinnamon gold */
+.card.card--match.tag-1 {
+  --halo:      rgba(214, 165, 100, 0.62);
+  --halo-deep: rgba(214, 165, 100, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(232, 188, 120, 0.40) 0%,
+                    rgba(214, 165, 100, 0.18) 50%,
+                    rgba(214, 165, 100, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(62, 38, 28, 0.92) 0%,
+                    rgba(32, 18, 14, 0.96) 100%) !important;
+  border-color: rgba(238, 196, 128, 0.92) !important;
+  color: #fae6c2 !important;
+}
+.card.card--match.tag-1::before,
+.card.card--match.tag-1::after {
+  content: '\2666';   /* ♦ */
+  color: rgba(250, 212, 150, 0.95);
+  text-shadow: 0 0 5px rgba(214, 165, 100, 0.65);
+}
+
+/* tag-2 → ♠ on amethyst */
+.card.card--match.tag-2 {
+  --halo:      rgba(170, 145, 220, 0.62);
+  --halo-deep: rgba(170, 145, 220, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(188, 168, 232, 0.40) 0%,
+                    rgba(170, 145, 220, 0.18) 50%,
+                    rgba(170, 145, 220, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(46, 32, 78, 0.92) 0%,
+                    rgba(22, 14, 48, 0.96) 100%) !important;
+  border-color: rgba(200, 178, 240, 0.90) !important;
+  color: #e2d8f8 !important;
+}
+.card.card--match.tag-2::before,
+.card.card--match.tag-2::after {
+  content: '\2660';   /* ♠ */
+  color: rgba(220, 208, 244, 0.95);
+  text-shadow: 0 0 5px rgba(170, 145, 220, 0.65);
+}
+
+/* tag-3 → ♣ on celadon */
+.card.card--match.tag-3 {
+  --halo:      rgba(140, 192, 175, 0.62);
+  --halo-deep: rgba(140, 192, 175, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(160, 215, 195, 0.40) 0%,
+                    rgba(140, 192, 175, 0.18) 50%,
+                    rgba(140, 192, 175, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(28, 52, 58, 0.92) 0%,
+                    rgba(12, 28, 32, 0.96) 100%) !important;
+  border-color: rgba(176, 224, 204, 0.90) !important;
+  color: #d8eee2 !important;
+}
+.card.card--match.tag-3::before,
+.card.card--match.tag-3::after {
+  content: '\2663';   /* ♣ */
+  color: rgba(204, 236, 220, 0.95);
+  text-shadow: 0 0 5px rgba(140, 192, 175, 0.65);
+}
+
+/* the breathing halo for selected cards (soft, not a strobe).
+   !important on each frame because the .card base in this file is
+   already stamping a box-shadow with !important — without it, the
+   animation never paints. */
+@keyframes match-halo {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 14px rgba(232, 200, 130, 0.06),
+      inset 0 0 22px rgba(0, 0, 0, 0.30),
+      0 0 8px var(--halo-deep),
+      0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  }
+  50% {
+    box-shadow:
+      inset 0 0 16px rgba(232, 200, 130, 0.08),
+      inset 0 0 22px rgba(0, 0, 0, 0.30),
+      0 0 14px var(--halo),
+      0 0 24px var(--halo-deep),
+      0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* ============= CORRECT — gold body, pair-color border kept ============= */
 .card.card--match.is-correct {
   animation: none;
-  background: linear-gradient(180deg,
-      rgba(232, 196, 138, 0.42),
-      rgba(214, 164, 100, 0.32)) !important;
+  background:
+    radial-gradient(ellipse 105% 80% at 50% 50%,
+                    rgba(255, 222, 165, 0.42) 0%,
+                    rgba(232, 188, 120, 0.22) 50%,
+                    rgba(196, 152, 88, 0.10) 100%),
+    linear-gradient(155deg,
+                    rgba(86, 56, 36, 0.78) 0%,
+                    rgba(56, 32, 18, 0.88) 100%) !important;
   color: #fff1d0 !important;
-  text-shadow: 0 0 8px rgba(255, 233, 186, 0.6);
-  /* border-color stays from .tag-N */
+  text-shadow: 0 0 6px rgba(255, 232, 186, 0.45);
   box-shadow:
-    inset 0 0 18px rgba(255, 232, 170, 0.5),
-    0 0 14px rgba(214, 164, 100, 0.6),
-    0 0 30px rgba(232, 196, 138, 0.4) !important;
+    inset 0 0 18px rgba(255, 232, 170, 0.32),
+    inset 0 0 26px rgba(0, 0, 0, 0.18),
+    0 0 14px rgba(232, 188, 120, 0.50),
+    0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  /* outer border-color stays from .tag-N — pair info preserved */
+}
+.card.card--match.is-correct .mc-frame {
+  border-color: rgba(255, 232, 170, 0.65);
+  box-shadow: inset 0 0 6px rgba(255, 232, 170, 0.18);
 }
 .card.card--match.is-correct::before,
 .card.card--match.is-correct::after {
-  color: rgba(255, 233, 186, 0.9);
-  text-shadow: 0 0 6px rgba(255, 233, 186, 0.65);
+  color: rgba(255, 232, 170, 0.92);
+  text-shadow: 0 0 5px rgba(255, 232, 170, 0.55);
 }
 
-/* === WRONG — darkened, desaturated, no halo.  Tag-colour border
-   stays as a quiet hint of "this is the pair you guessed".         */
+/* ============= WRONG — sunk, dim, dulled (no scolding) ============= */
 .card.card--match.is-wrong {
   animation: none;
-  background: linear-gradient(180deg,
-      rgba(20, 12, 32, 0.95),
-      rgba(10, 6, 18, 0.98)) !important;
-  filter: brightness(0.55) saturate(0.55);
-  opacity: 0.72;
+  background: linear-gradient(155deg,
+                              rgba(24, 16, 38, 0.92) 0%,
+                              rgba(14, 10, 24, 0.95) 100%) !important;
+  border-color: rgba(232, 200, 130, 0.22) !important;
+  color: rgba(212, 195, 168, 0.72) !important;
+  box-shadow:
+    inset 0 0 10px rgba(0, 0, 0, 0.40),
+    0 2px 4px rgba(0, 0, 0, 0.30) !important;
+  opacity: 0.88;
+  filter: saturate(0.5);
   pointer-events: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+}
+.card.card--match.is-wrong .mc-frame {
+  border-color: rgba(232, 200, 130, 0.14);
 }
 .card.card--match.is-wrong::before,
 .card.card--match.is-wrong::after {
-  color: rgba(232, 200, 130, 0.25);
+  color: rgba(200, 180, 140, 0.42);
+  text-shadow: none;
 }
 
-/* small ✓ / ✗ at the top of the result-card tiles */
+/* result-page ✓ / ✗ — small, tucked above the headword */
 .card.card--match .tile-mark {
   position: absolute;
-  top: 4px;
+  top: 5px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0;
+  font-style: normal;
+  font-family: serif;
 }
 .card.card--match.is-correct .tile-mark {
-  color: #f5d99a;
-  text-shadow: 0 0 6px rgba(255, 233, 186, 0.55);
+  color: rgba(255, 232, 170, 0.85);
+  text-shadow: 0 0 4px rgba(255, 232, 170, 0.5);
 }
 .card.card--match.is-wrong .tile-mark {
-  color: rgba(230, 120, 145, 0.7);
-}
-.card.card--match .tile-text {
-  display: block;
-}
-
-/* hover (only on cards that are still clickable — selected/default) */
-.card.card--match:hover:not(.is-wrong):not(.is-correct) {
-  filter: brightness(1.08);
+  color: rgba(180, 130, 145, 0.5);
 }
 
 /* ============================================================
