@@ -4225,8 +4225,9 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* True vertical centre — equal margin above and below */
-  top: 50%;
+  /* Pixel-measured: dome's purple text band centres at y=54 % of
+     the PNG (the spire pushes the optical centre down).         */
+  top: 54%;
   transform: translate(-50%, -50%);
   width: 80%;
   text-align: center;
@@ -4354,26 +4355,28 @@ body.bg-result .match-result-grid > .card {
   font-size: 10px;
   opacity: 1;
 }
+/* Fixed 13-column grid → 26 letters always lay out in exactly
+   2 rows (A-M / N-Z), never overflow into the bow.           */
 .nav-card .alpha-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0 3px;
-  line-height: 1.25;
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  justify-items: center;
+  align-items: center;
+  gap: 1px 1px;
   padding: 0;
+  line-height: 1.1;
 }
 .nav-card .alpha-bar a {
   font-family: 'Snell Roundhand', 'Pinyon Script',
                'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
   font-style: italic;
   font-weight: 500;
-  font-size: 9px;                          /* tighter to fit the
-                                              narrow central column */
-  letter-spacing: .01em;
+  font-size: 8.5px;
+  letter-spacing: 0;
   color: #d6a464;
   text-shadow:
-    0 0 4px  rgba(232,196,138,.55),
-    0 0 9px  rgba(218,168,104,.32);
+    0 0 3px  rgba(232,196,138,.5),
+    0 0 8px  rgba(218,168,104,.28);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: rgba(184,138,58,.5);
