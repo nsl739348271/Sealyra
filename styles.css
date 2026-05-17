@@ -4109,33 +4109,32 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Pinned tight under the banner (no overlap, no gap).  Title
-     plaque now lives INSIDE the frame (not straddling), so we
-     don't need any room above for a half-plaque.                */
+  /* Top edge sits at the same height as the moon + star icons
+     (banner + 6 px).  Width shrunk to 76 vw so the icons (38 px
+     + 10 px margin each side) fit beside the frame instead of
+     overlapping the gold flora.                                */
   position: fixed;
-  top: calc(100vw * 821 / 1916 + 52px);   /* leaves a 52 px band
-                                              for the moon + star
-                                              corner icons above */
+  top: calc(100vw * 821 / 1916 + 6px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
-  width: min(82vw, 480px);
+  width: min(76vw, 460px);
   aspect-ratio: 1000 / 750;
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat,
-    #291f3a;                              /* deep purple sampled from bg-note */
-  border-radius: 24px;
-  /* Soft fade-out at edges → blurs the dark fill into the bg-note
-     scenery instead of stamping a hard rectangle.                */
+    #291f3a;
+  border-radius: 22px;
+  /* Soft fade-out at edges so the dark fill bleeds into bg-note. */
   -webkit-mask-image: radial-gradient(ellipse 86% 78% at center,
                                       #000 60%, transparent 100%);
           mask-image: radial-gradient(ellipse 86% 78% at center,
                                       #000 60%, transparent 100%);
 }
-/* Word list starts AFTER the nav-card bottom (= banner + 52 + height) */
+/* Word list starts AFTER the nav-card bottom (= banner + 6 + height).
+   nav-card height = 76 vw × 0.75 = 57 vw, capped at 345 px. */
 .word-list {
-  margin-top: calc(min(61.5vw, 360px) + 52px) !important;
+  margin-top: calc(min(57vw, 345px) + 6px) !important;
 }
 
 /* --- 47.2  corner buttons — Moon + Star icons, pinned right under
@@ -4218,10 +4217,10 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — under the (in-frame) plaque --- */
+/* --- 47.4  body area — sits under the in-frame plaque --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 44%;                /* plaque ~4-40 %, body starts after */
+  top: 50%;                /* plaque ~4-46 %, body just below */
   left: 14%;
   right: 14%;
   bottom: 16%;
