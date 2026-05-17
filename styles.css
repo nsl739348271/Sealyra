@@ -1432,10 +1432,12 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
 #bg-layer {
   position: fixed;
   inset: 0;
-  z-index: 0;                  /* sits ABOVE the empty body bg, BELOW content */
+  z-index: 0;
   background-color: #1A1530;
   background-size: cover;
-  background-position: center center;
+  background-position: center bottom;       /* anchor scene to viewport
+                                                bottom so no purple band
+                                                appears under the books */
   background-repeat: no-repeat;
   pointer-events: none;
 }
@@ -4207,17 +4209,31 @@ body.bg-result .match-result-grid > .card {
    search y = 64 % = 119 px, height 22 px  → bottom ~141 px
    bow zone starts ~80 % = 149 px
    → gap alpha→search = 13 px, search→bow = 8 px               */
+/* === EXPLICIT ZONE LAYOUT inside the nav-card ===
+   Each child gets BOTH top: AND height: in % so it owns its
+   zone — content can never spill into the next one.  Works
+   on any phone size because everything is proportional.
+
+   PLAQUE   top:6 %   height:34 %   width:60 %
+   (gap)    7 %
+   ALPHA    top:47 %  height:18 %   left/right:18 %
+   (gap)    3 %
+   SEARCH   top:68 %  height:10 %   left/right:24 %
+   (gap)    2 %
+   BOW      80-100 % (decorative, no content)                 */
 .nav-card > .alpha-bar {
   position: absolute;
-  top: 45%;
+  top: 47%;
+  height: 18%;
   left: 18%;
   right: 18%;
 }
 .nav-card > .index-search {
   position: absolute;
-  top: 68%;             /* more gap above (alpha bottom at ~63 %) */
-  left: 22%;
-  right: 22%;
+  top: 68%;
+  height: 10%;
+  left: 24%;
+  right: 24%;
   min-width: 0;
   width: auto;
 }
@@ -4300,19 +4316,20 @@ body.bg-result .match-result-grid > .card {
 .nav-card .index-search {
   display: block;
   margin: 0 auto;
-  padding: 3px 8px;
+  padding: 1px 8px;
   background: rgba(8,4,18,.30);
   border: 1px solid rgba(214,164,100,.45);
   border-radius: 0;
   color: var(--cream);
   font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: .06em;
   outline: none;
   text-align: center;
   box-sizing: border-box;
-  height: 22px;                            /* smaller — fits in lower band */
+  /* height comes from the .nav-card > .index-search zone rule
+     (height:10 %).  Don't set 100 % here — that broke containment. */
 }
 .nav-card .index-search:focus { border-color: rgba(218,168,104,.75); }
 .nav-card .index-search::placeholder {
