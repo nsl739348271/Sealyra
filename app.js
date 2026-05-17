@@ -481,6 +481,7 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
   });
   const letters = Object.keys(groups).sort();
   el.innerHTML = `
+    <div class="nav-shield"></div>
     <div class="nav-card">
       ${pageTitle(title)}
       <div class="nav-card-body">

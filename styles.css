@@ -4109,10 +4109,8 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Top edge sits at the same height as the moon + star icons
-     (banner + 6 px).  Width shrunk to 76 vw so the icons (38 px
-     + 10 px margin each side) fit beside the frame instead of
-     overlapping the gold flora.                                */
+  /* Top edge level with moon + star icons; narrower frame so
+     they can sit beside it without overlapping the gold flora. */
   position: fixed;
   top: calc(100vw * 821 / 1916 + 6px);
   left: 50%;
@@ -4122,14 +4120,31 @@ body.bg-result .match-result-grid > .card {
   aspect-ratio: 1000 / 750;
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
-    center/100% 100% no-repeat,
-    #291f3a;
-  border-radius: 22px;
-  /* Soft fade-out at edges so the dark fill bleeds into bg-note. */
-  -webkit-mask-image: radial-gradient(ellipse 86% 78% at center,
-                                      #000 60%, transparent 100%);
-          mask-image: radial-gradient(ellipse 86% 78% at center,
-                                      #000 60%, transparent 100%);
+    center/100% 100% no-repeat;
+  /* No background fill here any more — the full-width .nav-shield
+     sister element provides the dark band underneath.            */
+}
+/* Full-width darken band that blocks scrolling word rows from
+   showing past the left/right of the (narrower) nav-card.       */
+.nav-shield {
+  position: fixed;
+  top: calc(100vw * 821 / 1916 + 6px);
+  left: 0;
+  right: 0;
+  height: min(57vw, 345px);
+  background: #18102a;                  /* deeper purple per user */
+  z-index: 49;                          /* under nav-card (50) */
+  /* Wider, softer fade so the dark band dissolves into bg-note
+     instead of stamping a hard horizontal slab.                  */
+  -webkit-mask-image: linear-gradient(180deg,
+    transparent 0%, #000 26%, #000 74%, transparent 100%);
+          mask-image: linear-gradient(180deg,
+    transparent 0%, #000 26%, #000 74%, transparent 100%);
+  pointer-events: none;
+}
+/* Word list starts AFTER the nav-card / shield bottom (= banner + 6 + height) */
+.word-list {
+  margin-top: calc(min(57vw, 345px) + 6px) !important;
 }
 /* Word list starts AFTER the nav-card bottom (= banner + 6 + height).
    nav-card height = 76 vw × 0.75 = 57 vw, capped at 345 px. */
@@ -4180,11 +4195,11 @@ body.bg-result .match-result-grid > .card {
    Aspect locked to the dome PNG's natural 1200/675. --- */
 .nav-card .title-plaque {
   position: absolute;
-  /* Plaque sits INSIDE the nav-card at top — no straddling now. */
-  top: 4%;
+  /* BIGGER plaque so the text fits comfortably inside the dome. */
+  top: 2%;
   left: 50%;
   transform: translateX(-50%);
-  width: 62%;
+  width: 74%;
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4196,18 +4211,17 @@ body.bg-result .match-result-grid > .card {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
+  width: 78%;
   text-align: center;
-  /* Display serif with gothic refinement — matches the banner's
-     "Her Little Lexicon" aesthetic.  Cinzel is roman caps; we
-     mix in italic Cormorant Garamond for the soft fallback look. */
-  font-family: 'Cinzel', 'Cormorant Garamond', 'EB Garamond',
+  /* Cormorant Garamond italic is the safe pretty choice — it loads
+     reliably (Google) and falls back to system serifs cleanly.    */
+  font-family: 'Cormorant Garamond', 'EB Garamond', 'Cinzel',
                'Bodoni 72', 'Didot', Georgia, serif;
-  font-style: normal;
-  font-weight: 600;
-  font-size: clamp(18px, 4.8vw, 26px);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(17px, 4.4vw, 24px);
   line-height: 1.0;
-  letter-spacing: .06em;
+  letter-spacing: .03em;
   color: #d6a464;
   text-shadow:
     0 0 8px  rgba(232,196,138,.7),
@@ -4217,19 +4231,20 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — sits under the in-frame plaque --- */
+/* --- 47.4  body area — sits under the (bigger) in-frame plaque
+   which now reaches ~57 % of nav-card height                  --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 50%;                /* plaque ~4-46 %, body just below */
+  top: 59%;
   left: 14%;
   right: 14%;
-  bottom: 16%;
+  bottom: 14%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 6px;
-  padding-top: 2px;
+  gap: 4px;
+  padding-top: 1px;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4414,9 +4429,8 @@ body.bg-result .match-result-grid > .card {
   font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 12px;
-  color: #d6a464;                          /* matches title gold */
-  /* subtle glow — present but never neon */
+  font-size: 15px;                         /* bigger per user */
+  color: #d6a464;
   text-shadow:
     0 0 4px  rgba(232,196,138,.55),
     0 0 10px rgba(218,168,104,.28);
@@ -4426,9 +4440,9 @@ body.bg-result .match-result-grid > .card {
   flex: 0 0 auto;
   font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 8px;
-  /* sampled from the bow on 0511DE6F — pink-mauve */
-  color: #b89fcc;
+  font-size: 9px;
+  /* Pushed toward PINK on the pink-mauve axis. */
+  color: #d6a5cd;
   letter-spacing: .04em;
   white-space: nowrap;
 }
@@ -4437,7 +4451,7 @@ body.bg-result .match-result-grid > .card {
   min-width: 14px;
   height: 0;
   align-self: center;
-  border-top: 1px dotted rgba(184,159,204,.6);  /* same bow mauve */
+  border-top: 1px dotted rgba(214,165,205,.55);  /* same pinker mauve */
   margin: 0;
 }
 .word-list .word-row .wr-zh {
