@@ -4248,27 +4248,38 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — VISUAL gap fix.
-   The dome PNG has 30 % transparent space below the visible
-   dome.  My old body top:55 % put alpha + search below that
-   invisible padding, leaving a phantom gap.  Visible dome
-   bottom is at 3 % + 70 % × 51 % = 39 % of nav-card.  Body
-   top:40 % parks alpha right under the visible dome edge.   */
+/* --- 47.4  layout WITHOUT a body wrapper.  alpha and search
+   are direct children of .nav-card, each absolutely placed
+   exactly where I want them:
+     alpha-bar  → top:42 %  (right under the visible dome)
+     search     → top:72 %  (right above the bow ribbon)
+   No phantom flex gaps, no trailing empty band.            */
+.nav-card > .alpha-bar {
+  position: absolute;
+  top: 42%;
+  left: 22%;
+  right: 22%;
+}
+.nav-card > .index-search {
+  position: absolute;
+  top: 72%;
+  left: 28%;
+  right: 28%;
+}
+/* Note hub still uses .nav-card-body to host its 2 counter cards;
+   restore the absolute positioning so the counter row sits in the
+   lower-mid band of the frame, clear of plaque AND bow.            */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 40%;
-  left: 24%;
-  right: 24%;
-  bottom: 22%;
+  top: 45%;
+  left: 18%;
+  right: 18%;
+  bottom: 18%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: stretch;
-  justify-content: flex-start;
   gap: 4px;
-  padding: 0;
-  background: none;
-  border: 0;
-  box-shadow: none;
 }
 .nav-card .nav-card-body--center {
   justify-content: center;
@@ -4398,6 +4409,13 @@ body.bg-result .match-result-grid > .card {
     0 0 8px  rgba(232,196,138,.85),
     0 0 22px rgba(218,168,104,.6);
   text-decoration-color: rgba(232,196,138,.9);
+}
+.nav-card .alpha-bar a.ab-disabled {
+  color: rgba(214,164,100,.28);
+  text-decoration-color: rgba(184,138,58,.18);
+  text-shadow: none;
+  pointer-events: none;
+  cursor: default;
 }
 
 /* --- 47.7  the word list now lives BELOW the nav card --- */

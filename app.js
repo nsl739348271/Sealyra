@@ -479,15 +479,22 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
     const k = h[0].toUpperCase();
     (groups[k] = groups[k] || []).push(h);
   });
+  // letters present in the word list (for the section headers below)
   const letters = Object.keys(groups).sort();
+  // Always show the full A–Z so the alphabet always reads as 26
+  // letters in two even rows.  Letters with no entries get a
+  // muted style + no-op on click.
+  const ALL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const alphaHtml = ALL_LETTERS.map(L => {
+    const has = groups[L] && groups[L].length;
+    return `<a data-letter="${L}"${has ? '' : ' class="ab-disabled"'}>${L}</a>`;
+  }).join('');
   el.innerHTML = `
     <div class="nav-shield"></div>
     <div class="nav-card">
       ${pageTitle(title)}
-      <div class="nav-card-body">
-        <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
-        <input class="index-search" type="text" placeholder="SEARCH WORDS…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-      </div>
+      <div class="alpha-bar">${alphaHtml}</div>
+      <input class="index-search" type="text" placeholder="SEARCH WORDS…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
     </div>
     <div class="word-list" id="word-list-${fromKey}">
       ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
