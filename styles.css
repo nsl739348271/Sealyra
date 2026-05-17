@@ -1430,27 +1430,34 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
    and we just swap its image via a body class.  Content scrolls
    over a steady artwork — what the brief actually asks for.       */
 #bg-layer {
-  /* extend BELOW the viewport's visible bottom (iOS Safari URL bar
-     + home-indicator area).  Without this, position:fixed inset:0
-     stops at the "small viewport" boundary and leaves a dark band
-     beneath, between the bg and the physical screen edge.         */
+  /* large-viewport units (lvh) cover the iOS small-viewport area
+     when the URL bar hides — without pushing the scene below the
+     visible bottom (the bug that hid the bunny).                  */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  bottom: -200px;
-  height: auto;
+  height: 100lvh;                   /* large viewport: never shrinks */
   z-index: 0;
-  background-color: #2a1f3a;          /* matches the scene tone if
-                                          anything still peeks past */
+  background-color: #2a1f3a;
   background-size: cover;
   background-position: center bottom;
   background-repeat: no-repeat;
   pointer-events: none;
 }
-/* Also make BODY itself the same colour so anything past the
-   fixed layer (overscroll bounce, safe-area) blends in.         */
+/* Match dark body colour for the slivers iOS overscroll exposes. */
 html, body { background-color: #2a1f3a; }
+
+/* Non-list pages must NOT scroll — iOS bounce was making the
+   "fixed" bg look like it was moving.  body.no-scroll is toggled
+   on by go() for every screen except the actual word lists.    */
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+  height: 100lvh;
+  position: fixed;
+  width: 100%;
+}
 /* Only bump z-indexes here — don't touch the position properties
    that the original rules already set (banner = fixed top, drawer
    and modal = fixed full-viewport).  Overriding them to "relative"

@@ -188,6 +188,10 @@ const BG_BY_SCREEN = {
   'stage3-result': 'bg-result',
   note: 'bg-note', 'note-bucket': 'bg-note', index: 'bg-note', card: 'bg-note'
 };
+// Only screens with real word lists are allowed to scroll the page —
+// every other screen locks body overflow so the iOS bounce can't make
+// the (fixed) bg-layer look like it's moving.
+const SCROLLABLE_SCREENS = new Set(['index', 'note-bucket']);
 function go(screenId, opts = {}) {
   state.screen = screenId;
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === `screen-${screenId}`));
@@ -195,6 +199,7 @@ function go(screenId, opts = {}) {
   // swap the fixed background layer to match this screen's atmosphere.
   ['bg-cover','bg-stage','bg-result','bg-note'].forEach(c => document.body.classList.remove(c));
   document.body.classList.add(BG_BY_SCREEN[screenId] || 'bg-cover');
+  document.body.classList.toggle('no-scroll', !SCROLLABLE_SCREENS.has(screenId));
   if (Screens[screenId] && Screens[screenId].onEnter) Screens[screenId].onEnter(opts);
 }
 
