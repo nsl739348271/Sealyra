@@ -2306,7 +2306,7 @@ body { background: transparent !important; }
   cursor: pointer;
   padding: 0 !important;
   color: var(--gold-deep) !important;
-  filter: none !important;
+  /* filter: none was killing the breathing-halo animation — removed */
 }
 .moon-corner:hover { border-color: var(--rose) !important; color: var(--rose) !important; }
 .moon-corner::before { content: none !important; }   /* kill the old png pseudo */
@@ -4207,15 +4207,15 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
-/* Plaque enlarged but kept inside the nav-card.  width 72 % is
-   the practical upper limit before the body area gets too thin
-   for the search + alpha-bar.                                   */
+/* Plaque sized so its text band sits comfortably above the
+   body area without overlapping it.  width 68% is the sweet
+   spot — bigger than before but body still fits. */
 .nav-card .title-plaque {
   position: absolute;
   top: 3%;
   left: 50%;
   transform: translateX(-50%);
-  width: 72%;
+  width: 68%;
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4225,24 +4225,20 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  top: 48%;                       /* slight nudge up from centre */
+  /* True vertical centre — equal margin above and below */
+  top: 50%;
   transform: translate(-50%, -50%);
-  width: 78%;
+  width: 80%;
   text-align: center;
-  /* Gothic display caps — Cinzel Decorative is the showpiece,
-     UnifrakturMaguntia as a blackletter fallback for that proper
-     gothic feel. Cormorant Garamond as a safe italic-serif
-     fallback if neither web font has loaded. */
   font-family: 'Cinzel Decorative', 'UnifrakturMaguntia',
                'Cinzel', 'Cormorant Garamond',
                'Bodoni 72', 'Didot', Georgia, serif;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 400;                       /* NOT bold per user */
   font-size: clamp(15px, 4vw, 22px);
   line-height: 1.0;
   letter-spacing: .04em;
   color: #d6a464;
-  /* Lower-intensity glow per user — present but not blinding. */
   text-shadow:
     0 0 4px  rgba(232,196,138,.4),
     0 0 9px  rgba(218,168,104,.22),
@@ -4251,14 +4247,15 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — pushed down to clear the bigger plaque.
-   Search at top, alpha-bar at bottom via space-between.        */
+/* --- 47.4  body area — sits in the clean band BETWEEN the
+   plaque (ends ~55 %) and the bow at the bottom (top ~78 %).
+   Search anchored to top, alpha-bar anchored to bottom.        */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 60%;                  /* below the bigger plaque (ends ~57%) */
+  top: 56%;
   left: 28%;
   right: 28%;
-  bottom: 20%;
+  bottom: 22%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
