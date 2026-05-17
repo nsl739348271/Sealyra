@@ -4248,20 +4248,20 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — sits in the clean band BETWEEN the
-   plaque (ends ~55 %) and the bow at the bottom (top ~78 %).
-   Search anchored to top, alpha-bar anchored to bottom.        */
+/* --- 47.4  body area — content STACKED tight from the top
+   (alpha-bar first, search just under it).  No big empty gap. */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 56%;
-  left: 28%;
-  right: 28%;
+  top: 55%;                  /* just below the plaque (ends ~54 %) */
+  left: 24%;                 /* widened a touch so the 13-letter
+                                 alpha grid actually fits           */
+  right: 24%;
   bottom: 22%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: space-between;
-  gap: 0;
+  justify-content: flex-start;
+  gap: 4px;
   padding: 0;
   background: none;
   border: 0;
@@ -4356,27 +4356,33 @@ body.bg-result .match-result-grid > .card {
   opacity: 1;
 }
 /* Fixed 13-column grid → 26 letters always lay out in exactly
-   2 rows (A-M / N-Z), never overflow into the bow.           */
+   2 rows (A-M / N-Z), never overflow.  zero margin / padding
+   so it doesn't push the search bar out of the body bounds.   */
 .nav-card .alpha-bar {
   display: grid;
   grid-template-columns: repeat(13, 1fr);
   justify-items: center;
   align-items: center;
-  gap: 1px 1px;
-  padding: 0;
-  line-height: 1.1;
+  gap: 1px;
+  padding: 0 !important;
+  margin: 0 !important;                    /* override stray .alpha-bar
+                                              margins from older rules */
+  width: 100%;
+  min-width: 0;
+  line-height: 1.05;
+  box-sizing: border-box;
 }
 .nav-card .alpha-bar a {
   font-family: 'Snell Roundhand', 'Pinyon Script',
                'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
   font-style: italic;
   font-weight: 500;
-  font-size: 8.5px;
+  font-size: 8px;                          /* fits 13-wide row */
   letter-spacing: 0;
   color: #d6a464;
   text-shadow:
     0 0 3px  rgba(232,196,138,.5),
-    0 0 8px  rgba(218,168,104,.28);
+    0 0 7px  rgba(218,168,104,.26);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: rgba(184,138,58,.5);

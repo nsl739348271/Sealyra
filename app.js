@@ -485,8 +485,8 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
     <div class="nav-card">
       ${pageTitle(title)}
       <div class="nav-card-body">
-        <input class="index-search" type="text" placeholder="SEARCH WORDS…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
+        <input class="index-search" type="text" placeholder="SEARCH WORDS…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       </div>
     </div>
     <div class="word-list" id="word-list-${fromKey}">
