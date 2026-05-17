@@ -4248,13 +4248,16 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — content STACKED tight from the top
-   (alpha-bar first, search just under it).  No big empty gap. */
+/* --- 47.4  body area — VISUAL gap fix.
+   The dome PNG has 30 % transparent space below the visible
+   dome.  My old body top:55 % put alpha + search below that
+   invisible padding, leaving a phantom gap.  Visible dome
+   bottom is at 3 % + 70 % × 51 % = 39 % of nav-card.  Body
+   top:40 % parks alpha right under the visible dome edge.   */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 55%;                  /* just below the plaque (ends ~54 %) */
-  left: 24%;                 /* widened a touch so the 13-letter
-                                 alpha grid actually fits           */
+  top: 40%;
+  left: 24%;
   right: 24%;
   bottom: 22%;
   display: flex;
