@@ -4154,7 +4154,7 @@ body.bg-result .match-result-grid > .card {
 .moon-corner,
 .close-corner {
   position: fixed !important;
-  top: calc(100vw * 821 / 1916 + 8px) !important;   /* same as nav-card top */
+  top: calc(100vw * 821 / 1916 + 8px) !important;
   width: 44px !important;
   height: 44px !important;
   bottom: auto !important;
@@ -4166,7 +4166,7 @@ body.bg-result .match-result-grid > .card {
   box-shadow: none !important;
   color: transparent !important;
   border-radius: 0 !important;
-  animation: corner-breathe 2.8s ease-in-out infinite;
+  animation: corner-breathe 2.2s ease-in-out infinite;
 }
 .moon-corner {
   left: 10px !important;
@@ -4178,10 +4178,16 @@ body.bg-result .match-result-grid > .card {
 .close-corner {
   right: 10px !important;
   left: auto !important;
+  width: 52px !important;                       /* bigger per user */
+  height: 52px !important;
   background:
     url("assets/icon-star8.png?v=26")
     center/contain no-repeat !important;
   transform: none !important;
+  /* Dim the bright cream star to a warmer gilded gold so it
+     doesn't pop against the dark scene.  Done with a colour
+     filter — no asset swap needed.                            */
+  filter: brightness(0.7) sepia(0.5) saturate(1.4) hue-rotate(-12deg);
 }
 /* Kill any leftover CSS-drawn icons inside the buttons */
 .moon-corner .mc-bar,
@@ -4192,15 +4198,28 @@ body.bg-result .match-result-grid > .card {
 .close-corner::after {
   display: none !important;
 }
-/* Breathing halo — gentle pulse hints these are tappable */
+/* Breathing halo — tighter radius but brighter peak, so the
+   pulse is unmistakable.                                       */
 @keyframes corner-breathe {
-  0%, 100% { filter: drop-shadow(0 0 4px  rgba(232,196,138,.42))
-                     drop-shadow(0 2px 6px rgba(8,4,18,.55)); }
-  50%      { filter: drop-shadow(0 0 14px rgba(232,196,138,.85))
-                     drop-shadow(0 2px 6px rgba(8,4,18,.55)); }
+  0%, 100% { filter: drop-shadow(0 0 2px  rgba(255,232,170,.5))
+                     drop-shadow(0 2px 4px rgba(8,4,18,.55)); }
+  50%      { filter: drop-shadow(0 0 6px  rgba(255,232,170,1))
+                     drop-shadow(0 0 12px rgba(232,196,138,.7))
+                     drop-shadow(0 2px 4px rgba(8,4,18,.55)); }
 }
+/* The .close-corner has its own colour filter (sepia) — its
+   halo needs to layer ON TOP via a separate animation that
+   doesn't replace the base sepia filter.                      */
+@keyframes corner-breathe-star {
+  0%, 100% { filter: brightness(0.7) sepia(0.5) saturate(1.4) hue-rotate(-12deg)
+                     drop-shadow(0 0 2px rgba(255,232,170,.5)); }
+  50%      { filter: brightness(0.85) sepia(0.4) saturate(1.6) hue-rotate(-12deg)
+                     drop-shadow(0 0 6px rgba(255,232,170,1))
+                     drop-shadow(0 0 12px rgba(232,196,138,.7)); }
+}
+.close-corner { animation-name: corner-breathe-star; }
 .moon-corner:hover, .close-corner:hover {
-  animation-duration: 1.4s;
+  animation-duration: 1.2s;
 }
 
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
@@ -4255,10 +4274,10 @@ body.bg-result .match-result-grid > .card {
 }
 .nav-card > .index-search {
   position: absolute;
-  bottom: 11%;
+  bottom: 22%;           /* lifted off the bow / lower flora */
   left: 22%;
   right: 22%;
-  min-width: 0;          /* override the browser default */
+  min-width: 0;
   width: auto;
 }
 /* Note hub still uses .nav-card-body to host its 2 counter cards;
@@ -4339,23 +4358,20 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.6  search box — sized to fit the narrow central column --- */
 .nav-card .index-search {
   display: block;
-  /* width left auto so the .nav-card > .index-search rule's
-     left:22 % + right:22 % can compute the width (was 100 %,
-     which broke containment).                                  */
   margin: 0 auto;
-  padding: 2px 6px;
+  padding: 6px 10px;                       /* taller now */
   background: rgba(8,4,18,.30);
   border: 1px solid rgba(214,164,100,.45);
   border-radius: 0;
   color: var(--cream);
   font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 9px;
-  letter-spacing: .04em;
+  font-size: 11px;
+  letter-spacing: .06em;
   outline: none;
   text-align: center;
   box-sizing: border-box;
-  height: 16px;
+  height: 28px;                            /* properly sized box */
 }
 .nav-card .index-search:focus { border-color: rgba(218,168,104,.75); }
 .nav-card .index-search::placeholder {
