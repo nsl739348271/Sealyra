@@ -186,8 +186,12 @@ const BG_BY_SCREEN = {
   'stage1-result': 'bg-result',
   'stage2-result': 'bg-result',
   'stage3-result': 'bg-result',
-  note: 'bg-note', index: 'bg-note', card: 'bg-note'
+  note: 'bg-note', 'note-bucket': 'bg-note', index: 'bg-note', card: 'bg-note'
 };
+// Only screens with real word lists are allowed to scroll the page —
+// every other screen locks body overflow so the iOS bounce can't make
+// the (fixed) bg-layer look like it's moving.
+const SCROLLABLE_SCREENS = new Set(['index', 'note-bucket']);
 function go(screenId, opts = {}) {
   state.screen = screenId;
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === `screen-${screenId}`));
@@ -195,6 +199,7 @@ function go(screenId, opts = {}) {
   // swap the fixed background layer to match this screen's atmosphere.
   ['bg-cover','bg-stage','bg-result','bg-note'].forEach(c => document.body.classList.remove(c));
   document.body.classList.add(BG_BY_SCREEN[screenId] || 'bg-cover');
+  document.body.classList.toggle('no-scroll', !SCROLLABLE_SCREENS.has(screenId));
   if (Screens[screenId] && Screens[screenId].onEnter) Screens[screenId].onEnter(opts);
 }
 
@@ -431,16 +436,210 @@ function titleStrip() {
   `;
 }
 function stageHeader(chapterN, name) {
+  // v=26: chapter title sits inside the long-frame PNG (6794E86E) so the
+  // matching/reading/inscription pages all share the same purple-gold band.
   return `
-    <div class="stage-head">
-      <div class="stage-chapter">chapter · ${chapterN}</div>
-      <div class="stage-name">${escapeHtml(name)}</div>
-      <div class="stage-rule"></div>
+    <div class="frame-chapter">
+      <div class="frame-chapter-text">
+        <span class="fc-num">chapter · ${chapterN}</span>
+        <span class="fc-name">${escapeHtml(name)}</span>
+      </div>
     </div>
   `;
 }
+// Title plaque-only fragment.  The text lives inside an inner span
+// that we position absolutely so it lands in the dome's purple band
+// regardless of how tall the plaque rectangle is.
 function pageTitle(name) {
-  return `<div class="page-title">${escapeHtml(name)}</div>`;
+  const html = escapeHtml(name).replace(/\n/g, '<br>');
+  return `<div class="title-plaque"><span class="tp-text">${html}</span></div>`;
+}
+// Visual writing-line at the bottom of the single-word parchment.
+// NOT an input — pure cue that says "copy this word once".
+function copyLine() {
+  return `
+    <div class="copy-line">
+      <span class="cl-label">copy this word softly</span>
+      <span class="cl-rule"></span>
+      <span class="cl-mark">✦</span>
+    </div>
+  `;
+}
+// Tap-handler for collection-page tiles: nudge the tile (~8° wobble) +
+// page-turn SFX, then OPEN the parchment popup (not full-screen page).
+function flipToCard(tile, word, from) {
+  if (tile.classList.contains('is-flipping')) return;
+  tile.classList.add('is-flipping');
+  SFX.pageTurn();
+  setTimeout(() => {
+    tile.classList.remove('is-flipping');
+    showParchment(word);
+  }, 340);
+}
+
+// Parchment popup — a scroll-shaped modal that floats over the
+// current page.  Text is strictly fenced inside .parchment-inner
+// (sized to the cream paper's safe zone via padding on .parchment-card),
+// so no glyph ever lands on a scroll roll or quill decoration.
+let _activeParchment = null;
+function showParchment(word) {
+  if (_activeParchment) closeParchment();
+  const c = CARDS[word];
+  if (!c) return;
+
+  const veil = document.createElement('div');
+  veil.className = 'parchment-veil';
+  veil.innerHTML = `
+    <div class="parchment-card">
+      <div class="parchment-inner">
+        <div class="pc-head">
+          <button class="pc-speak" data-sp="${escapeAttr(c.h)}" aria-label="play">♪</button>
+          <span class="pc-word">${escapeHtml(c.h)}</span>
+          <span class="pc-pos">${escapeHtml((c.pos || '').slice(0, 3))}.</span>
+          <span class="pc-zh">${escapeHtml(c.zh || '')}</span>
+        </div>
+        <div class="pc-body"></div>
+        <div class="pc-copy">
+          <span class="pc-copy-label">signed</span>
+          <span class="pc-copy-rule"></span>
+          <span class="pc-copy-mark">✦</span>
+        </div>
+      </div>
+    </div>
+  `;
+  const body = veil.querySelector('.pc-body');
+  if (c.family && c.family.length) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her family</div>`);
+    c.family.forEach(line => {
+      const [w, pos] = line.split('|').map(s => s.trim());
+      body.insertAdjacentHTML('beforeend',
+        `<div class="pc-row"><span class="pc-row-word">${escapeHtml(w)}</span> <span class="pc-row-pos">${escapeHtml(pos)}</span></div>`);
+    });
+  }
+  if (c.colloc && c.colloc.length) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her friend</div>`);
+    c.colloc.forEach(line => {
+      const [phrase, zh] = line.split('|').map(s => s.trim());
+      body.insertAdjacentHTML('beforeend',
+        `<div class="pc-row"><span class="pc-row-word">${escapeHtml(phrase)}</span> <span class="pc-row-zh">${escapeHtml(zh || '')}</span></div>`);
+    });
+  }
+  if (c.example) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her sentence</div>`);
+    body.insertAdjacentHTML('beforeend',
+      `<div class="pc-row pc-row-ex"><span class="pc-row-word">${escapeHtml(c.example)}</span></div>`);
+    if (c.example_zh) {
+      body.insertAdjacentHTML('beforeend',
+        `<div class="pc-row pc-row-ex-zh"><span class="pc-row-zh">${escapeHtml(c.example_zh)}</span></div>`);
+    }
+  }
+  // tap the speak button → play audio
+  veil.querySelector('.pc-speak').addEventListener('click', e => {
+    e.stopPropagation();
+    SFX.tap();
+    speak(c.h);
+  });
+  // tap the veil (anywhere OUTSIDE the parchment) closes it
+  veil.addEventListener('click', e => {
+    if (e.target === veil) closeParchment();
+  });
+  // ESC also closes
+  document.addEventListener('keydown', _onParchEsc);
+
+  document.body.appendChild(veil);
+  _activeParchment = veil;
+}
+function closeParchment() {
+  if (!_activeParchment) return;
+  const v = _activeParchment;
+  v.classList.add('is-leaving');
+  document.removeEventListener('keydown', _onParchEsc);
+  setTimeout(() => v.remove(), 260);
+  _activeParchment = null;
+}
+function _onParchEsc(e) { if (e.key === 'Escape') closeParchment(); }
+
+// v=26.2 — index-style listing wrapped in the page panel (0511DE6F
+// frame).  Used by both the full index and the note-bucket page so
+// they share one visual.  Renders title (in the inner dome frame)
+// + search input + A-Z bar + alpha-sectioned word rows.
+function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'index' }) {
+  const groups = {};
+  words.forEach(h => {
+    const k = h[0].toUpperCase();
+    (groups[k] = groups[k] || []).push(h);
+  });
+  // letters present in the word list (for the section headers below)
+  const letters = Object.keys(groups).sort();
+  // Always show the full A–Z so the alphabet always reads as 26
+  // letters in two even rows.  Letters with no entries get a
+  // muted style + no-op on click.
+  const ALL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const alphaHtml = ALL_LETTERS.map(L => {
+    const has = groups[L] && groups[L].length;
+    return `<a data-letter="${L}"${has ? '' : ' class="ab-disabled"'}>${L}</a>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="nav-shield"></div>
+    <div class="nav-card">
+      ${pageTitle(title)}
+      <div class="alpha-bar">${alphaHtml}</div>
+      <input class="index-search" type="text" placeholder="SEARCH WORDS…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="word-list" id="word-list-${fromKey}">
+      ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
+    </div>
+  `;
+  // Corner buttons hang right under the banner (NOT inside nav-card).
+  el.appendChild(moonCorner());
+  el.appendChild(closeCorner({ to: backTo }));
+
+  $$('.alpha-bar a', el).forEach(a => {
+    a.addEventListener('click', () => {
+      const L = a.getAttribute('data-letter');
+      const target = $(`#letter-${L}-${fromKey}`, el);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  const body = $(`#word-list-${fromKey}`, el);
+  letters.forEach(L => {
+    body.insertAdjacentHTML('beforeend',
+      `<div class="alpha-section-title" id="letter-${L}-${fromKey}">${L}</div>`);
+    groups[L].forEach(h => {
+      const c = CARDS[h];
+      const row = document.createElement('div');
+      row.className = 'word-row';
+      row.dataset.word = c.h.toLowerCase();
+      row.dataset.zh = (c.zh || '').toLowerCase();
+      row.innerHTML = `
+        <span class="wr-word">${escapeHtml(c.h)}</span>
+        <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
+        <span class="wr-leader" aria-hidden="true"></span>
+        <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
+      `;
+      row.addEventListener('click', () => flipToCard(row, h, fromKey));
+      body.appendChild(row);
+    });
+  });
+
+  $('.index-search', el).addEventListener('input', e => {
+    const q = (e.target.value || '').toLowerCase().trim();
+    $$('.word-row', el).forEach(row => {
+      const hit = !q ||
+        row.dataset.word.includes(q) ||
+        row.dataset.zh.includes(q);
+      row.style.display = hit ? '' : 'none';
+    });
+    $$('.alpha-section-title', el).forEach(h => {
+      let n = h.nextElementSibling, alive = false;
+      while (n && !n.classList.contains('alpha-section-title')) {
+        if (n.style.display !== 'none') { alive = true; break; }
+        n = n.nextElementSibling;
+      }
+      h.style.display = alive ? '' : 'none';
+    });
+  });
 }
 
 function sprinkleStars(container, count = 18) {
@@ -829,7 +1028,9 @@ const Screens = {
       shuffled.forEach((c, idx) => {
         const card = document.createElement('div');
         card.className = 'card card--match' + (c.side === 'L' ? ' is-left' : ' is-right');
-        card.textContent = c.text;
+        // mc-frame is the inner gold rule (playing-card double border);
+        // mc-text holds the word so z-index keeps it above the frame.
+        card.innerHTML = `<span class="mc-frame"></span><span class="mc-text">${escapeHtml(c.text)}</span>`;
         card.addEventListener('click', () => paint(idx));
         grid.appendChild(card);
       });
@@ -946,13 +1147,11 @@ const Screens = {
         const tile = document.createElement('button');
         tile.className = `card card--match tag-${r.tag} ${r.correct ? 'is-correct' : 'is-wrong'}`;
         tile.innerHTML = `
+          <span class="mc-frame"></span>
           <span class="tile-mark">${r.correct ? '✓' : '✗'}</span>
-          <span class="tile-text">${escapeHtml(r.text)}</span>
+          <span class="mc-text">${escapeHtml(r.text)}</span>
         `;
-        tile.addEventListener('click', () => {
-          SFX.pageTurn();
-          go('card', { word: r.text, from: 'stage1-result' });
-        });
+        tile.addEventListener('click', () => flipToCard(tile, r.text, 'stage1-result'));
         grid.appendChild(tile);
       });
     }
@@ -1205,143 +1404,96 @@ const Screens = {
     }
   },
 
-  /* ---------- NOTE (cover-side, NOT in game flow) ---------- */
+  /* ---------- NOTE hub (cover-side, NOT in game flow) ----------
+     v=26.2 — page panel (0511DE6F frame) wraps the inner dome title
+     + 2 horizontal bucket buttons.  Clicking a bucket lands on
+     screen-note-bucket which now reuses the index list format.    */
   note: {
     onEnter() {
       const el = $('#screen-note');
       const m = saved.mistakes;
       const entries = Object.entries(m);
-      const buckets = {
-        once:   entries.filter(([w, c]) => c === 1).map(([w]) => w),
-        twice:  entries.filter(([w, c]) => c === 2).map(([w]) => w),
-        thrice: entries.filter(([w, c]) => c === 3).map(([w]) => w),
-        haunt:  entries.filter(([w, c]) => c >= 4).map(([w]) => w)
-      };
+      const soft  = entries.filter(([_, c]) => c >= 1 && c <= 2).map(([w]) => w);
+      const haunt = entries.filter(([_, c]) => c >= 3).map(([w]) => w);
       el.innerHTML = `
-        ${pageTitle('her little note')}
-        <div class="page-subtitle">pages she returns to</div>
-        <div class="note-stats">
-          <div class="note-stat"><div class="lbl">a single slip</div><div class="val">${buckets.once.length}</div></div>
-          <div class="note-stat"><div class="lbl">twice astray</div><div class="val">${buckets.twice.length}</div></div>
-          <div class="note-stat"><div class="lbl">thrice undone</div><div class="val">${buckets.thrice.length}</div></div>
-          <div class="note-stat warn"><div class="lbl">haunting words</div><div class="val">${buckets.haunt.length}</div></div>
+        <div class="nav-card">
+          ${pageTitle('Her Little Note')}
+          <div class="nav-card-body">
+            <div class="counter-row">
+              <button class="bucket-card" data-bucket="soft"  ${soft.length  ? '' : 'disabled'}>
+                <div class="bk-hint">words that slipped once</div>
+                <div class="bk-value">${soft.length}</div>
+                <div class="bk-label">soft slips</div>
+              </button>
+              <button class="bucket-card" data-bucket="haunt" ${haunt.length ? '' : 'disabled'}>
+                <div class="bk-hint">words that return</div>
+                <div class="bk-value">${haunt.length}</div>
+                <div class="bk-label">haunting words</div>
+              </button>
+            </div>
+          </div>
         </div>
-        <div id="note-body"></div>
       `;
-      el.prepend(moonCorner());
+      // Corner buttons hang right under the banner (NOT inside nav-card).
+      el.appendChild(moonCorner());
       el.appendChild(closeCorner());
 
-
-      const body = $('#note-body', el);
-      const show = (label, words) => {
-        if (!words.length) return;
-        body.insertAdjacentHTML('beforeend', `<div class="section-label">— ${label} —</div>`);
-        const wrap = document.createElement('div');
-        wrap.className = 'result-grid';
-        words.forEach(w => { if (CARDS[w]) wrap.appendChild(renderExCard(w, true, { withControls: false })); });
-        body.appendChild(wrap);
-      };
-      if (!entries.length) {
-        body.insertAdjacentHTML('beforeend', '<div class="note-empty">no slips yet · the page is still pristine</div>');
-      } else {
-        show('haunting words', buckets.haunt);
-        show('thrice undone',  buckets.thrice);
-        show('twice astray',   buckets.twice);
-        show('a single slip',  buckets.once);
-      }
+      $$('.bucket-card', el).forEach(b => b.addEventListener('click', () => {
+        if (b.disabled) return;
+        SFX.tap();
+        go('note-bucket', { bucket: b.dataset.bucket });
+      }));
     }
   },
 
-  /* ---------- INDEX (cover-side, A-Z) ---------- */
+  /* ---------- NOTE BUCKET — index-style filtered list -----------
+     v=26.2 — user simplification: bucket page now reuses the same
+     panel/search/A-Z/list UI as the index, just with the bucket's
+     filtered word set.  One layout instead of a separate grid. */
+  'note-bucket': {
+    onEnter({ bucket } = {}) {
+      const m = saved.mistakes;
+      const words = Object.entries(m)
+        .filter(([_, c]) => bucket === 'haunt' ? c >= 3 : (c >= 1 && c <= 2))
+        .map(([w]) => w)
+        .filter(w => CARDS[w])
+        .sort();
+      const title = bucket === 'haunt' ? 'Haunting Words' : 'Soft Slips';
+      renderIndexLikePage($('#screen-note-bucket'),
+        { title, words, backTo: 'note', fromKey: 'note-bucket' });
+    }
+  },
+
+  /* ---------- INDEX (cover-side, A-Z) ----------
+     v=26.2 — same panel UI as note-bucket via renderIndexLikePage. */
   index: {
     onEnter() {
-      const el = $('#screen-index');
       const heads = Object.keys(CARDS).sort();
-      // group by first letter
-      const groups = {};
-      heads.forEach(h => {
-        const k = h[0].toUpperCase();
-        (groups[k] = groups[k] || []).push(h);
-      });
-      const letters = Object.keys(groups).sort();
-      el.innerHTML = `
-        <div class="screen-stickyhead">
-          <div class="page-title">the index</div>
-          <input class="index-search" type="text" placeholder="search words…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-          <div class="alpha-bar">${letters.map(L => `<a data-letter="${L}">${L}</a>`).join('')}</div>
-        </div>
-        <div id="index-body"></div>
-      `;
-      el.prepend(moonCorner());
-      el.appendChild(closeCorner());
-
-      $$('.alpha-bar a', el).forEach(a => {
-        a.addEventListener('click', () => {
-          const L = a.getAttribute('data-letter');
-          const target = $(`#letter-${L}`, el);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-
-      const body = $('#index-body', el);
-      letters.forEach(L => {
-        body.insertAdjacentHTML('beforeend', `<div class="alpha-section-title" id="letter-${L}">${L}</div>`);
-        groups[L].forEach(h => {
-          const c = CARDS[h];
-          const row = document.createElement('div');
-          row.className = 'word-row';
-          row.dataset.word = c.h.toLowerCase();
-          row.dataset.zh = (c.zh || '').toLowerCase();
-          row.innerHTML = `
-            <span class="wr-word">${escapeHtml(c.h)}</span>
-            <span class="wr-pos">${escapeHtml(c.pos || '')}</span>
-            <span class="wr-zh">${escapeHtml(c.zh || '')}</span>
-          `;
-          row.addEventListener('click', () => {
-            SFX.pageTurn();
-            go('card', { word: h, from: 'index' });
-          });
-          body.appendChild(row);
-        });
-      });
-
-      // Live filter — matches both the head and its chinese gloss.
-      $('.index-search', el).addEventListener('input', e => {
-        const q = (e.target.value || '').toLowerCase().trim();
-        $$('.word-row', el).forEach(row => {
-          const hit = !q ||
-            row.dataset.word.includes(q) ||
-            row.dataset.zh.includes(q);
-          row.style.display = hit ? '' : 'none';
-        });
-        // hide section labels whose section now has no visible rows
-        $$('.alpha-section-title', el).forEach(h => {
-          let n = h.nextElementSibling, alive = false;
-          while (n && !n.classList.contains('alpha-section-title')) {
-            if (n.style.display !== 'none') { alive = true; break; }
-            n = n.nextElementSibling;
-          }
-          h.style.display = alive ? '' : 'none';
-        });
-      });
+      renderIndexLikePage($('#screen-index'),
+        { title: 'The Index', words: heads, backTo: 'cover', fromKey: 'index' });
     }
   },
 
-  /* ---------- CARD detail (opened from sidebar, index, tiles) ---------- */
+  /* ---------- CARD detail — the single-page parchment ----------
+     v=26 — full-screen study page, .ex-card gets the .is-parchment
+     skin (cream E993B660 scroll background, dark-sepia text) plus
+     a copy-line at the bottom.  Reveal mechanic (tap-to-show next
+     audio phrase) stays exactly as before. */
   card: {
     onEnter(opts) {
       const el = $('#screen-card');
       const word = opts.word;
-      // default to 'cover' when no caller passed an explicit from —
-      // never to 'index', which created the dead-end where pressing
-      // close on the card jumped to the word list instead of home.
       const from = opts.from || 'cover';
       state._cardFrom = from;
-      el.innerHTML = `<div class="result-grid" id="card-host"></div>`;
-
+      el.innerHTML = `<div class="card-host"></div>`;
       el.prepend(moonCorner());
       el.appendChild(closeCorner({ to: from }));
-      $('#card-host', el).appendChild(renderExCard(word, null, { withControls: true }));
+      const card = renderExCard(word, null, { withControls: true });
+      card.classList.add('is-parchment', 'is-entering');
+      card.insertAdjacentHTML('beforeend', copyLine());
+      $('.card-host', el).appendChild(card);
+      // strip the entrance class once the fade+scale animation finishes
+      setTimeout(() => card.classList.remove('is-entering'), 620);
     }
   }
 };

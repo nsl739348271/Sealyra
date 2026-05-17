@@ -402,49 +402,9 @@ body.cover-pending .cover-gate     { visibility: visible; }
 }
 
 /* ---------- 7. Match stage ---------- */
-.match-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  max-width: 400px;
-  margin: 14px auto 18px;
-  width: 100%;
-  z-index: 1;
-}
-.match-card {
-  position: relative;
-  padding: 16px 14px;
-  min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-family: var(--f-card);
-  font-style: italic;
-  font-size: 16px;
-  letter-spacing: .045em;
-  color: var(--cream);
-  background: rgba(6,3,15,.44);
-  border: 1px solid rgba(245,239,227,.10);
-  border-radius: 4px;
-  cursor: pointer;
-  user-select: none;
-  transition: border-color .25s, background .25s, color .25s, transform .15s;
-}
-.match-card:active { transform: translateY(1px); }
-.match-card.tag-0 { border-color: var(--p0); color: var(--p0); background: rgba(244,181,200,.10); box-shadow: 0 0 18px rgba(244,181,200,.16); }
-.match-card.tag-1 { border-color: var(--p1); color: var(--p1); background: rgba(238,192,180,.10); box-shadow: 0 0 18px rgba(238,192,180,.16); }
-.match-card.tag-2 { border-color: var(--p2); color: var(--p2); background: rgba(176,180,228,.10); box-shadow: 0 0 18px rgba(176,180,228,.16); }
-.match-card.tag-3 { border-color: var(--p3); color: var(--p3); background: rgba(196,200,196,.10); box-shadow: 0 0 18px rgba(196,200,196,.16); }
-.match-card.flipping { animation: tarotFlip .42s ease-out forwards; }
-@keyframes tarotFlip {
-  0%   { transform: scale(1)    rotateY(0); opacity: 1; box-shadow: 0 0 0 rgba(255,242,210,0); }
-  50%  { transform: scale(1.05) rotateY(90deg); opacity: .8; box-shadow: 0 0 24px rgba(255,242,210,.55); }
-  100% { transform: scale(1.05) rotateY(90deg); opacity: 0; }
-}
-
-.match-card.correct { border-color: var(--gold); color: var(--gold); background: rgba(240,200,148,.10); box-shadow: 0 0 22px rgba(240,200,148,.30); }
-.match-card.wrong   { opacity: .35; filter: grayscale(.5); }
+/* (The old .match-grid + .match-card block and tarotFlip keyframes
+   used to live here.  The grid is now declared in the v=26.46 block
+   at the bottom of the file, and JS uses .card.card--match.)        */
 
 .match-actions, .stage-actions {
   display: flex;
@@ -1222,15 +1182,7 @@ body.cover-pending .cover-gate     { visibility: visible; }
   box-shadow: var(--pink-glow);
 }
 
-/* Stage-1 match: correct-pair glow recolored to rose.  Wrong cards
-   keep their 4-tag colour (no rule needed — they just don't gain
-   .correct).  Done in match-card. */
-.match-card.correct {
-  border-color: var(--rose);
-  color: var(--rose);
-  background: rgba(237,184,158,.10);
-  box-shadow: var(--rose-glow);
-}
+/* (Stage-1 match .match-card.correct lived here — class is dead.) */
 
 /* ex-card "is-correct" / "is-wrong" — re-skin the post-game ex-card
    marker to the unified rose, so result pages share the same warmth. */
@@ -1430,14 +1382,40 @@ body.cover-pending .cover-stage > * { visibility: hidden !important; }
    and we just swap its image via a body class.  Content scrolls
    over a steady artwork — what the brief actually asks for.       */
 #bg-layer {
+  /* large-viewport units (lvh) cover the iOS small-viewport area
+     when the URL bar hides — without pushing the scene below the
+     visible bottom (the bug that hid the bunny).                  */
   position: fixed;
-  inset: 0;
-  z-index: 0;                  /* sits ABOVE the empty body bg, BELOW content */
-  background-color: #1A1530;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100lvh;                   /* large viewport: never shrinks */
+  z-index: 0;
+  background-color: #2a1f3a;
   background-size: cover;
-  background-position: center center;
+  background-position: center bottom;
   background-repeat: no-repeat;
   pointer-events: none;
+  /* Soft fade at the BOTTOM of the bg image so the (unavoidable)
+     dark band of the iOS safe-area / URL-bar zone underneath
+     blends into the scene instead of forming a hard edge.        */
+  -webkit-mask-image: linear-gradient(180deg,
+    #000 0%, #000 90%, transparent 100%);
+          mask-image: linear-gradient(180deg,
+    #000 0%, #000 90%, transparent 100%);
+}
+/* Match dark body colour for the slivers iOS overscroll exposes. */
+html, body { background-color: #2a1f3a; }
+
+/* Non-list pages must NOT scroll — iOS bounce was making the
+   "fixed" bg look like it was moving.  body.no-scroll is toggled
+   on by go() for every screen except the actual word lists.    */
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+  height: 100lvh;
+  position: fixed;
+  width: 100%;
 }
 /* Only bump z-indexes here — don't touch the position properties
    that the original rules already set (banner = fixed top, drawer
@@ -1697,66 +1675,8 @@ body.bg-note   #bg-layer { background-image: url("assets/bg-note.png?v=25"); }
 body { background: transparent !important; }
 
 
-/* ============================================================
-   25. STAGE 1 RESULT — match-tile grid
-   ============================================================
-   Echoes the matching board: 4 rows × 2 columns of word-name tiles,
-   each kept in the colour the user dyed it.  A correct pair switches
-   to a solid rose fill with a ✓; a wrong pair keeps its tag border
-   only with a ✗.  Tapping any tile opens that word's study card.   */
-.match-result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  padding: 18px 16px 4px;
-  max-width: 540px;
-  margin: 0 auto;
-}
-.match-tile {
-  position: relative;
-  background: rgba(6,3,15,.55);
-  border: 2px solid rgba(245,239,227,.18);
-  border-radius: 14px;
-  padding: 22px 12px;
-  cursor: pointer;
-  font-family: var(--f-italic);
-  font-style: italic;
-  font-size: 19px;
-  letter-spacing: .02em;
-  color: var(--cream);
-  text-align: center;
-  transition: transform .15s, box-shadow .25s, background .25s;
-}
-.match-tile:hover  { transform: translateY(-1px); }
-.match-tile:active { transform: translateY(1px); }
-
-.tile-mark {
-  position: absolute;
-  top: 8px; right: 12px;
-  font-size: 13px;
-  letter-spacing: 0;
-  opacity: .85;
-}
-.tile-text { display: block; }
-
-/* The four tag-colour borders — match the in-game match-card palette */
-.match-tile.tag-0 { border-color: #E8C882; color: #F0D9A4; }  /* yellow */
-.match-tile.tag-1 { border-color: #F4B5C8; color: #FBD2DD; }  /* pink   */
-.match-tile.tag-2 { border-color: #A5C8E4; color: #C6DCEE; }  /* blue   */
-.match-tile.tag-3 { border-color: #A5D8C5; color: #C6E5D5; }  /* mint   */
-
-/* The correct pair: solid rose wash, brighter type, glow */
-.match-tile.is-correct {
-  background: linear-gradient(180deg, rgba(244,181,200,.32), rgba(199,122,149,.28));
-  border-color: var(--rose);
-  color: var(--cream);
-  box-shadow: 0 0 18px rgba(237,184,158,.42);
-}
-.match-tile.is-correct .tile-mark { color: var(--rose); }
-
-/* The wrong tiles: keep the tag border, dim the type a little */
-.match-tile.is-wrong { opacity: .72; }
-.match-tile.is-wrong .tile-mark { color: rgba(244,181,200,.55); }
+/* (Stage-1 result tile block — class was renamed to .card.card--match
+   in JS.  Layout + colours live in the v=26.46 block at the bottom.) */
 
 /* The "touch any word" hint sits under the grid, faded italic */
 .match-result-hint {
@@ -2306,7 +2226,7 @@ body { background: transparent !important; }
   cursor: pointer;
   padding: 0 !important;
   color: var(--gold-deep) !important;
-  filter: none !important;
+  /* filter: none was killing the breathing-halo animation — removed */
 }
 .moon-corner:hover { border-color: var(--rose) !important; color: var(--rose) !important; }
 .moon-corner::before { content: none !important; }   /* kill the old png pseudo */
@@ -2478,44 +2398,9 @@ body { background: transparent !important; }
 }
 .card .tile-text { display: block; }
 
-/* Tag colours — just the border + a hint of fill */
-.card.tag-0 { border-color: rgba(232,200,130,.85); color: #F0D9A4; }
-.card.tag-1 { border-color: rgba(244,181,200,.9);  color: #FBD2DD; }
-.card.tag-2 { border-color: rgba(165,200,228,.85); color: #C6DCEE; }
-.card.tag-3 { border-color: rgba(165,216,197,.85); color: #C6E5D5; }
-
-/* Result states */
-.card.is-correct {
-  background: linear-gradient(160deg,
-    rgba(244,181,200,.28) 0%,
-    rgba(199,122,149,.26) 100%) !important;
-  border-color: var(--rose) !important;
-  color: var(--cream) !important;
-  box-shadow:
-    inset 0 0 18px rgba(237,184,158,.26),
-    0 0 20px rgba(237,184,158,.42) !important;
-}
-.card.is-correct .tile-mark { color: var(--rose); }
-.card.is-wrong              { opacity: .56; }
-.card.is-wrong .tile-mark   { color: rgba(244,181,200,.55); }
-
-/* Match grid layout — slim cells */
-.match-grid,
-.match-result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 6px 14px;
-  max-width: 520px;
-  margin: 0 auto;
-}
-.match-grid > .card,
-.match-result-grid > .card {
-  width: 100%;
-  font-size: 16px;
-  padding: 12px 8px;
-  display: flex;
-}
+/* (.card.tag-N / .is-correct / .is-wrong and the .match-grid
+   layout used to live here.  They've been moved to the canonical
+   v=26.46 block at the bottom of this file.)                    */
 
 /* Oracle option — full-width row */
 .card--option {
@@ -2970,25 +2855,10 @@ body { background: transparent !important; }
   letter-spacing: 0;
   opacity: .85;
 }
-.card.tag-0 { border-color: rgba(232,200,130,.85) !important; color: #F0D9A4 !important; }
-.card.tag-1 { border-color: rgba(244,181,200,.90) !important; color: #FBD2DD !important; }
-.card.tag-2 { border-color: rgba(165,200,228,.85) !important; color: #C6DCEE !important; }
-.card.tag-3 { border-color: rgba(165,216,197,.85) !important; color: #C6E5D5 !important; }
-.card.is-correct {
-  background: linear-gradient(155deg,
-    rgba(244,181,200,.34) 0%,
-    rgba(199,122,149,.26) 100%) !important;
-  border-color: var(--rose) !important;
-  color: var(--cream) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,220,200,.28),
-    inset 0 0 24px rgba(237,184,158,.30),
-    0 0 22px rgba(237,184,158,.50),
-    0 5px 18px rgba(0,0,0,.40) !important;
-}
-.card.is-correct .tile-mark { color: var(--rose); }
-.card.is-wrong              { opacity: .55; }
-.card.is-wrong .tile-mark   { color: rgba(244,181,200,.55); }
+/* (the 2nd .card.tag-N + .is-correct/.is-wrong !important block
+   used to live here.  It fought every new design.  Match-card
+   tag/correct/wrong rules now live in the v=26.46 block at the
+   bottom of the file.  Other .card variants don't need these.)  */
 
 
 /* ---------- C. Chapter-rule button (next-door) ---------- */
@@ -3436,25 +3306,10 @@ body { background: transparent !important; }
   animation: tap-hint-breathe 2.4s ease-in-out infinite;
 }
 
-/* Result-page cards were getting squashed into a ~160px tall pill.
-   Widen the grid + open the cell breathing room so they read as
-   real cards instead of compressed labels.                          */
-.match-result-grid,
-.match-grid {
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 8px 6px !important;
-  max-width: 560px !important;
-  margin: 0 auto !important;
-}
-.match-grid > .card,
-.match-result-grid > .card {
-  width: 100% !important;
-  min-height: 64px;
-  font-size: 18px !important;
-  padding: 18px 12px !important;
-  display: flex !important;
-}
+/* (Old result-grid resizing block lived here — pinning the cards
+   to min-height:64 + padding 18px which also fights the v=26.46
+   slim playing-card design.  Grid sizing is owned by the bottom
+   v=26.46 block now.)                                              */
 
 /* Tonight's Reading + every .h-plaque — refined glow.  Was a single
    wide blur that looked muddy; now it's a layered glow:
@@ -3496,66 +3351,14 @@ body { background: transparent !important; }
    the linear-reveal hide rule one more time with even higher
    specificity in case an older sheet was winning on cache.       */
 
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid .card.card--match,
-.match-grid .card.card--match {
-  width: 100% !important;
-  min-height: 90px !important;
-  font-size: 19px !important;
-  padding: 24px 12px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
+/* (the old v1.4 / v1.5 match-grid !important blocks lived here —
+   they pinned the cards to a chunky 9:4 / 17:8 aspect with
+   min-height 78–96px and font-size 18–19px, which is exactly the
+   "big acrylic block" the user wanted gone.  The new v=26.46
+   block at the bottom of the file owns the grid sizing now.)
 
-/* Belt-and-braces — every .is-veiled row stays hidden, with the
-   ex-card selector prefix bumping specificity over anything else. */
-.ex-card .fam-reveal.is-veiled,
-.ex-card .colloc-row.is-veiled,
-.ex-card .ex-example.is-veiled {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* ============================================================
-   45. design system v1.4 — IDENTICAL grids + indestructible veil
-   ============================================================
-   the result page tiles were narrower than the matching grid cards
-   because older sheets pinned .match-result-grid to padding:18px+16
-   and max-width:540, while .match-grid sat at full width.  force
-   both grids to one shape with !important, use aspect-ratio so
-   cells stay proportional regardless of viewport, and brick-wall
-   the .is-veiled hide so no later cascade can revive it.          */
-
-.match-result-grid,
-.match-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 14px !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 560px !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  width: 100% !important;
-  aspect-ratio: 17 / 8 !important;       /* same shape on both pages */
-  min-height: 96px !important;
-  padding: 0 12px !important;            /* aspect-ratio handles height */
-  font-size: 19px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;             /* never let flex column squash cards */
-}
-
-/* brick-wall hide: 5 properties so absolutely no later override
-   can make a veiled colloc / family reveal / example show up.    */
+   Belt-and-braces hide for veiled rows is still needed though —
+   keep it.                                                       */
 .ex-card .fam-reveal.is-veiled,
 .ex-card .colloc-row.is-veiled,
 .ex-card .ex-example.is-veiled,
@@ -3569,30 +3372,6 @@ body { background: transparent !important; }
   visibility: hidden !important;
   overflow: hidden !important;
   pointer-events: none !important;
-}
-
-/* ============================================================
-   46. design system v1.5 — middle ground for the match grid
-   ============================================================
-   v1.4 pinned both grids to 560px which made them feel cavernous
-   on the game page.  drop to 480px max + 12px gap + a slightly
-   squatter aspect (9 / 4 instead of 17 / 8).  same numbers on
-   both grids so they stay identical to each other.               */
-
-.match-result-grid,
-.match-grid {
-  max-width: 480px !important;
-  gap: 12px !important;
-  margin: 12px auto !important;
-}
-.match-result-grid > .card,
-.match-grid > .card,
-.match-result-grid > .card.card--match,
-.match-grid > .card.card--match {
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  font-size: 18px !important;
-  padding: 0 12px !important;
 }
 
 /* ============================================================
@@ -3683,26 +3462,1342 @@ body { background: transparent !important; }
   filter: none !important;
 }
 
-body.bg-stage  .match-grid,
-body.bg-result .match-result-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-  padding: 0 !important;
-  max-width: 480px !important;
-  width: 100% !important;
-  margin: 14px auto !important;
-  box-sizing: border-box !important;
+/* (yet another !important block lived here — pinning the cards to
+   aspect 9/4 + min-height 78px + font-size 18px via body.bg-stage
+   prefix, which was bumping its specificity high enough to beat
+   everything else.  Killed — v=26.46 block owns the sizing now.)  */
+
+/* ============================================================
+   46. v=26 — UNIFIED FRAMES + PARCHMENT STUDY PAGE
+   ============================================================
+   The whole hub/header system gets one shared visual vocabulary:
+     - .frame-top      uses 3C68C8E6 dome shield  (note, index, bucket pages)
+     - .frame-chapter  uses 6794E86E long band    (stage + stage-result pages)
+     - corner buttons swap out the grey hamburger/X pills for the real
+       moon-medallion (left) and key icon (right)
+     - .ex-card.is-parchment skins the single-word study page with
+       the E993B660 cream scroll + dark sepia text variants
+     - .copy-line gives the parchment its writing-cue at the bottom
+   ============================================================ */
+
+/* ---------- 46.1 .frame-top — short page titles ----------
+   Holds a single string ("her little note", "the index", ...).
+   The PNG is the picture; we DO NOT stretch it — width is fixed,
+   the height comes from aspect-ratio so the dome stays in shape.
+   Text is centered inside the inner purple field.              */
+/* .frame-top removed — superseded by .nav-card .title-plaque
+   in section 47.  pageTitle() no longer emits this class.       */
+
+/* ---------- 46.2 .frame-chapter — chapter title for stages ----
+   Long thin frame (6794E86E). Two-line content: "chapter · N"
+   on top, the stage name below.                                */
+.frame-chapter {
+  position: relative;
+  width: min(92vw, 540px);
+  aspect-ratio: 1500 / 500;
+  margin: 12px auto 4px;
+  background:
+    url("assets/6794E86E-172C-4BB8-ACCB-A167D352E97B.png?v=26")
+    center/contain no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-body.bg-stage  .match-grid > .card,
-body.bg-result .match-result-grid > .card {
-  width: 100% !important;
-  aspect-ratio: 9 / 4 !important;
-  min-height: 78px !important;
-  padding: 0 12px !important;
-  font-size: 18px !important;
+.frame-chapter .frame-chapter-text {
+  padding: 0 16% 6%;
+  text-align: center;
+  line-height: 1.05;
+}
+.frame-chapter .fc-num {
+  display: block;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: clamp(11px, 2.6vw, 13px);
+  letter-spacing: .22em;
+  color: var(--gold-warm);
+  text-transform: lowercase;
+  opacity: .85;
+}
+.frame-chapter .fc-name {
+  display: block;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: clamp(18px, 4.6vw, 24px);
+  color: var(--cream);
+  text-shadow: 0 0 12px rgba(237,184,158,.45);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* The legacy .stage-head wrappers / pseudo-decorations are no longer
+   produced by stageHeader(); silence any leftover overrides so they
+   don't render an empty bow under the new frame. */
+.stage-head { display: none !important; }
+
+/* ---------- 46.3 note hub — 2 bucket cards, side by side ------ */
+.bucket-row {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 14px;
+  margin: 22px auto 18px;
+  padding: 0 16px;
+  max-width: 520px;
+}
+.bucket-card {
+  flex: 1 1 0;
+  min-width: 0;
+  background: rgba(10,5,20,.55);
+  border: 1px solid rgba(244,181,200,.32);
+  border-radius: 14px;
+  padding: 14px 10px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, transform .12s;
+  color: var(--cream);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+.bucket-card:hover:not([disabled]) {
+  border-color: var(--rose);
+  box-shadow: 0 0 18px rgba(237,184,158,.32);
+}
+.bucket-card:active:not([disabled]) { transform: translateY(1px); }
+.bucket-card[disabled] { opacity: .35; cursor: default; }
+.bucket-card .bk-hint {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--soft);
+  text-transform: lowercase;
+  opacity: .8;
+  margin-bottom: 4px;
+}
+.bucket-card .bk-value {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  margin: 2px 0 4px;
+}
+.bucket-card .bk-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .12em;
+  color: var(--gold-warm);
+  text-transform: lowercase;
+}
+.note-empty {
+  text-align: center;
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .12em;
+  color: var(--soft);
+  opacity: .8;
+  margin: 36px 0;
+}
+
+/* ---------- 46.4 note-bucket — small clickable thumbnails ----- */
+.bucket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 540px;
+  margin: 16px auto 28px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  /* min-width:0 lets the grid shrink inside a flex-column screen
+     so auto-fill doesn't blow past the viewport. */
+  min-width: 0;
+}
+.card--bucket {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px 14px;
+  background: rgba(10,5,20,.55);
+  border: 1px solid rgba(244,181,200,.32);
+  border-radius: 12px;
+  color: var(--cream);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: border-color .2s, box-shadow .2s, transform .18s, opacity .25s;
+  text-align: left;
+}
+.card--bucket:hover {
+  border-color: var(--rose);
+  box-shadow: 0 0 16px rgba(237,184,158,.3);
+}
+.card--bucket .bt-word {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  word-break: break-word;
+}
+.card--bucket .bt-pos {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gold-warm);
+  letter-spacing: .08em;
+  opacity: .85;
+}
+.card--bucket .bt-zh {
+  font-family: var(--f-zh);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--pink-soft);
+  opacity: .8;
+  word-break: break-word;
+}
+
+/* ---------- 46.5 tile-flip — small wobble before nav --------- */
+.card--bucket.is-flipping,
+.card--match.is-flipping,
+.word-row.is-flipping {
+  animation: tile-wobble .34s ease-in forwards;
+  pointer-events: none;
+}
+@keyframes tile-wobble {
+  0%   { transform: rotateY(0deg)    scale(1); }
+  45%  { transform: rotateY(8deg)    scale(1.02); }
+  100% { transform: rotateY(0deg)    scale(.96); opacity: .35; }
+}
+
+/* ---------- 46.6  superseded by section 47.2 (moon + star icons,
+              breathing halo) — old medallion+key block removed. ---- */
+
+/* ---------- 46.7 .ex-card.is-parchment — the single-word page -
+   Cream scroll background + dark sepia text overrides.  Only the
+   ex-card on screen-card gets this class; collection-page ex-cards
+   keep their dark v19 skin.                                       */
+#screen-card .card-host {
+  display: block;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 6px 12px 28px;
+  box-sizing: border-box;
+}
+.ex-card.is-parchment {
+  background:
+    url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
+    center top / 100% auto no-repeat,
+    #ead5b3;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(20,8,30,.55);
+  padding: 80px 38px 56px;
+  color: #3e2812;
+  max-width: 560px;
+  width: 100%;
+  margin: 14px auto 24px;
+  cursor: pointer;
+}
+.ex-card.is-parchment.is-entering {
+  animation: parchment-in 520ms cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes parchment-in {
+  0%   { opacity: 0; transform: scale(.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* Text colour cascade for parchment — keep specificity moderate
+   and use !important so we win over older dark-themed rules.    */
+.ex-card.is-parchment .ex-headword       { color: #6a3d12 !important; text-shadow: 0 1px 0 rgba(255,238,210,.6) !important; }
+.ex-card.is-parchment .ex-pos            { color: #876239 !important; }
+.ex-card.is-parchment .ex-headword-zh    { color: #5b3a1a !important; opacity: 1 !important; }
+.ex-card.is-parchment .ex-hw-fleur       { color: #8a5a18 !important; }
+.ex-card.is-parchment .ex-speak,
+.ex-card.is-parchment .ex-speak-head     { color: #6a3d12 !important; }
+.ex-card.is-parchment .ex-label          { color: #6e3f12 !important; }
+.ex-card.is-parchment .ex-divider        { border-top-color: rgba(110,63,18,.32) !important; }
+.ex-card.is-parchment .fam-word          { color: #3e2812 !important; }
+.ex-card.is-parchment .fam-pos           { color: #876239 !important; }
+.ex-card.is-parchment .fam-ex            { color: #3e2812 !important; }
+.ex-card.is-parchment .fam-ex-zh         { color: #6a4626 !important; }
+.ex-card.is-parchment .colloc-en         { color: #3e2812 !important; }
+.ex-card.is-parchment .colloc-zh         { color: #6a4626 !important; }
+.ex-card.is-parchment .ex-example        { color: #3e2812 !important; }
+.ex-card.is-parchment .ex-example-zh     { color: #6a4626 !important; }
+.ex-card.is-parchment .ex-neighbor       { color: #6e3f12 !important; }
+.ex-card.is-parchment .ex-neighbor-link  {
+  color: #6a3d12 !important;
+  border-bottom-color: rgba(110,63,18,.45) !important;
+}
+.ex-card.is-parchment .ex-tap-hint       { color: #876239 !important; opacity: .7 !important; }
+/* The close + fold pills sit in the parchment's top/bottom margins —
+   give them a warm tan tint so they look like wax seals.            */
+.ex-card.is-parchment .ex-card-close,
+.ex-card.is-parchment .ex-card-fold {
+  background: rgba(248,228,188,.85) !important;
+  color: #5a3818 !important;
+  border-color: rgba(110,63,18,.45) !important;
+}
+.ex-card.is-parchment .ex-card-close:hover,
+.ex-card.is-parchment .ex-card-fold:hover {
+  border-color: #8a5a18 !important;
+  box-shadow: 0 0 12px rgba(110,63,18,.35) !important;
+}
+
+/* ---------- 46.8 .copy-line — the writing cue ---------------- */
+.copy-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 6px 6px;
+  padding-top: 18px;
+}
+.copy-line .cl-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: #876239;
+  text-transform: lowercase;
+  white-space: nowrap;
+  opacity: .85;
+}
+.copy-line .cl-rule {
+  flex: 1;
+  height: 0;
+  border-bottom: 1.5px dashed rgba(110,63,18,.45);
+}
+.copy-line .cl-mark {
+  color: #8a5a18;
+  font-size: 14px;
+  opacity: .85;
+}
+
+/* ---------- 46.9 index hub — title in frame, search below ----
+   The .screen-stickyhead container already wraps title + search
+   + alpha-bar; we just need to make sure the frame is the first
+   visible row.  pageTitle() already returns the .frame-top div. */
+#screen-index .screen-stickyhead { padding-top: 0; }
+#screen-index .frame-top { margin-top: 8px; }
+#screen-index .alpha-bar { margin-top: 8px; }
+
+/* ---------- 46.10 #screen-card scaffolding ------------------- */
+#screen-card { min-height: calc(100vh - 80px); }
+#screen-card.active { padding-bottom: 40px; }
+
+/* ============================================================
+   47. v=26.4 — NAV CARD = title + corners + ALL non-list controls
+   ============================================================
+   Corrected understanding:  the nav bar is a single ornate CARD
+   (0511DE6F at NATURAL 4:3 aspect — never stretched) that holds
+     ▸ top corner buttons (moon-medallion left, horizontal key right)
+     ▸ centred title plaque (3C68C8E6)
+     ▸ the rest of the page's non-list controls:
+         · for index  / note-bucket: search input + A-Z filter
+         · for note hub:             2 counter buttons
+   Only the actual word list scrolls BELOW the nav card.
+   ============================================================ */
+
+/* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
+.nav-card {
+  /* Cropped 951×597 — width + height locked explicitly so Safari
+     can't break aspect with absolute+transform.
+     top:banner+8 px gives a clean breath between banner and frame.  */
+  position: fixed;
+  top: calc(100vw * 821 / 1916 + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  width:  min(76vw, 460px);
+  height: min(47.7vw, 289px);
+  background:
+    url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
+    center/100% 100% no-repeat;
+}
+.nav-shield {
+  position: fixed;
+  top: calc(100vw * 821 / 1916);
+  left: 0;
+  right: 0;
+  height: min(62vw, 372px);                 /* extended downward */
+  background: #18102a;
+  z-index: 49;
+  -webkit-mask-image: linear-gradient(180deg,
+    #000 0%, #000 82%, transparent 100%);
+          mask-image: linear-gradient(180deg,
+    #000 0%, #000 82%, transparent 100%);
+  pointer-events: none;
+}
+/* Pull the word list up so the big "A" hugs the nav-card. */
+.word-list {
+  margin-top: calc(min(56vw, 336px)) !important;
+}
+/* Word list starts AFTER the nav-card bottom (= banner + 6 + height).
+   nav-card height = 76 vw × 0.75 = 57 vw, capped at 345 px. */
+.word-list {
+  margin-top: calc(min(57vw, 345px) + 6px) !important;
+}
+
+/* --- 47.2  corner buttons — Moon (left) + Star (right) icons,
+   pinned right under the banner on EVERY screen.  Same position,
+   same size, same icons everywhere so the user always knows where
+   they are.  Soft breathing halo hints they're tappable.        */
+.moon-corner,
+.close-corner {
+  position: fixed !important;
+  top: calc(100vw * 821 / 1916 + 8px) !important;
+  width: 44px !important;
+  height: 44px !important;
+  bottom: auto !important;
+  z-index: 60;
+  background: transparent !important;
+  border: 0 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  border-radius: 0 !important;
+  animation: corner-breathe 2.2s ease-in-out infinite;
+}
+.moon-corner {
+  left: 10px !important;
+  right: auto !important;
+  background:
+    url("assets/icon-moon.png?v=26")
+    center/contain no-repeat !important;
+}
+.close-corner {
+  right: 10px !important;
+  left: auto !important;
+  width: 52px !important;                       /* bigger per user */
+  height: 52px !important;
+  background:
+    url("assets/icon-star8.png?v=26")
+    center/contain no-repeat !important;
+  transform: none !important;
+  /* Dim the bright cream star to a warmer gilded gold so it
+     doesn't pop against the dark scene.  Done with a colour
+     filter — no asset swap needed.                            */
+  filter: brightness(0.7) sepia(0.5) saturate(1.4) hue-rotate(-12deg);
+}
+/* Kill any leftover CSS-drawn icons inside the buttons */
+.moon-corner .mc-bar,
+.moon-corner::before,
+.moon-corner svg,
+.close-corner .cp-x,
+.close-corner::before,
+.close-corner::after {
+  display: none !important;
+}
+/* Breathing halo — tighter radius but brighter peak, so the
+   pulse is unmistakable.                                       */
+@keyframes corner-breathe {
+  0%, 100% { filter: drop-shadow(0 0 2px  rgba(255,232,170,.5))
+                     drop-shadow(0 2px 4px rgba(8,4,18,.55)); }
+  50%      { filter: drop-shadow(0 0 6px  rgba(255,232,170,1))
+                     drop-shadow(0 0 12px rgba(232,196,138,.7))
+                     drop-shadow(0 2px 4px rgba(8,4,18,.55)); }
+}
+/* The .close-corner has its own colour filter (sepia) — its
+   halo needs to layer ON TOP via a separate animation that
+   doesn't replace the base sepia filter.                      */
+@keyframes corner-breathe-star {
+  0%, 100% { filter: brightness(0.7) sepia(0.5) saturate(1.4) hue-rotate(-12deg)
+                     drop-shadow(0 0 2px rgba(255,232,170,.5)); }
+  50%      { filter: brightness(0.85) sepia(0.4) saturate(1.6) hue-rotate(-12deg)
+                     drop-shadow(0 0 6px rgba(255,232,170,1))
+                     drop-shadow(0 0 12px rgba(232,196,138,.7)); }
+}
+.close-corner { animation-name: corner-breathe-star; }
+.moon-corner:hover, .close-corner:hover {
+  animation-duration: 1.2s;
+}
+
+/* --- 47.3  title plaque — bigger + middle-line aligns to the
+   nav-card's outer top edge (plaque half above, half below).
+   Aspect locked to the dome PNG's natural 1200/675. --- */
+/* SPEC: plaque sits in upper portion, 60 % width, locked to
+   864/312 aspect → height = 60 % × 0.361 / 0.628 = 34.5 % of
+   nav-card height.                                            */
+.nav-card .title-plaque {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 34.5%;
+  background:
+    url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
+    center/100% 100% no-repeat;
+}
+.nav-card .title-plaque .tp-text {
+  position: absolute;
+  left: 50%;
+  top: 62%;            /* dropped further — user still saw it "high" */
+  transform: translate(-50%, -50%);
+  width: 80%;
+  text-align: center;
+  font-family: 'Cinzel Decorative', 'UnifrakturMaguntia',
+               'Cinzel', 'Cormorant Garamond',
+               'Bodoni 72', 'Didot', Georgia, serif;
+  font-style: normal;
+  font-weight: 400;                       /* NOT bold per user */
+  font-size: clamp(15px, 4vw, 22px);
+  line-height: 1.0;
+  letter-spacing: .04em;
+  color: #d6a464;
+  text-shadow:
+    0 0 4px  rgba(232,196,138,.4),
+    0 0 9px  rgba(218,168,104,.22),
+    0 1px 0  rgba(80,40,10,.4);
+  text-transform: none;
+  white-space: nowrap;
+}
+
+/* alpha BAR wider so letters aren't squished + breathe inside.
+   Search input has min-width:0 so iOS Safari's default
+   text-input min-width doesn't push it past the right edge.   */
+/* nav-card height ≈ 186 px on mobile.
+   alpha y = 45 %  = 84 px, height ~22 px  → bottom ~106 px
+   search y = 64 % = 119 px, height 22 px  → bottom ~141 px
+   bow zone starts ~80 % = 149 px
+   → gap alpha→search = 13 px, search→bow = 8 px               */
+/* === EXPLICIT ZONE LAYOUT inside the nav-card ===
+   Each child gets BOTH top: AND height: in % so it owns its
+   zone — content can never spill into the next one.  Works
+   on any phone size because everything is proportional.
+
+   PLAQUE   top:6 %   height:34 %   width:60 %
+   (gap)    7 %
+   ALPHA    top:47 %  height:18 %   left/right:18 %
+   (gap)    3 %
+   SEARCH   top:68 %  height:10 %   left/right:24 %
+   (gap)    2 %
+   BOW      80-100 % (decorative, no content)                 */
+.nav-card > .alpha-bar {
+  position: absolute;
+  top: 47%;
+  height: 18%;
+  left: 18%;
+  right: 18%;
+}
+.nav-card > .index-search {
+  position: absolute;
+  top: 68%;
+  height: 10%;
+  left: 24%;
+  right: 24%;
+  min-width: 0;
+  width: auto;
+}
+/* Note hub still uses .nav-card-body to host its 2 counter cards;
+   restore the absolute positioning so the counter row sits in the
+   lower-mid band of the frame, clear of plaque AND bow.            */
+.nav-card .nav-card-body {
+  position: absolute;
+  top: 45%;
+  left: 18%;
+  right: 18%;
+  bottom: 18%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 4px;
+}
+.nav-card .nav-card-body--center {
+  justify-content: center;
+}
+
+/* --- 47.5  counter buttons — strip the ugly boxes, let the
+   numbers float freestanding like the "0/4" in the reference png --- */
+.nav-card .counter-row {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+.nav-card .counter-row .bucket-card {
+  flex: 1;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  padding: 0;
+  color: var(--cream);
+  cursor: pointer;
+  text-align: center;
+  transition: transform .15s, filter .2s;
+}
+.nav-card .counter-row .bucket-card[disabled] { opacity: .3; cursor: default; }
+.nav-card .counter-row .bucket-card:hover:not([disabled]) {
+  filter: drop-shadow(0 0 10px rgba(237,184,158,.55));
+  transform: translateY(-1px);
+}
+.nav-card .counter-row .bucket-card .bk-hint {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--soft);
+  opacity: .7;
+  text-transform: lowercase;
+}
+.nav-card .counter-row .bucket-card .bk-value {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 46px;
+  line-height: 1.0;
+  color: var(--rose);
+  text-shadow: var(--rose-glow);
+  margin: 2px 0 0;
+}
+.nav-card .counter-row .bucket-card .bk-label {
+  font-family: var(--f-italic);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: .14em;
+  color: var(--gold-warm);
+  text-transform: lowercase;
+  margin-top: 2px;
+}
+
+/* --- 47.6  search box — sized to fit the narrow central column --- */
+.nav-card .index-search {
+  display: block;
+  margin: 0 auto;
+  padding: 1px 8px;
+  background: rgba(8,4,18,.30);
+  border: 1px solid rgba(214,164,100,.45);
+  border-radius: 0;
+  color: var(--cream);
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 9px;
+  letter-spacing: .06em;
+  outline: none;
+  text-align: center;
+  box-sizing: border-box;
+  /* height comes from the .nav-card > .index-search zone rule
+     (height:10 %).  Don't set 100 % here — that broke containment. */
+}
+.nav-card .index-search:focus { border-color: rgba(218,168,104,.75); }
+.nav-card .index-search::placeholder {
+  color: rgba(214,164,100,.7);             /* warm gold, italic */
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  letter-spacing: .14em;
+  font-size: 10px;
+  opacity: 1;
+}
+/* Fixed 13-column grid → 26 letters always lay out in exactly
+   2 rows (A-M / N-Z), never overflow.  zero margin / padding
+   so it doesn't push the search bar out of the body bounds.   */
+.nav-card .alpha-bar {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  justify-items: center;
+  align-items: center;
+  gap: 2px 4px;                  /* more breathing room between letters */
+  padding: 0 !important;
+  margin: 0 !important;
+  min-width: 0;
+  line-height: 1.1;
+  box-sizing: border-box;
+  overflow: visible;
+}
+.nav-card .alpha-bar a {
+  font-family: 'Snell Roundhand', 'Pinyon Script',
+               'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 9px;                          /* bigger letters per user */
+  letter-spacing: 0;
+  color: #d6a464;
+  text-shadow:
+    0 0 3px  rgba(232,196,138,.5),
+    0 0 7px  rgba(218,168,104,.26);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(184,138,58,.5);
+  text-decoration-thickness: 0.5px;
+  text-underline-offset: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+.nav-card .alpha-bar a:hover {
+  color: #ffeec5;
+  text-shadow:
+    0 0 8px  rgba(232,196,138,.85),
+    0 0 22px rgba(218,168,104,.6);
+  text-decoration-color: rgba(232,196,138,.9);
+}
+.nav-card .alpha-bar a.ab-disabled {
+  /* same colour as the rest — user found the muted distinction
+     visually noisy.  click is a no-op via pointer-events.       */
+  pointer-events: none;
+  cursor: default;
+}
+
+/* --- 47.7  the word list now lives BELOW the nav card --- */
+.word-list {
+  width: min(92vw, 520px);
+  margin: 0 auto 32px;
+  padding: 6px 12px 14px;
+  box-sizing: border-box;
+  /* NO background — frosted glass killed per user ("好现代 不行").
+     Bg-note scenery shows through unhindered.                     */
+}
+.word-list .alpha-section-title {
+  /* Section heading capitals — calligraphic + lit, matching the
+     A-Z bar inside the nav-card. */
+  font-family: 'Snell Roundhand', 'Pinyon Script',
+               'Edwardian Script ITC', 'Apple Chancery',
+               'EB Garamond', Georgia, cursive;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 26px;
+  color: #d6a464;
+  text-shadow:
+    0 0 8px  rgba(232,196,138,.7),
+    0 0 18px rgba(218,168,104,.45);
+  margin: 14px 4px 6px;
+  padding-bottom: 3px;
+  border-bottom: none;
+  text-align: center;
+  letter-spacing: .04em;
+}
+.word-list .alpha-section-title:first-child { margin-top: 2px; }
+/* --- word row — vellum TOC layout per the reference:
+       ✦  EN  v.  · · · · · · · ·  CN  ✦
+   one dotted leader (NO row border), a four-point star on each
+   end, sizes tuned to the reference. --- */
+.word-list .word-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 4px 4px;                    /* tighter line spacing */
+  cursor: pointer;
+  transition: background-color .18s;
+  border: 0;
+}
+.word-list .word-row:hover { background: rgba(237,184,158,.05); }
+.word-list .word-row::before,
+.word-list .word-row::after {
+  content: "✦";
+  flex: 0 0 auto;
+  font-size: 8px;
+  color: rgba(212,184,144,.5);
+  align-self: center;
+  line-height: 1;
+}
+.word-list .word-row .wr-word {
+  flex: 0 0 auto;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 15px;                         /* bigger per user */
+  color: #d6a464;
+  text-shadow:
+    0 0 4px  rgba(232,196,138,.55),
+    0 0 10px rgba(218,168,104,.28);
+  letter-spacing: .01em;
+}
+.word-list .word-row .wr-pos {
+  flex: 0 0 auto;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 9px;
+  /* Pushed toward PINK on the pink-mauve axis. */
+  color: #d6a5cd;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.word-list .word-row .wr-leader {
+  flex: 1 1 auto;
+  min-width: 14px;
+  height: 0;
+  align-self: center;
+  border-top: 1px dotted rgba(214,165,205,.55);  /* same pinker mauve */
+  margin: 0;
+}
+.word-list .word-row .wr-zh {
+  flex: 0 0 auto;
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 8.5px;
+  color: #6a5388;
+  letter-spacing: .04em;
+  text-align: right;
+  word-break: keep-all;
+}
+
+/* tighten hub-screen padding so the nav card sits right under the
+   banner with no big empty gap between them */
+#screen-note,
+#screen-note-bucket,
+#screen-index {
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+  padding-top: 2px !important;
+}
+
+/* All dead-code .nav-zone / .page-panel blocks (~150 lines) removed
+   — those classes were never rendered by the JS after v=26.4.      */
+
+/* tighten hub-screen side padding so the panel can breathe */
+#screen-note,
+#screen-note-bucket,
+#screen-index {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* ============================================================
+   48. MATCH CARD — the core game button
+   ============================================================
+   States:
+     base       dark purple + thin gold edge, ✦ on BOTH sides
+     selected   pair-color HALO breathing around card (body
+                stays dark; the colour is in the border + glow)
+     correct    inside fills warm gold + double gold halo,
+                BUT border keeps its pair colour so the user
+                still reads "which pair this answer was"
+     wrong      darkened, no glow, faded
+   ============================================================ */
+
+/* ============================================================
+   v=26.46 — playing-card matching button (the canonical block)
+   ============================================================
+   Goal: a slim "night-color playing card", not a glowing acrylic
+   block.  Mantra: 轻骨架 + 有主体感 (light skeleton + body presence).
+
+   Layered structure (matters!):
+     1. outer 1px gold border           ← the card edge
+     2. inner 1px gold border (.mc-frame, inset 3px)   ← the inner rule
+     3. mirrored corner ornaments       ← left + right end, NOT corners
+        default = ✦ (neutral)
+        tagged  = ♥ ♦ ♠ ♣ for pairs 0..3 (matches selection colors)
+     4. body: subtle center radial highlight + soft vignette edges
+        (paper/velvet feel, NOT a flat purple slab)
+
+   Four states (visually distinct, no overlap):
+     default    — quiet, double gold rule, dark body, mirrored ✦
+     selected   — a wash of pair-color fog through the body, brighter
+                  inner rule, mirrored suit (♥♦♠♣), breathing halo
+     correct    — body lights gold + inner rule glows gold + corner
+                  suits turn warm gold, but the OUTER border keeps the
+                  pair color so we still see which pair was the answer
+     wrong      — sunk: halo gone, body dimmed, gold dulled, suit fade
+                  (no red cross — keyword: 失效, not 挨骂)              */
+
+/* ---------- the grid that holds 8 cards (game + result both) -------- */
+.match-grid,
+.match-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 4px 18px;
+  max-width: 460px;
+  margin: 14px auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ---------- the card itself ----------------------------------------- */
+/* !important on the paint properties — earlier .card base in this file
+   stamps every card with !important background/border/color, and we
+   need to win cleanly without spraying specificity hacks. */
+.card.card--match {
+  position: relative;
   display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  height: 56px !important;
+  padding: 0 26px !important;
+  border: 1px solid rgba(232, 200, 130, 0.42) !important;
+  border-radius: 5px !important;
+  background:
+    radial-gradient(ellipse 110% 80% at 50% 50%,
+                    rgba(232, 200, 130, 0.045) 0%,
+                    rgba(232, 200, 130, 0.012) 38%,
+                    transparent 72%),
+    linear-gradient(155deg,
+                    rgba(38, 24, 60, 0.92) 0%,
+                    rgba(22, 13, 40, 0.96) 100%) !important;
+  box-shadow:
+    inset 0 0 14px rgba(232, 200, 130, 0.05),
+    inset 0 0 22px rgba(0, 0, 0, 0.30),
+    0 2px 6px rgba(0, 0, 0, 0.40) !important;
+  color: #ecd6b0 !important;
+  font-family: 'Cormorant Garamond', 'EB Garamond', serif !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.025em !important;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s, border-color 0.3s, box-shadow 0.3s, color 0.25s !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.card.card--match:hover:not(.is-correct):not(.is-wrong) {
+  border-color: rgba(232, 200, 130, 0.62) !important;
+  box-shadow:
+    inset 0 0 16px rgba(232, 200, 130, 0.07),
+    inset 0 0 22px rgba(0, 0, 0, 0.30),
+    0 2px 6px rgba(0, 0, 0, 0.40) !important;
+}
+.card.card--match:active:not(.is-correct):not(.is-wrong) {
+  transform: translateY(1px);
+}
+
+/* ---------- inner gold rule (the double-frame) ---------------------- */
+.card.card--match .mc-frame {
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(232, 200, 130, 0.22);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.card.card--match .mc-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- mirrored corner ornaments (left end + right end) -------- */
+.card.card--match::before,
+.card.card--match::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-style: normal;
+  font-family: serif;
+  color: rgba(232, 200, 130, 0.55);
+  pointer-events: none;
+  line-height: 1;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+.card.card--match::before { left: 11px; }
+.card.card--match::after  { right: 11px; }
+
+/* ============= SELECTED — wash of pair color ============= */
+.card.card--match.tag-0,
+.card.card--match.tag-1,
+.card.card--match.tag-2,
+.card.card--match.tag-3 {
+  animation: match-halo 2.6s ease-in-out infinite;
+}
+.card.card--match.tag-0 .mc-frame,
+.card.card--match.tag-1 .mc-frame,
+.card.card--match.tag-2 .mc-frame,
+.card.card--match.tag-3 .mc-frame {
+  border-color: rgba(255, 235, 180, 0.55);
+}
+
+/* tag-0 → ♥ on rose */
+.card.card--match.tag-0 {
+  --halo:      rgba(199, 122, 149, 0.62);
+  --halo-deep: rgba(199, 122, 149, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(220, 145, 170, 0.40) 0%,
+                    rgba(199, 122, 149, 0.18) 50%,
+                    rgba(199, 122, 149, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(58, 30, 50, 0.92) 0%,
+                    rgba(32, 14, 28, 0.96) 100%) !important;
+  border-color: rgba(230, 158, 180, 0.90) !important;
+  color: #fadce4 !important;
+}
+.card.card--match.tag-0::before,
+.card.card--match.tag-0::after {
+  content: '\2665';   /* ♥ */
+  color: rgba(252, 208, 222, 0.95);
+  text-shadow: 0 0 5px rgba(220, 145, 170, 0.65);
+}
+
+/* tag-1 → ♦ on cinnamon gold */
+.card.card--match.tag-1 {
+  --halo:      rgba(214, 165, 100, 0.62);
+  --halo-deep: rgba(214, 165, 100, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(232, 188, 120, 0.40) 0%,
+                    rgba(214, 165, 100, 0.18) 50%,
+                    rgba(214, 165, 100, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(62, 38, 28, 0.92) 0%,
+                    rgba(32, 18, 14, 0.96) 100%) !important;
+  border-color: rgba(238, 196, 128, 0.92) !important;
+  color: #fae6c2 !important;
+}
+.card.card--match.tag-1::before,
+.card.card--match.tag-1::after {
+  content: '\2666';   /* ♦ */
+  color: rgba(250, 212, 150, 0.95);
+  text-shadow: 0 0 5px rgba(214, 165, 100, 0.65);
+}
+
+/* tag-2 → ♠ on amethyst */
+.card.card--match.tag-2 {
+  --halo:      rgba(170, 145, 220, 0.62);
+  --halo-deep: rgba(170, 145, 220, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(188, 168, 232, 0.40) 0%,
+                    rgba(170, 145, 220, 0.18) 50%,
+                    rgba(170, 145, 220, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(46, 32, 78, 0.92) 0%,
+                    rgba(22, 14, 48, 0.96) 100%) !important;
+  border-color: rgba(200, 178, 240, 0.90) !important;
+  color: #e2d8f8 !important;
+}
+.card.card--match.tag-2::before,
+.card.card--match.tag-2::after {
+  content: '\2660';   /* ♠ */
+  color: rgba(220, 208, 244, 0.95);
+  text-shadow: 0 0 5px rgba(170, 145, 220, 0.65);
+}
+
+/* tag-3 → ♣ on celadon */
+.card.card--match.tag-3 {
+  --halo:      rgba(140, 192, 175, 0.62);
+  --halo-deep: rgba(140, 192, 175, 0.36);
+  background:
+    radial-gradient(ellipse 110% 85% at 50% 50%,
+                    rgba(160, 215, 195, 0.40) 0%,
+                    rgba(140, 192, 175, 0.18) 50%,
+                    rgba(140, 192, 175, 0.04) 90%),
+    linear-gradient(155deg,
+                    rgba(28, 52, 58, 0.92) 0%,
+                    rgba(12, 28, 32, 0.96) 100%) !important;
+  border-color: rgba(176, 224, 204, 0.90) !important;
+  color: #d8eee2 !important;
+}
+.card.card--match.tag-3::before,
+.card.card--match.tag-3::after {
+  content: '\2663';   /* ♣ */
+  color: rgba(204, 236, 220, 0.95);
+  text-shadow: 0 0 5px rgba(140, 192, 175, 0.65);
+}
+
+/* the breathing halo for selected cards (soft, not a strobe).
+   !important on each frame because the .card base in this file is
+   already stamping a box-shadow with !important — without it, the
+   animation never paints. */
+@keyframes match-halo {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 14px rgba(232, 200, 130, 0.06),
+      inset 0 0 22px rgba(0, 0, 0, 0.30),
+      0 0 8px var(--halo-deep),
+      0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  }
+  50% {
+    box-shadow:
+      inset 0 0 16px rgba(232, 200, 130, 0.08),
+      inset 0 0 22px rgba(0, 0, 0, 0.30),
+      0 0 14px var(--halo),
+      0 0 24px var(--halo-deep),
+      0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* ============= CORRECT — gold body, pair-color border kept ============= */
+.card.card--match.is-correct {
+  animation: none;
+  background:
+    radial-gradient(ellipse 105% 80% at 50% 50%,
+                    rgba(255, 222, 165, 0.42) 0%,
+                    rgba(232, 188, 120, 0.22) 50%,
+                    rgba(196, 152, 88, 0.10) 100%),
+    linear-gradient(155deg,
+                    rgba(86, 56, 36, 0.78) 0%,
+                    rgba(56, 32, 18, 0.88) 100%) !important;
+  color: #fff1d0 !important;
+  text-shadow: 0 0 6px rgba(255, 232, 186, 0.45);
+  box-shadow:
+    inset 0 0 18px rgba(255, 232, 170, 0.32),
+    inset 0 0 26px rgba(0, 0, 0, 0.18),
+    0 0 14px rgba(232, 188, 120, 0.50),
+    0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  /* outer border-color stays from .tag-N — pair info preserved */
+}
+.card.card--match.is-correct .mc-frame {
+  border-color: rgba(255, 232, 170, 0.65);
+  box-shadow: inset 0 0 6px rgba(255, 232, 170, 0.18);
+}
+.card.card--match.is-correct::before,
+.card.card--match.is-correct::after {
+  color: rgba(255, 232, 170, 0.92);
+  text-shadow: 0 0 5px rgba(255, 232, 170, 0.55);
+}
+
+/* ============= WRONG — sunk, dim, dulled (no scolding) ============= */
+.card.card--match.is-wrong {
+  animation: none;
+  background: linear-gradient(155deg,
+                              rgba(24, 16, 38, 0.92) 0%,
+                              rgba(14, 10, 24, 0.95) 100%) !important;
+  border-color: rgba(232, 200, 130, 0.22) !important;
+  color: rgba(212, 195, 168, 0.72) !important;
+  box-shadow:
+    inset 0 0 10px rgba(0, 0, 0, 0.40),
+    0 2px 4px rgba(0, 0, 0, 0.30) !important;
+  opacity: 0.88;
+  filter: saturate(0.5);
+  pointer-events: none;
+}
+.card.card--match.is-wrong .mc-frame {
+  border-color: rgba(232, 200, 130, 0.14);
+}
+.card.card--match.is-wrong::before,
+.card.card--match.is-wrong::after {
+  color: rgba(200, 180, 140, 0.42);
+  text-shadow: none;
+}
+
+/* result-page ✓ / ✗ — small, tucked above the headword */
+.card.card--match .tile-mark {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0;
+  font-style: normal;
+  font-family: serif;
+}
+.card.card--match.is-correct .tile-mark {
+  color: rgba(255, 232, 170, 0.85);
+  text-shadow: 0 0 4px rgba(255, 232, 170, 0.5);
+}
+.card.card--match.is-wrong .tile-mark {
+  color: rgba(180, 130, 145, 0.5);
+}
+
+/* ============================================================
+   49. PARCHMENT POPUP (single-word study card)
+   ============================================================
+   Floats above the page as a scroll-shaped popup, NOT a full
+   screen.  Surroundings are transparent so the page behind
+   stays visible but dimmed + blurred.
+
+   Pixel-measured safe text zone of E993B660 (900×1350):
+     top:    15 %    bottom: 16 %
+     left:   17 %    right:  16 %
+   Those become the .parchment-card padding so text never lands
+   on the top scroll roll / bottom quill / side decorations.
+   ============================================================ */
+.parchment-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(18, 10, 32, 0.55);     /* dim, NOT black */
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  cursor: pointer;
+  animation: parch-veil-in 0.32s ease-out;
+}
+.parchment-veil.is-leaving { animation: parch-veil-out 0.24s ease-in forwards; }
+@keyframes parch-veil-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes parch-veil-out { from { opacity: 1; } to { opacity: 0; } }
+
+.parchment-card {
+  position: relative;
+  /* Larger again per design owner */
+  width:  min(98vw, 500px);
+  height: min(147vw, 750px);              /* 98vw × 1350/900 = 147vw */
+  background:
+    url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
+    center/100% 100% no-repeat;
+  padding: 24% 19% 22% 19%;
+  box-sizing: border-box;
+  cursor: default;
+  animation: parch-card-in 0.42s cubic-bezier(.2,.7,.2,1);
+}
+.parchment-veil.is-leaving .parchment-card {
+  animation: parch-card-out 0.24s ease-in forwards;
+}
+@keyframes parch-card-in {
+  0%   { opacity: 0; transform: scale(.92) translateY(8px); }
+  100% { opacity: 1; transform: scale(1)   translateY(0); }
+}
+@keyframes parch-card-out {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(.96); }
+}
+
+/* The ONLY place children can render — sized exactly to the
+   safe zone, with internal scroll if content exceeds.         */
+.parchment-inner {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #3e2812;                          /* dark sepia on cream */
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-size: 13px;
+  line-height: 1.4;
+  /* Hide the scrollbar visually but keep scroll behaviour. */
+  scrollbar-width: none;
+}
+.parchment-inner::-webkit-scrollbar { display: none; }
+
+/* === ZONE 1: word header — sticky at top of inner area === */
+.parchment-inner .pc-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(110, 63, 18, 0.32);
+}
+.parchment-inner .pc-speak {
+  background: none;
+  border: 0;
+  color: #6a3d12;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+.parchment-inner .pc-word {
+  /* Calligraphic / handwritten — readability sacrificed for
+     the antique-signature feel the user asked for.  Pinyon
+     Script falls back to Snell Roundhand (iOS) and Italianno. */
+  font-family: 'Pinyon Script', 'Snell Roundhand', 'Italianno',
+               'Apple Chancery', 'Cormorant Garamond', serif;
+  font-style: normal;
+  font-size: 28px;
+  font-weight: 400;
+  color: #4a2a0e;
+  text-shadow: 0 1px 0 rgba(255,238,210,.4);
+  letter-spacing: .01em;
+  line-height: 1;
+}
+.parchment-inner .pc-pos {
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 11px;
+  color: #876239;
+}
+.parchment-inner .pc-zh {
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;                         /* smaller — was hitting flora */
+  color: #6a4626;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* === ZONE 2: section labels (HER FAMILY / FRIEND / NEIGHBOR) === */
+.parchment-inner .pc-section-label {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #876239;
+  margin-top: 4px;
+}
+
+/* === ZONE 3: word rows inside sections === */
+.parchment-inner .pc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.parchment-inner .pc-row-word {
+  /* Georgia (system, readable) + Caslon-style fallback chain. */
+  font-family: 'Libre Caslon Text', 'Caslon', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3e2812;
+  letter-spacing: .01em;
+}
+.parchment-inner .pc-row-pos {
+  font-family: 'Libre Caslon Text', 'Caslon', Georgia, serif;
+  font-style: italic;
+  font-size: 9.5px;
+  color: #876239;
+}
+.parchment-inner .pc-row-zh {
+  font-family: 'Libre Caslon Text', 'Caslon', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;
+  color: #6a4626;
+}
+.parchment-inner .pc-row-ex .pc-row-word {
+  font-size: 12px;
+  font-style: italic;
+  color: #4a2f15;
+}
+.parchment-inner .pc-row-ex-zh .pc-row-zh {
+  font-size: 10px;
+  margin-left: 12px;
+}
+
+/* === ZONE 4: copy line at the bottom === */
+.parchment-inner .pc-copy {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.parchment-inner .pc-copy {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.parchment-inner .pc-copy-label {
+  font-family: 'EB Garamond', 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  color: #876239;
+  white-space: nowrap;
+}
+.parchment-inner .pc-copy-rule {
+  /* short hairline, tapered to transparent at BOTH ends
+     so it doesn't reach the side flora.                  */
+  width: 45%;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(110, 63, 18, 0.5) 20%,
+    rgba(110, 63, 18, 0.5) 80%,
+    transparent 100%);
+  border: 0;
+}
+.parchment-inner .pc-copy-mark {
+  color: #8a5a18;
+  font-size: 11px;
+  opacity: 0.8;
 }

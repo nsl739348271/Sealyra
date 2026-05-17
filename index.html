@@ -12,17 +12,20 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Pinyon+Script&family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 
 <!-- Preload every background illustration in parallel so the
      screen-swap doesn't pause on a fresh download.                -->
-<link rel="preload" as="image" href="assets/bg-cover.png?v=25">
-<link rel="preload" as="image" href="assets/bg-stage.png?v=25">
-<link rel="preload" as="image" href="assets/bg-result.png?v=25">
-<link rel="preload" as="image" href="assets/bg-note.png?v=25">
-<link rel="preload" as="image" href="assets/banner.png?v=25">
+<link rel="preload" as="image" href="assets/bg-cover.png?v=26">
+<link rel="preload" as="image" href="assets/bg-stage.png?v=26">
+<link rel="preload" as="image" href="assets/bg-result.png?v=26">
+<link rel="preload" as="image" href="assets/bg-note.png?v=26">
+<link rel="preload" as="image" href="assets/banner.png?v=26">
+<link rel="preload" as="image" href="assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26">
+<link rel="preload" as="image" href="assets/6794E86E-172C-4BB8-ACCB-A167D352E97B.png?v=26">
+<link rel="preload" as="image" href="assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26">
 
-<link rel="stylesheet" href="styles.css?v=25">
+<link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body>
 
@@ -34,7 +37,7 @@
 
 <!-- Fixed banner at the very top of every screen. -->
 <header id="banner-top">
-  <img src="assets/banner.png?v=25" alt="Her Little Lexicon">
+  <img src="assets/banner.png?v=26" alt="Her Little Lexicon">
 </header>
 
 <!-- ===== App shell. Each <section> is one screen. =====
@@ -54,8 +57,10 @@
   <section id="screen-stage3-result" class="screen"></section>
 
   <!-- Cover-side: archive + word index -->
-  <section id="screen-note"  class="screen"></section>
-  <section id="screen-index" class="screen"></section>
+  <section id="screen-note"        class="screen"></section>
+  <!-- Note → bucket grid (soft slips / haunting words) -->
+  <section id="screen-note-bucket" class="screen"></section>
+  <section id="screen-index"       class="screen"></section>
 
   <!-- Vocab card detail (opened from note / index with the tarot flip) -->
   <section id="screen-card" class="screen"></section>
@@ -67,9 +72,9 @@
 
 <!-- Data + BGM + App  ----- loaded in order.  Query-string cache-buster
      forces the CDN edge to fetch the latest after every push.        -->
-<script src="data.js?v=25"></script>
-<script src="bgm.js?v=25"></script>
-<script src="app.js?v=25"></script>
+<script src="data.js?v=26"></script>
+<script src="bgm.js?v=26"></script>
+<script src="app.js?v=26"></script>
 
 </body>
 </html>
