@@ -4109,59 +4109,71 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Smaller + pushed higher per user request.
-     plaque_half = nav-card-width × 0.65 / 1.78 / 2 = nav-card-width × 0.1826
-     With nav-card-width = 82vw (mobile) → 14.97 vw (cap 95 px) */
+  /* Pinned tight under the banner (no overlap, no gap).  Title
+     plaque now lives INSIDE the frame (not straddling), so we
+     don't need any room above for a half-plaque.                */
   position: fixed;
-  top: calc(100vw * 821 / 1916 + 15vw);
+  top: calc(100vw * 821 / 1916 + 52px);   /* leaves a 52 px band
+                                              for the moon + star
+                                              corner icons above */
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
   width: min(82vw, 480px);
   aspect-ratio: 1000 / 750;
-  /* SOLID DARK FILL behind the frame PNG — without this, scrolled
-     word rows show through the PNG's transparent corners and outer
-     band.  Border-radius matches the frame's rounded shape so the
-     opaque fill doesn't poke past the visible frame edge.        */
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat,
-    #120a20;                          /* fully opaque dark — no ghosts */
+    #291f3a;                              /* deep purple sampled from bg-note */
   border-radius: 24px;
+  /* Soft fade-out at edges → blurs the dark fill into the bg-note
+     scenery instead of stamping a hard rectangle.                */
+  -webkit-mask-image: radial-gradient(ellipse 86% 78% at center,
+                                      #000 60%, transparent 100%);
+          mask-image: radial-gradient(ellipse 86% 78% at center,
+                                      #000 60%, transparent 100%);
 }
-/* Word list starts AFTER the nav-card bottom (= banner + 15vw + height) */
+/* Word list starts AFTER the nav-card bottom (= banner + 52 + height) */
 .word-list {
-  margin-top: calc(min(61.5vw, 360px) + 15vw) !important;
-}
-@media (min-width: 600px) {
-  .nav-card { top: calc(100vw * 821 / 1916 + 88px); }
-  .word-list { margin-top: calc(min(61.5vw, 360px) + 88px) !important; }
+  margin-top: calc(min(61.5vw, 360px) + 52px) !important;
 }
 
-/* --- 47.2  corner buttons "hanging" on the top of the nav-card.
-   Moon medallion grows bigger per user request (it's the showpiece);
-   the key stays compact as a small horizontal button. --- */
-.nav-card .moon-corner,
-.nav-card .close-corner {
-  position: absolute !important;
+/* --- 47.2  corner buttons — Moon + Star icons, pinned right under
+   the banner (NOT inside the nav-card).  Plain PNGs, no circle bg. */
+#screen-index > .moon-corner,
+#screen-index > .close-corner,
+#screen-note > .moon-corner,
+#screen-note > .close-corner,
+#screen-note-bucket > .moon-corner,
+#screen-note-bucket > .close-corner {
+  position: fixed !important;
+  top: calc(100vw * 821 / 1916 + 6px) !important;   /* tight under banner */
+  width: 38px !important;
+  height: 38px !important;
   bottom: auto !important;
-  filter: drop-shadow(0 2px 8px rgba(8,4,18,.6));
+  z-index: 60;
+  filter: drop-shadow(0 2px 6px rgba(8,4,18,.55));
+  background: transparent !important;
+  border: 0 !important;
 }
-.nav-card .moon-corner {
-  top: -4% !important;                  /* hangs over the top edge */
-  left: 2% !important;
+#screen-index > .moon-corner,
+#screen-note > .moon-corner,
+#screen-note-bucket > .moon-corner {
+  left: 10px !important;
   right: auto !important;
-  width: 58px !important;
-  height: 58px !important;
+  background:
+    url("assets/icon-moon.png?v=26")
+    center/contain no-repeat !important;
 }
-.nav-card .close-corner {
-  top: 1% !important;
-  right: 4% !important;
+#screen-index > .close-corner,
+#screen-note > .close-corner,
+#screen-note-bucket > .close-corner {
+  right: 10px !important;
   left: auto !important;
-  width: 40px !important;
-  height: 40px !important;
-  transform: rotate(90deg);              /* horizontal key */
-  transform-origin: 50% 50%;
+  background:
+    url("assets/icon-star8.png?v=26")
+    center/contain no-repeat !important;
+  transform: none;
 }
 
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
@@ -4169,14 +4181,11 @@ body.bg-result .match-result-grid > .card {
    Aspect locked to the dome PNG's natural 1200/675. --- */
 .nav-card .title-plaque {
   position: absolute;
-  /* Plaque middle = nav-card outer top edge.
-     plaque height = nav-card-width × 0.65 / 1.78 = nav-card-w × 0.365
-     plaque height / nav-card height = 0.365 / 0.75 = 48.6 %
-     half = 24.3 %, so top: -24% puts midpoint at 0 %.            */
-  top: -24%;
+  /* Plaque sits INSIDE the nav-card at top — no straddling now. */
+  top: 4%;
   left: 50%;
   transform: translateX(-50%);
-  width: 65%;                          /* smaller plaque, fits 82vw nav */
+  width: 62%;
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4209,19 +4218,18 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — under the plaque, A-Z pulled up so it
-   doesn't collide with the side flora --- */
+/* --- 47.4  body area — under the (in-frame) plaque --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 30%;
+  top: 44%;                /* plaque ~4-40 %, body starts after */
   left: 14%;
   right: 14%;
-  bottom: 18%;
+  bottom: 16%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 6px;
   padding-top: 2px;
 }
 .nav-card .nav-card-body--center {

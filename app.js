@@ -492,10 +492,9 @@ function renderIndexLikePage(el, { title, words, backTo = 'cover', fromKey = 'in
       ${words.length ? '' : `<div class="note-empty">no words yet · the page is still pristine</div>`}
     </div>
   `;
-  // Corner buttons pin to the nav-card corners.
-  const nav = $('.nav-card', el);
-  nav.appendChild(moonCorner());
-  nav.appendChild(closeCorner({ to: backTo }));
+  // Corner buttons hang right under the banner (NOT inside nav-card).
+  el.appendChild(moonCorner());
+  el.appendChild(closeCorner({ to: backTo }));
 
   $$('.alpha-bar a', el).forEach(a => {
     a.addEventListener('click', () => {
@@ -1334,10 +1333,9 @@ const Screens = {
           </div>
         </div>
       `;
-      // Corner buttons pin to the top corners of the nav-card.
-      const nav = $('.nav-card', el);
-      nav.appendChild(moonCorner());
-      nav.appendChild(closeCorner());
+      // Corner buttons hang right under the banner (NOT inside nav-card).
+      el.appendChild(moonCorner());
+      el.appendChild(closeCorner());
 
       $$('.bucket-card', el).forEach(b => b.addEventListener('click', () => {
         if (b.disabled) return;
