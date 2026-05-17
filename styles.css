@@ -4526,3 +4526,170 @@ body.bg-result .match-result-grid > .card {
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
+
+/* ============================================================
+   48. MATCH CARD — the core game button
+   ============================================================
+   States:
+     base       dark purple + thin gold edge, ✦ on BOTH sides
+     selected   pair-color HALO breathing around card (body
+                stays dark; the colour is in the border + glow)
+     correct    inside fills warm gold + double gold halo,
+                BUT border keeps its pair colour so the user
+                still reads "which pair this answer was"
+     wrong      darkened, no glow, faded
+   ============================================================ */
+
+.card.card--match {
+  /* reset the base .card defaults that fight the new design */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3.4 / 1;
+  width: min(40vw, 220px);
+  min-height: 50px;
+  padding: 8px 28px;
+  border: 1px solid rgba(232, 200, 130, 0.55) !important;
+  border-radius: 10px !important;
+  background: linear-gradient(180deg,
+      rgba(45, 31, 73, 0.92),
+      rgba(24, 17, 46, 0.96)) !important;
+  box-shadow:
+    inset 0 0 12px rgba(232, 200, 130, 0.08),
+    0 4px 12px rgba(10, 5, 22, 0.5) !important;
+  color: #f2dec0 !important;
+  font-family: 'Cormorant Garamond', 'EB Garamond', 'Times New Roman', serif !important;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 18px !important;
+  letter-spacing: 0.03em;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s, border-color 0.25s, box-shadow 0.3s, filter 0.25s;
+  -webkit-tap-highlight-color: transparent;
+  overflow: visible;
+}
+/* Twin ✦ stars on both sides — echo the index alphabet decoration. */
+.card.card--match::before,
+.card.card--match::after {
+  content: "✦";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: rgba(232, 200, 130, 0.55);
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(232, 200, 130, 0.4);
+}
+.card.card--match::before { left: 12px; }
+.card.card--match::after  { right: 12px; }
+
+/* === SELECTED — only the halo + border picks up the pair colour.
+   Body stays dark.  Soft breathing pulse hints "you've chosen me". */
+.card.card--match.tag-0,
+.card.card--match.tag-1,
+.card.card--match.tag-2,
+.card.card--match.tag-3 {
+  transform: scale(1.02);
+  animation: match-halo 2.6s ease-in-out infinite;
+}
+.card.card--match.tag-0 {
+  --halo:      rgba(199, 122, 149, 0.55);
+  --halo-deep: rgba(199, 122, 149, 0.32);
+  border-color: rgba(199, 122, 149, 0.9) !important;
+  color: #f5d4dc !important;
+}
+.card.card--match.tag-1 {
+  --halo:      rgba(184, 137, 99, 0.55);
+  --halo-deep: rgba(184, 137, 99, 0.32);
+  border-color: rgba(214, 165, 100, 0.9) !important;
+  color: #f4dfb8 !important;
+}
+.card.card--match.tag-2 {
+  --halo:      rgba(155, 132, 220, 0.55);
+  --halo-deep: rgba(155, 132, 220, 0.32);
+  border-color: rgba(170, 145, 220, 0.9) !important;
+  color: #ddd1f5 !important;
+}
+.card.card--match.tag-3 {
+  --halo:      rgba(123, 178, 162, 0.55);
+  --halo-deep: rgba(123, 178, 162, 0.32);
+  border-color: rgba(140, 192, 175, 0.9) !important;
+  color: #d2ead9 !important;
+}
+@keyframes match-halo {
+  0%, 100% { box-shadow:
+    inset 0 0 12px rgba(232, 200, 130, 0.05),
+    0 0 10px var(--halo-deep),
+    0 4px 12px rgba(10, 5, 22, 0.5) !important; }
+  50%      { box-shadow:
+    inset 0 0 12px rgba(232, 200, 130, 0.06),
+    0 0 18px var(--halo),
+    0 0 32px var(--halo-deep),
+    0 4px 12px rgba(10, 5, 22, 0.5) !important; }
+}
+
+/* === CORRECT — warm gold fill + double gold halo (matches index gold).
+   Border KEEPS its pair colour so the user can read which pair the
+   answer belonged to.                                                 */
+.card.card--match.is-correct {
+  animation: none;
+  background: linear-gradient(180deg,
+      rgba(232, 196, 138, 0.42),
+      rgba(214, 164, 100, 0.32)) !important;
+  color: #fff1d0 !important;
+  text-shadow: 0 0 8px rgba(255, 233, 186, 0.6);
+  /* border-color stays from .tag-N */
+  box-shadow:
+    inset 0 0 18px rgba(255, 232, 170, 0.5),
+    0 0 14px rgba(214, 164, 100, 0.6),
+    0 0 30px rgba(232, 196, 138, 0.4) !important;
+}
+.card.card--match.is-correct::before,
+.card.card--match.is-correct::after {
+  color: rgba(255, 233, 186, 0.9);
+  text-shadow: 0 0 6px rgba(255, 233, 186, 0.65);
+}
+
+/* === WRONG — darkened, desaturated, no halo.  Tag-colour border
+   stays as a quiet hint of "this is the pair you guessed".         */
+.card.card--match.is-wrong {
+  animation: none;
+  background: linear-gradient(180deg,
+      rgba(20, 12, 32, 0.95),
+      rgba(10, 6, 18, 0.98)) !important;
+  filter: brightness(0.55) saturate(0.55);
+  opacity: 0.72;
+  pointer-events: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+}
+.card.card--match.is-wrong::before,
+.card.card--match.is-wrong::after {
+  color: rgba(232, 200, 130, 0.25);
+}
+
+/* small ✓ / ✗ at the top of the result-card tiles */
+.card.card--match .tile-mark {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+.card.card--match.is-correct .tile-mark {
+  color: #f5d99a;
+  text-shadow: 0 0 6px rgba(255, 233, 186, 0.55);
+}
+.card.card--match.is-wrong .tile-mark {
+  color: rgba(230, 120, 145, 0.7);
+}
+.card.card--match .tile-text {
+  display: block;
+}
+
+/* hover (only on cards that are still clickable — selected/default) */
+.card.card--match:hover:not(.is-wrong):not(.is-correct) {
+  filter: brightness(1.08);
+}
