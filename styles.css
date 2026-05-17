@@ -4693,3 +4693,183 @@ body.bg-result .match-result-grid > .card {
 .card.card--match:hover:not(.is-wrong):not(.is-correct) {
   filter: brightness(1.08);
 }
+
+/* ============================================================
+   49. PARCHMENT POPUP (single-word study card)
+   ============================================================
+   Floats above the page as a scroll-shaped popup, NOT a full
+   screen.  Surroundings are transparent so the page behind
+   stays visible but dimmed + blurred.
+
+   Pixel-measured safe text zone of E993B660 (900×1350):
+     top:    15 %    bottom: 16 %
+     left:   17 %    right:  16 %
+   Those become the .parchment-card padding so text never lands
+   on the top scroll roll / bottom quill / side decorations.
+   ============================================================ */
+.parchment-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(18, 10, 32, 0.55);     /* dim, NOT black */
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  cursor: pointer;
+  animation: parch-veil-in 0.32s ease-out;
+}
+.parchment-veil.is-leaving { animation: parch-veil-out 0.24s ease-in forwards; }
+@keyframes parch-veil-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes parch-veil-out { from { opacity: 1; } to { opacity: 0; } }
+
+.parchment-card {
+  position: relative;
+  /* explicit width + height (NOT aspect-ratio + auto, which iOS
+     Safari occasionally drops on absolute children).             */
+  width:  min(86vw, 380px);
+  height: min(129vw, 570px);              /* 86vw × 1350/900 = 129vw */
+  background:
+    url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
+    center/100% 100% no-repeat;
+  /* Padding = pixel-measured safe zone of the scroll PNG. */
+  padding: 15% 16% 16% 17%;
+  box-sizing: border-box;
+  cursor: default;
+  animation: parch-card-in 0.42s cubic-bezier(.2,.7,.2,1);
+}
+.parchment-veil.is-leaving .parchment-card {
+  animation: parch-card-out 0.24s ease-in forwards;
+}
+@keyframes parch-card-in {
+  0%   { opacity: 0; transform: scale(.92) translateY(8px); }
+  100% { opacity: 1; transform: scale(1)   translateY(0); }
+}
+@keyframes parch-card-out {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(.96); }
+}
+
+/* The ONLY place children can render — sized exactly to the
+   safe zone, with internal scroll if content exceeds.         */
+.parchment-inner {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #3e2812;                          /* dark sepia on cream */
+  font-family: 'EB Garamond', 'Garamond', Georgia, serif;
+  font-size: 13px;
+  line-height: 1.4;
+  /* Hide the scrollbar visually but keep scroll behaviour. */
+  scrollbar-width: none;
+}
+.parchment-inner::-webkit-scrollbar { display: none; }
+
+/* === ZONE 1: word header — sticky at top of inner area === */
+.parchment-inner .pc-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(110, 63, 18, 0.32);
+}
+.parchment-inner .pc-speak {
+  background: none;
+  border: 0;
+  color: #6a3d12;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+.parchment-inner .pc-word {
+  font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 600;
+  color: #5a3818;
+  text-shadow: 0 1px 0 rgba(255,238,210,.4);
+  letter-spacing: .01em;
+}
+.parchment-inner .pc-pos {
+  font-style: italic;
+  font-size: 11px;
+  color: #876239;
+}
+.parchment-inner .pc-zh {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #6a4626;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* === ZONE 2: section labels (HER FAMILY / FRIEND / NEIGHBOR) === */
+.parchment-inner .pc-section-label {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #876239;
+  margin-top: 4px;
+}
+
+/* === ZONE 3: word rows inside sections === */
+.parchment-inner .pc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.parchment-inner .pc-row-word {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #3e2812;
+}
+.parchment-inner .pc-row-pos {
+  font-style: italic;
+  font-size: 10px;
+  color: #876239;
+}
+.parchment-inner .pc-row-zh {
+  font-style: italic;
+  font-size: 11px;
+  color: #6a4626;
+}
+
+/* === ZONE 4: copy line at the bottom === */
+.parchment-inner .pc-copy {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.parchment-inner .pc-copy-label {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #876239;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+.parchment-inner .pc-copy-rule {
+  flex: 1;
+  height: 0;
+  border-bottom: 1px dashed rgba(110, 63, 18, 0.4);
+}
+.parchment-inner .pc-copy-mark {
+  color: #8a5a18;
+  font-size: 12px;
+  opacity: 0.85;
+}

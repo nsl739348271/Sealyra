@@ -466,13 +466,89 @@ function copyLine() {
   `;
 }
 // Tap-handler for collection-page tiles: nudge the tile (~8° wobble) +
-// page-turn SFX, then navigate to the single-page parchment.
+// page-turn SFX, then OPEN the parchment popup (not full-screen page).
 function flipToCard(tile, word, from) {
   if (tile.classList.contains('is-flipping')) return;
   tile.classList.add('is-flipping');
   SFX.pageTurn();
-  setTimeout(() => go('card', { word, from }), 340);
+  setTimeout(() => {
+    tile.classList.remove('is-flipping');
+    showParchment(word);
+  }, 340);
 }
+
+// Parchment popup — a scroll-shaped modal that floats over the
+// current page.  Text is strictly fenced inside .parchment-inner
+// (sized to the cream paper's safe zone via padding on .parchment-card),
+// so no glyph ever lands on a scroll roll or quill decoration.
+let _activeParchment = null;
+function showParchment(word) {
+  if (_activeParchment) closeParchment();
+  const c = CARDS[word];
+  if (!c) return;
+
+  const veil = document.createElement('div');
+  veil.className = 'parchment-veil';
+  veil.innerHTML = `
+    <div class="parchment-card">
+      <div class="parchment-inner">
+        <div class="pc-head">
+          <button class="pc-speak" data-sp="${escapeAttr(c.h)}" aria-label="play">♪</button>
+          <span class="pc-word">${escapeHtml(c.h)}</span>
+          <span class="pc-pos">${escapeHtml((c.pos || '').slice(0, 3))}.</span>
+          <span class="pc-zh">${escapeHtml(c.zh || '')}</span>
+        </div>
+        <div class="pc-body"></div>
+        <div class="pc-copy">
+          <span class="pc-copy-label">copy this word softly</span>
+          <span class="pc-copy-rule"></span>
+          <span class="pc-copy-mark">✦</span>
+        </div>
+      </div>
+    </div>
+  `;
+  const body = veil.querySelector('.pc-body');
+  if (c.family && c.family.length) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her family</div>`);
+    c.family.forEach(line => {
+      const [w, pos] = line.split('|').map(s => s.trim());
+      body.insertAdjacentHTML('beforeend',
+        `<div class="pc-row"><span class="pc-row-word">${escapeHtml(w)}</span> <span class="pc-row-pos">${escapeHtml(pos)}</span></div>`);
+    });
+  }
+  if (c.neighbor && c.neighbor.length) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her neighbor</div>`);
+    c.neighbor.forEach(line => {
+      const [w, zh] = line.split('|').map(s => s.trim());
+      body.insertAdjacentHTML('beforeend',
+        `<div class="pc-row"><span class="pc-row-word">${escapeHtml(w)}</span> <span class="pc-row-zh">${escapeHtml(zh || '')}</span></div>`);
+    });
+  }
+  // tap the speak button → play audio
+  veil.querySelector('.pc-speak').addEventListener('click', e => {
+    e.stopPropagation();
+    SFX.tap();
+    speak(c.h);
+  });
+  // tap the veil (anywhere OUTSIDE the parchment) closes it
+  veil.addEventListener('click', e => {
+    if (e.target === veil) closeParchment();
+  });
+  // ESC also closes
+  document.addEventListener('keydown', _onParchEsc);
+
+  document.body.appendChild(veil);
+  _activeParchment = veil;
+}
+function closeParchment() {
+  if (!_activeParchment) return;
+  const v = _activeParchment;
+  v.classList.add('is-leaving');
+  document.removeEventListener('keydown', _onParchEsc);
+  setTimeout(() => v.remove(), 260);
+  _activeParchment = null;
+}
+function _onParchEsc(e) { if (e.key === 'Escape') closeParchment(); }
 
 // v=26.2 — index-style listing wrapped in the page panel (0511DE6F
 // frame).  Used by both the full index and the note-bucket page so
