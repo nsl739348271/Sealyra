@@ -516,13 +516,22 @@ function showParchment(word) {
         `<div class="pc-row"><span class="pc-row-word">${escapeHtml(w)}</span> <span class="pc-row-pos">${escapeHtml(pos)}</span></div>`);
     });
   }
-  if (c.neighbor && c.neighbor.length) {
-    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her neighbor</div>`);
-    c.neighbor.forEach(line => {
-      const [w, zh] = line.split('|').map(s => s.trim());
+  if (c.colloc && c.colloc.length) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her friend</div>`);
+    c.colloc.forEach(line => {
+      const [phrase, zh] = line.split('|').map(s => s.trim());
       body.insertAdjacentHTML('beforeend',
-        `<div class="pc-row"><span class="pc-row-word">${escapeHtml(w)}</span> <span class="pc-row-zh">${escapeHtml(zh || '')}</span></div>`);
+        `<div class="pc-row"><span class="pc-row-word">${escapeHtml(phrase)}</span> <span class="pc-row-zh">${escapeHtml(zh || '')}</span></div>`);
     });
+  }
+  if (c.example) {
+    body.insertAdjacentHTML('beforeend', `<div class="pc-section-label">her sentence</div>`);
+    body.insertAdjacentHTML('beforeend',
+      `<div class="pc-row pc-row-ex"><span class="pc-row-word">${escapeHtml(c.example)}</span></div>`);
+    if (c.example_zh) {
+      body.insertAdjacentHTML('beforeend',
+        `<div class="pc-row pc-row-ex-zh"><span class="pc-row-zh">${escapeHtml(c.example_zh)}</span></div>`);
+    }
   }
   // tap the speak button → play audio
   veil.querySelector('.pc-speak').addEventListener('click', e => {

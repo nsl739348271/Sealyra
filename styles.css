@@ -4728,13 +4728,11 @@ body.bg-result .match-result-grid > .card {
 .parchment-card {
   position: relative;
   /* Larger again per design owner */
-  width:  min(96vw, 460px);
-  height: min(144vw, 690px);              /* 96vw × 1350/900 = 144vw */
+  width:  min(98vw, 500px);
+  height: min(147vw, 750px);              /* 98vw × 1350/900 = 147vw */
   background:
     url("assets/E993B660-7AD9-4806-AA02-4ADC58F30901.png?v=26")
     center/100% 100% no-repeat;
-  /* Top padding pushed deeper so the headword tucks well inside
-     the faint rounded-rectangle border drawn on the scroll.    */
   padding: 24% 19% 22% 19%;
   box-sizing: border-box;
   cursor: default;
@@ -4836,9 +4834,8 @@ body.bg-result .match-result-grid > .card {
   flex-wrap: wrap;
 }
 .parchment-inner .pc-row-word {
-  /* Vintage serif italic for the entries — handwritten ledger feel
-     without sacrificing readability the way the headword script does. */
-  font-family: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+  /* Georgia (system, readable) + Caslon-style fallback chain. */
+  font-family: 'Libre Caslon Text', 'Caslon', Georgia, 'Times New Roman', serif;
   font-style: italic;
   font-size: 13px;
   font-weight: 500;
@@ -4846,16 +4843,25 @@ body.bg-result .match-result-grid > .card {
   letter-spacing: .01em;
 }
 .parchment-inner .pc-row-pos {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Libre Caslon Text', 'Caslon', Georgia, serif;
   font-style: italic;
   font-size: 9.5px;
   color: #876239;
 }
 .parchment-inner .pc-row-zh {
-  font-family: 'EB Garamond', Georgia, serif;
+  font-family: 'Libre Caslon Text', 'Caslon', Georgia, serif;
   font-style: italic;
   font-size: 10px;
   color: #6a4626;
+}
+.parchment-inner .pc-row-ex .pc-row-word {
+  font-size: 12px;
+  font-style: italic;
+  color: #4a2f15;
+}
+.parchment-inner .pc-row-ex-zh .pc-row-zh {
+  font-size: 10px;
+  margin-left: 12px;
 }
 
 /* === ZONE 4: copy line at the bottom === */
@@ -4866,22 +4872,37 @@ body.bg-result .match-result-grid > .card {
   align-items: center;
   gap: 8px;
 }
+.parchment-inner .pc-copy {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
 .parchment-inner .pc-copy-label {
-  font-family: 'Pinyon Script', 'Snell Roundhand', 'Italianno',
-               'Cormorant Garamond', serif;
-  font-size: 13px;
-  letter-spacing: 0.06em;
+  font-family: 'EB Garamond', 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
   color: #876239;
   white-space: nowrap;
 }
 .parchment-inner .pc-copy-rule {
-  flex: 1;
-  height: 0;
-  /* solid hairline ink, not dashed — feels like a real signature line */
-  border-bottom: 1px solid rgba(110, 63, 18, 0.55);
+  /* short hairline, tapered to transparent at BOTH ends
+     so it doesn't reach the side flora.                  */
+  width: 45%;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent 0%,
+    rgba(110, 63, 18, 0.5) 20%,
+    rgba(110, 63, 18, 0.5) 80%,
+    transparent 100%);
+  border: 0;
 }
 .parchment-inner .pc-copy-mark {
   color: #8a5a18;
-  font-size: 12px;
-  opacity: 0.85;
+  font-size: 11px;
+  opacity: 0.8;
 }
