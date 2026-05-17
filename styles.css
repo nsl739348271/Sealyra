@@ -4124,22 +4124,23 @@ body.bg-result .match-result-grid > .card {
   /* No background fill here any more — the full-width .nav-shield
      sister element provides the dark band underneath.            */
 }
-/* Full-width darken band that blocks scrolling word rows from
-   showing past the left/right of the (narrower) nav-card.       */
+/* Full-width darken band — extends UP all the way to the banner
+   (no gap) so no list text can sneak between banner and nav-card. */
 .nav-shield {
   position: fixed;
-  top: calc(100vw * 821 / 1916 + 6px);
+  top: calc(100vw * 821 / 1916);          /* hug the banner bottom */
   left: 0;
   right: 0;
-  height: min(57vw, 345px);
-  background: #18102a;                  /* deeper purple per user */
-  z-index: 49;                          /* under nav-card (50) */
-  /* Wider, softer fade so the dark band dissolves into bg-note
-     instead of stamping a hard horizontal slab.                  */
+  height: min(63vw, 360px);               /* +6 px to cover the
+                                              gap + nav-card area */
+  background: #18102a;
+  z-index: 49;
+  /* TOP edge fully opaque (covers from the banner edge down).
+     BOTTOM edge soft-fades into the bg-note scenery.            */
   -webkit-mask-image: linear-gradient(180deg,
-    transparent 0%, #000 26%, #000 74%, transparent 100%);
+    #000 0%, #000 70%, transparent 100%);
           mask-image: linear-gradient(180deg,
-    transparent 0%, #000 26%, #000 74%, transparent 100%);
+    #000 0%, #000 70%, transparent 100%);
   pointer-events: none;
 }
 /* Word list starts AFTER the nav-card / shield bottom (= banner + 6 + height) */
@@ -4193,13 +4194,14 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
+/* Plaque tucked into the inner safe field, sized so search + A-Z
+   have room beneath it inside the frame. */
 .nav-card .title-plaque {
   position: absolute;
-  /* BIGGER plaque so the text fits comfortably inside the dome. */
-  top: 2%;
+  top: 7%;
   left: 50%;
   transform: translateX(-50%);
-  width: 74%;
+  width: 50%;                     /* smaller so body has more room */
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4209,36 +4211,36 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  top: 50%;
+  /* Optical centre of the dome's text band sits at ~56 % of
+     plaque height (the spire takes some of the upper area). */
+  top: 56%;
   transform: translate(-50%, -50%);
   width: 78%;
   text-align: center;
-  /* Cormorant Garamond italic is the safe pretty choice — it loads
-     reliably (Google) and falls back to system serifs cleanly.    */
   font-family: 'Cormorant Garamond', 'EB Garamond', 'Cinzel',
                'Bodoni 72', 'Didot', Georgia, serif;
   font-style: italic;
-  font-weight: 500;
-  font-size: clamp(17px, 4.4vw, 24px);
+  font-weight: 700;                       /* bolded per user */
+  font-size: clamp(14px, 3.6vw, 20px);
   line-height: 1.0;
-  letter-spacing: .03em;
+  letter-spacing: .04em;
   color: #d6a464;
   text-shadow:
-    0 0 8px  rgba(232,196,138,.7),
-    0 0 18px rgba(218,168,104,.45),
-    0 1px 0  rgba(80,40,10,.45);
+    0 0 8px  rgba(232,196,138,.75),
+    0 0 18px rgba(218,168,104,.5),
+    0 1px 0  rgba(80,40,10,.5);
   text-transform: none;
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — sits under the (bigger) in-frame plaque
-   which now reaches ~57 % of nav-card height                  --- */
+/* --- 47.4  body area — under the smaller plaque, generous
+   vertical room so search + alpha-bar fit cleanly             --- */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 59%;
-  left: 14%;
-  right: 14%;
-  bottom: 14%;
+  top: 45%;                 /* just below the (smaller) plaque */
+  left: 20%;                /* clears the side flora */
+  right: 20%;
+  bottom: 20%;              /* clears the bow */
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -4306,25 +4308,24 @@ body.bg-result .match-result-grid > .card {
   margin-top: 2px;
 }
 
-/* --- 47.6  search box — small, square, hairline gold edge;
-   placeholder is a tiny italic gold "SEARCH WORDS…" --- */
+/* --- 47.6  search box — small, square, hairline gold edge --- */
 .nav-card .index-search {
   display: block;
-  width: 60%;                              /* smaller per user */
+  width: 90%;                              /* fits in tight body */
   margin: 0 auto;
-  padding: 3px 8px;
+  padding: 2px 6px;
   background: rgba(8,4,18,.30);
   border: 1px solid rgba(214,164,100,.45);
-  border-radius: 0;                        /* SQUARE */
+  border-radius: 0;
   color: var(--cream);
   font-family: 'EB Garamond', 'Garamond', Georgia, serif;
   font-style: italic;
-  font-size: 11px;
-  letter-spacing: .06em;
+  font-size: 10px;
+  letter-spacing: .04em;
   outline: none;
   text-align: center;
   box-sizing: border-box;
-  height: 20px;
+  height: 18px;
 }
 .nav-card .index-search:focus { border-color: rgba(218,168,104,.75); }
 .nav-card .index-search::placeholder {
@@ -4339,30 +4340,26 @@ body.bg-result .match-result-grid > .card {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0 6px;
-  line-height: 1.5;
-  padding: 0 2px;
+  gap: 0 4px;
+  line-height: 1.35;
+  padding: 0;
 }
 .nav-card .alpha-bar a {
-  /* Calligraphic italic with the same warm-gold glow the title
-     uses — readers feel the letters are "lit" decorations, not
-     buttons stamped from a stock UI kit.                        */
   font-family: 'Snell Roundhand', 'Pinyon Script',
-               'Edwardian Script ITC', 'Apple Chancery',
-               'EB Garamond', Georgia, cursive;
+               'Cormorant Garamond', 'EB Garamond', Georgia, cursive;
   font-style: italic;
   font-weight: 500;
-  font-size: 14px;                         /* a touch bigger now */
-  letter-spacing: .04em;
+  font-size: 10.5px;                       /* fits the tight body */
+  letter-spacing: .02em;
   color: #d6a464;
   text-shadow:
-    0 0 6px  rgba(232,196,138,.65),
-    0 0 14px rgba(218,168,104,.4);
+    0 0 5px  rgba(232,196,138,.55),
+    0 0 11px rgba(218,168,104,.32);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: rgba(184,138,58,.5);
   text-decoration-thickness: 0.5px;
-  text-underline-offset: 3px;
+  text-underline-offset: 2px;
 }
 .nav-card .alpha-bar a:hover {
   color: #ffeec5;
