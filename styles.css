@@ -4109,38 +4109,38 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* HUG the banner — no gap.  top = banner-end exactly. */
+  /* PNG was just cropped to its opaque bounds: 951×597 (aspect 1.59).
+     Now the element's edges = the visible frame's edges, so child
+     positions stop landing inside invisible transparent padding.   */
   position: fixed;
   top: calc(100vw * 821 / 1916);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
   width: min(76vw, 460px);
-  aspect-ratio: 1000 / 750;
+  aspect-ratio: 951 / 597;
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
 }
-/* Full-width darken band extends FURTHER DOWN to cover the
-   bg-note area where word rows would otherwise show at the
-   bottom edges of the (narrower) nav-card.                    */
+/* Full-width darken band, sized for the new (shorter) nav-card.
+   nav-card height ≈ 76 vw × (597/951) = 48 vw. */
 .nav-shield {
   position: fixed;
   top: calc(100vw * 821 / 1916);
   left: 0;
   right: 0;
-  height: min(72vw, 410px);               /* taller per user */
+  height: min(54vw, 326px);
   background: #18102a;
   z-index: 49;
   -webkit-mask-image: linear-gradient(180deg,
-    #000 0%, #000 78%, transparent 100%);
+    #000 0%, #000 80%, transparent 100%);
           mask-image: linear-gradient(180deg,
-    #000 0%, #000 78%, transparent 100%);
+    #000 0%, #000 80%, transparent 100%);
   pointer-events: none;
 }
-/* Word list starts after the (now taller + zero-gap) shield. */
 .word-list {
-  margin-top: calc(min(63vw, 380px)) !important;
+  margin-top: calc(min(48vw, 290px)) !important;
 }
 /* Word list starts AFTER the nav-card bottom (= banner + 6 + height).
    nav-card height = 76 vw × 0.75 = 57 vw, capped at 345 px. */
@@ -4207,16 +4207,17 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
-/* Plaque sized so its text band sits comfortably above the
-   body area without overlapping it.  width 68% is the sweet
-   spot — bigger than before but body still fits. */
+/* 3C68C8E6 PNG was cropped to its opaque bounds: 864×312
+   (aspect 2.77).  Element edges now match the dome's actual
+   silhouette, no invisible padding above/below.  Plaque text
+   centred via top:50 % falls right in the purple band.       */
 .nav-card .title-plaque {
   position: absolute;
-  top: 3%;
+  top: 4%;
   left: 50%;
   transform: translateX(-50%);
   width: 68%;
-  aspect-ratio: 1200 / 675;
+  aspect-ratio: 864 / 312;
   height: auto;
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
@@ -4225,9 +4226,9 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* Pixel-measured: dome's purple text band centres at y=54 % of
-     the PNG (the spire pushes the optical centre down).         */
-  top: 54%;
+  /* PNG was cropped to opaque bounds — text band is now truly
+     at the geometric centre. */
+  top: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
   text-align: center;
