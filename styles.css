@@ -4109,10 +4109,9 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Top edge level with moon + star icons; narrower frame so
-     they can sit beside it without overlapping the gold flora. */
+  /* HUG the banner — no gap.  top = banner-end exactly. */
   position: fixed;
-  top: calc(100vw * 821 / 1916 + 6px);
+  top: calc(100vw * 821 / 1916);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
@@ -4121,31 +4120,27 @@ body.bg-result .match-result-grid > .card {
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
-  /* No background fill here any more — the full-width .nav-shield
-     sister element provides the dark band underneath.            */
 }
-/* Full-width darken band — extends UP all the way to the banner
-   (no gap) so no list text can sneak between banner and nav-card. */
+/* Full-width darken band extends FURTHER DOWN to cover the
+   bg-note area where word rows would otherwise show at the
+   bottom edges of the (narrower) nav-card.                    */
 .nav-shield {
   position: fixed;
-  top: calc(100vw * 821 / 1916);          /* hug the banner bottom */
+  top: calc(100vw * 821 / 1916);
   left: 0;
   right: 0;
-  height: min(63vw, 360px);               /* +6 px to cover the
-                                              gap + nav-card area */
+  height: min(72vw, 410px);               /* taller per user */
   background: #18102a;
   z-index: 49;
-  /* TOP edge fully opaque (covers from the banner edge down).
-     BOTTOM edge soft-fades into the bg-note scenery.            */
   -webkit-mask-image: linear-gradient(180deg,
-    #000 0%, #000 70%, transparent 100%);
+    #000 0%, #000 78%, transparent 100%);
           mask-image: linear-gradient(180deg,
-    #000 0%, #000 70%, transparent 100%);
+    #000 0%, #000 78%, transparent 100%);
   pointer-events: none;
 }
-/* Word list starts AFTER the nav-card / shield bottom (= banner + 6 + height) */
+/* Word list starts after the (now taller + zero-gap) shield. */
 .word-list {
-  margin-top: calc(min(57vw, 345px) + 6px) !important;
+  margin-top: calc(min(63vw, 380px)) !important;
 }
 /* Word list starts AFTER the nav-card bottom (= banner + 6 + height).
    nav-card height = 76 vw × 0.75 = 57 vw, capped at 345 px. */
@@ -4160,7 +4155,7 @@ body.bg-result .match-result-grid > .card {
 .moon-corner,
 .close-corner {
   position: fixed !important;
-  top: calc(100vw * 821 / 1916 + 6px) !important;
+  top: calc(100vw * 821 / 1916 + 2px) !important;   /* hug banner */
   width: 38px !important;
   height: 38px !important;
   bottom: auto !important;
@@ -4212,14 +4207,15 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
-/* Plaque sits in the cleanest part of the 0511 frame
-   (y=15-30 % is the widest decoration-free band — 70 %+ wide). */
+/* Plaque enlarged but kept inside the nav-card.  width 72 % is
+   the practical upper limit before the body area gets too thin
+   for the search + alpha-bar.                                   */
 .nav-card .title-plaque {
   position: absolute;
-  top: 5%;
+  top: 3%;
   left: 50%;
   transform: translateX(-50%);
-  width: 70%;                    /* BIGGER per user request */
+  width: 72%;
   aspect-ratio: 1200 / 675;
   height: auto;
   background:
@@ -4229,37 +4225,40 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* Geometric centre of the plaque — gives equal margin above and
-     below the title inside the dome's purple text band. */
-  top: 50%;
+  top: 48%;                       /* slight nudge up from centre */
   transform: translate(-50%, -50%);
   width: 78%;
   text-align: center;
-  font-family: 'Cormorant Garamond', 'EB Garamond', 'Cinzel',
+  /* Gothic display caps — Cinzel Decorative is the showpiece,
+     UnifrakturMaguntia as a blackletter fallback for that proper
+     gothic feel. Cormorant Garamond as a safe italic-serif
+     fallback if neither web font has loaded. */
+  font-family: 'Cinzel Decorative', 'UnifrakturMaguntia',
+               'Cinzel', 'Cormorant Garamond',
                'Bodoni 72', 'Didot', Georgia, serif;
-  font-style: italic;
-  font-weight: 700;                       /* bolded per user */
-  font-size: clamp(14px, 3.6vw, 20px);
+  font-style: normal;
+  font-weight: 700;
+  font-size: clamp(15px, 4vw, 22px);
   line-height: 1.0;
   letter-spacing: .04em;
   color: #d6a464;
+  /* Lower-intensity glow per user — present but not blinding. */
   text-shadow:
-    0 0 8px  rgba(232,196,138,.75),
-    0 0 18px rgba(218,168,104,.5),
-    0 1px 0  rgba(80,40,10,.5);
+    0 0 4px  rgba(232,196,138,.4),
+    0 0 9px  rgba(218,168,104,.22),
+    0 1px 0  rgba(80,40,10,.4);
   text-transform: none;
   white-space: nowrap;
 }
 
-/* --- 47.4  body area — search pinned to top, alpha-bar pinned
-   to bottom via justify-content:space-between.  Moving search
-   "down" only changes top:%, alpha stays at the bottom edge.   */
+/* --- 47.4  body area — pushed down to clear the bigger plaque.
+   Search at top, alpha-bar at bottom via space-between.        */
 .nav-card .nav-card-body {
   position: absolute;
-  top: 53%;                  /* search lives at this y (down from 48%) */
+  top: 60%;                  /* below the bigger plaque (ends ~57%) */
   left: 28%;
   right: 28%;
-  bottom: 22%;               /* alpha-bar bottom edge stays here */
+  bottom: 20%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
