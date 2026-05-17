@@ -4109,39 +4109,37 @@ body.bg-result .match-result-grid > .card {
 
 /* --- 47.1  the nav card itself, fixed aspect to its source PNG --- */
 .nav-card {
-  /* Cropped 951×597 aspect 1.59 — but iOS Safari sometimes ignores
-     aspect-ratio with position:fixed+transform.  Set both width
-     and height explicitly using matching min() expressions so the
-     element NEVER stretches.                                       */
+  /* Cropped 951×597 — width + height locked explicitly so Safari
+     can't break aspect with absolute+transform.
+     top:banner+8 px gives a clean breath between banner and frame.  */
   position: fixed;
-  top: calc(100vw * 821 / 1916);
+  top: calc(100vw * 821 / 1916 + 8px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 50;
   width:  min(76vw, 460px);
-  height: min(47.7vw, 289px);    /* = width × (597/951) */
+  height: min(47.7vw, 289px);
   background:
     url("assets/0511DE6F-6C8F-4E5D-9742-5E5AD77DCD98.png?v=26")
     center/100% 100% no-repeat;
 }
-/* Full-width darken band, sized for the new (shorter) nav-card.
-   nav-card height ≈ 76 vw × (597/951) = 48 vw. */
 .nav-shield {
   position: fixed;
   top: calc(100vw * 821 / 1916);
   left: 0;
   right: 0;
-  height: min(54vw, 326px);
+  height: min(62vw, 372px);                 /* extended downward */
   background: #18102a;
   z-index: 49;
   -webkit-mask-image: linear-gradient(180deg,
-    #000 0%, #000 80%, transparent 100%);
+    #000 0%, #000 82%, transparent 100%);
           mask-image: linear-gradient(180deg,
-    #000 0%, #000 80%, transparent 100%);
+    #000 0%, #000 82%, transparent 100%);
   pointer-events: none;
 }
+/* Pull the word list up so the big "A" hugs the nav-card. */
 .word-list {
-  margin-top: calc(min(48vw, 290px)) !important;
+  margin-top: calc(min(56vw, 336px)) !important;
 }
 /* Word list starts AFTER the nav-card bottom (= banner + 6 + height).
    nav-card height = 76 vw × 0.75 = 57 vw, capped at 345 px. */
@@ -4156,9 +4154,9 @@ body.bg-result .match-result-grid > .card {
 .moon-corner,
 .close-corner {
   position: fixed !important;
-  top: calc(100vw * 821 / 1916 + 2px) !important;   /* hug banner */
-  width: 38px !important;
-  height: 38px !important;
+  top: calc(100vw * 821 / 1916 + 8px) !important;   /* same as nav-card top */
+  width: 44px !important;
+  height: 44px !important;
   bottom: auto !important;
   z-index: 60;
   background: transparent !important;
@@ -4208,19 +4206,16 @@ body.bg-result .match-result-grid > .card {
 /* --- 47.3  title plaque — bigger + middle-line aligns to the
    nav-card's outer top edge (plaque half above, half below).
    Aspect locked to the dome PNG's natural 1200/675. --- */
-/* 3C68C8E6 PNG (cropped): 864×312, aspect 2.77.
-   Setting BOTH width AND height explicitly (not aspect-ratio)
-   because iOS Safari occasionally renders aspect-ratio +
-   absolute + transform with the wrong final height.
-   height = width × (312/864) / (nav-card height / nav-card width)
-          = 68 % × 0.361 / 0.628 = 39 % of nav-card height.    */
+/* SPEC: plaque sits in upper portion, 60 % width, locked to
+   864/312 aspect → height = 60 % × 0.361 / 0.628 = 34.5 % of
+   nav-card height.                                            */
 .nav-card .title-plaque {
   position: absolute;
-  top: 4%;
+  top: 6%;
   left: 50%;
   transform: translateX(-50%);
-  width: 68%;
-  height: 39%;
+  width: 60%;
+  height: 34.5%;
   background:
     url("assets/3C68C8E6-B3FB-43A6-AE2C-CBDE19872718.png?v=26")
     center/100% 100% no-repeat;
@@ -4228,11 +4223,9 @@ body.bg-result .match-result-grid > .card {
 .nav-card .title-plaque .tp-text {
   position: absolute;
   left: 50%;
-  /* True geometric centre of the cropped plaque.
-     User said top:53 % made the title "高" so I'm at 55 %
-     — slight nudge below geometric centre lets the text sit
-     in the dome's deeper purple band optically.            */
-  top: 55%;
+  /* SPEC: 58 % drops the title to the optical middle of the
+     dome (the spire pushes the visual centre downward).  */
+  top: 58%;
   transform: translate(-50%, -50%);
   width: 80%;
   text-align: center;
@@ -4253,24 +4246,22 @@ body.bg-result .match-result-grid > .card {
   white-space: nowrap;
 }
 
-/* --- 47.4  layout WITHOUT a body wrapper — alpha + search
-   are absolutely placed inside the cropped nav-card.  These
-   numbers were chosen by reading the pixel-safe-zone scan,
-   not by trial and error any more:
-     alpha-bar  → top 54 %  (clear of the plaque + flora)
-     search     → bottom 16 % (right above the bow ribbon)
-   left/right insets match the visible frame's gold border.  */
+/* SPEC: alpha at top:53 %  (13 % breathing room from plaque
+   bottom at 40 %), insets 30 % each side so the 13-wide grid
+   stays cleanly INSIDE the gold border (was 22 % — K/L kept
+   landing on the corner floral curl).
+   Search anchored to bottom:11 % (just above the bow).        */
 .nav-card > .alpha-bar {
   position: absolute;
-  top: 54%;
-  left: 22%;
-  right: 22%;
+  top: 53%;
+  left: 30%;
+  right: 30%;
 }
 .nav-card > .index-search {
   position: absolute;
-  bottom: 14%;             /* anchor to bottom — never spills onto bow */
-  left: 28%;
-  right: 28%;
+  bottom: 11%;
+  left: 32%;
+  right: 32%;
 }
 /* Note hub still uses .nav-card-body to host its 2 counter cards;
    restore the absolute positioning so the counter row sits in the
